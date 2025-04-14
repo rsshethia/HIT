@@ -28,6 +28,17 @@ export default function QuestionItem({
           <label className="block text-gray-700 font-medium mb-2">
             {question.text}
           </label>
+          
+          {/* Example text - only show if available */}
+          {question.example && (
+            <div className="mb-3 bg-gray-50 rounded-md p-3 border border-gray-200">
+              <p className="text-sm text-gray-600">
+                <span className="font-medium text-gray-700">Example: </span>
+                {question.example}
+              </p>
+            </div>
+          )}
+          
           <Select
             value={value}
             onValueChange={onChange}

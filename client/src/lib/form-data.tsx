@@ -8,6 +8,7 @@ export interface Question {
   id: string;
   text: string;
   options: Option[];
+  example?: string; // Optional example to provide context
 }
 
 export interface Section {
@@ -27,6 +28,7 @@ export const sections: Section[] = [
       {
         id: "q1",
         text: "How many of your systems are integrated?",
+        example: "Core systems could include your EHR, LIS, RIS, pharmacy, billing, and scheduling systems. Consider how many of these share data automatically.",
         options: [
           { label: "All core systems", value: 5 },
           { label: "Most core systems", value: 4 },
@@ -38,6 +40,7 @@ export const sections: Section[] = [
       {
         id: "q2",
         text: "We use widely accepted integration standards.",
+        example: "Healthcare integration standards include HL7 v2, HL7 FHIR, DICOM, and IHE profiles. Consider whether your organization consistently applies these standards.",
         options: [
           { label: "Strongly Agree", value: 5 },
           { label: "Agree", value: 4 },
@@ -49,6 +52,7 @@ export const sections: Section[] = [
       {
         id: "q3",
         text: "Our systems can exchange data bi-directionally.",
+        example: "Bi-directional communication means systems can both send and receive data from each other. For example, your EHR can both send lab orders to the LIS and receive lab results from the LIS.",
         options: [
           { label: "Yes", value: 5 },
           { label: "No", value: 1 }
@@ -64,6 +68,7 @@ export const sections: Section[] = [
       {
         id: "q4",
         text: "Integrated systems update in near real-time.",
+        example: "Real-time updates mean that when data changes in one system, it's reflected in connected systems within seconds or minutes, not hours or days. For example, when a patient is admitted in the EHR, the bed management system updates immediately.",
         options: [
           { label: "Strongly Agree", value: 5 },
           { label: "Agree", value: 4 },
@@ -100,6 +105,7 @@ export const sections: Section[] = [
       {
         id: "q7",
         text: "Data is consistent across systems.",
+        example: "Consistency means patient demographics, medical history, and other data appear the same way in all systems. If a patient's name or date of birth is updated in one system, it should update across all systems to prevent errors.",
         options: [
           { label: "Always", value: 5 },
           { label: "Often", value: 4 },
@@ -110,6 +116,7 @@ export const sections: Section[] = [
       {
         id: "q8",
         text: "We use a Master Patient Index (EMPI).",
+        example: "An Enterprise Master Patient Index (EMPI) is a database that ensures each patient has a single unique identifier across all systems in your organization, preventing duplicate records and helping match patient data across systems.",
         options: [
           { label: "Yes", value: 5 },
           { label: "In Progress", value: 3 },
@@ -136,6 +143,7 @@ export const sections: Section[] = [
       {
         id: "q10",
         text: "We have a centralized dashboard for monitoring.",
+        example: "A monitoring dashboard provides visibility into the health and performance of all your integrations from a single view. It should show message volumes, error rates, system availability, and alert status across all your integrated systems.",
         options: [
           { label: "Yes", value: 5 },
           { label: "Partially", value: 3 },
@@ -226,6 +234,7 @@ export const sections: Section[] = [
       {
         id: "q17",
         text: "All integration traffic is encrypted.",
+        example: "Encryption should cover data both in transit (TLS/SSL for web services, VPN for remote connections) and at rest (database encryption). This is particularly important for Protected Health Information (PHI) to maintain HIPAA compliance.",
         options: [
           { label: "Yes", value: 5 },
           { label: "Partially", value: 3 },
