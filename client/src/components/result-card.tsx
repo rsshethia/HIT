@@ -54,8 +54,34 @@ export default function ResultCard({
   }
 
   const handleExport = () => {
-    // In a real implementation, this would generate a PDF or CSV
-    alert('In a production environment, this would generate a PDF report with detailed assessment results and recommendations.');
+    // Create CSV content with assessment data
+    const csvContent = [
+      'Healthcare Integration Maturity Assessment Results',
+      `Date: ${new Date().toLocaleDateString()}`,
+      '',
+      `Overall Score: ${score} out of ${maxScore} (${percentage}%)`,
+      `Maturity Level: ${status}`,
+      '',
+      'Recommendations:',
+      ...recommendations.map(rec => `- ${rec}`),
+    ].join('\n');
+    
+    // Create a Blob containing the CSV data
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Create URL for the Blob
+    const url = URL.createObjectURL(blob);
+    
+    // Create a link element and trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `healthcare-integration-assessment-${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
