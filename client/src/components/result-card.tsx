@@ -92,7 +92,7 @@ export default function ResultCard({
     doc.text(`Assessment Date: ${new Date().toLocaleDateString()}`, margin, 25);
     
     // Define a function to draw a box around text with proper wrapping
-    const drawTextBox = (text, startY, title = null, boxColor = [245, 245, 245]) => {
+    const drawTextBox = (text: string, startY: number, title: string | null = null, boxColor: number[] = [245, 245, 245]) => {
       // Split the text into lines that fit within the box width
       doc.setFontSize(11);
       doc.setTextColor(0, 0, 0);
@@ -130,7 +130,7 @@ export default function ResultCard({
       // Add content text
       doc.setFontSize(11);
       doc.setTextColor(0, 0, 0);
-      textLines.forEach(line => {
+      textLines.forEach((line: string) => {
         doc.text(line, margin, currentY);
         currentY += lineHeight;
       });
@@ -175,9 +175,20 @@ export default function ResultCard({
     // Footer
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
-    const footerY = pageHeight - 15;
-    doc.text('Healthcare Integration Self-Assessment Tool', margin, footerY);
-    doc.text(`Generated on ${new Date().toLocaleString()}`, pageWidth - margin - 65, footerY, {align: 'right'});
+    
+    // Draw a light gray line above footer
+    doc.setDrawColor(200, 200, 200);
+    const footerLineY = pageHeight - 20;
+    doc.line(margin, footerLineY, pageWidth - margin, footerLineY);
+    
+    // First footer line with tool name and generation date
+    const footerY1 = pageHeight - 15;
+    doc.text('Healthcare Integration Self-Assessment Tool', margin, footerY1);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth - margin, footerY1, {align: 'right'});
+    
+    // Second footer line with developer info
+    const footerY2 = pageHeight - 10;
+    doc.text('Developed in Bendigo by R.Shethia', margin, footerY2);
     
     // Save the PDF
     doc.save(`healthcare-integration-assessment-${new Date().toISOString().slice(0,10)}.pdf`);
