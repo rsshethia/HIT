@@ -93,9 +93,20 @@ export default function AssessmentForm({
           id={section.id}
           className="bg-white rounded-lg shadow-sm p-6 border border-gray-200"
         >
-          <div className="flex items-center mb-6">
-            <span className="material-icons mr-2 text-primary">{section.icon}</span>
-            <h2 className="text-xl font-semibold text-gray-800">{section.title}</h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <span className="material-icons mr-2 text-primary">{section.icon}</span>
+              <h2 className="text-xl font-semibold text-gray-800">{section.title}</h2>
+            </div>
+            <button 
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex items-center text-primary hover:text-primary-600 transition-colors"
+              aria-label="Scroll to top"
+            >
+              <span className="text-sm mr-1">Top</span>
+              <span className="material-icons text-sm">arrow_upward</span>
+            </button>
           </div>
           
           {section.questions.map((question, index) => (
