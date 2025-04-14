@@ -80,6 +80,7 @@ export const sections: Section[] = [
       {
         id: "q5",
         text: "We have automated alerting and retry mechanisms for failures.",
+        example: "Automated alerts should notify the appropriate team when an interface fails. Retry mechanisms should attempt to resend failed messages without manual intervention, ensuring data isn't lost during brief outages.",
         options: [
           { label: "Yes", value: 5 },
           { label: "No", value: 1 }
@@ -126,6 +127,7 @@ export const sections: Section[] = [
       {
         id: "q9",
         text: "We experience duplicate or mismatched records due to integration issues.",
+        example: "Duplicate or mismatched records occur when patient identity isn't properly synchronized across systems. For example, a patient may be registered in the ED system but not matched to their existing record in the main EHR, creating duplicate entries and fragmented medical history.",
         options: [
           { label: "Frequently", value: 1 },
           { label: "Occasionally", value: 2 },
@@ -153,6 +155,7 @@ export const sections: Section[] = [
       {
         id: "q11",
         text: "Integration teams are notified of issues quickly.",
+        example: "Quick notification means that when an integration fails, the right people know about it immediately through alerts (email, SMS, pager, etc.) rather than discovering issues hours later when users report problems or data is missing.",
         options: [
           { label: "Always", value: 5 },
           { label: "Often", value: 4 },
@@ -170,6 +173,7 @@ export const sections: Section[] = [
       {
         id: "q12",
         text: "Onboarding new systems is repeatable and predictable.",
+        example: "A repeatable onboarding process means you have standardized templates, documented procedures, and consistent timelines when adding new systems to your integration ecosystem, rather than reinventing the approach each time.",
         options: [
           { label: "Strongly Agree", value: 5 },
           { label: "Agree", value: 4 },
@@ -181,6 +185,7 @@ export const sections: Section[] = [
       {
         id: "q13",
         text: "We use reusable components or APIs for integration.",
+        example: "Reusable components might include standard FHIR APIs, integration middleware, or shared microservices that multiple applications can connect to, rather than building custom point-to-point interfaces for each new connection.",
         options: [
           { label: "Yes", value: 5 },
           { label: "In Development", value: 3 },
@@ -197,6 +202,7 @@ export const sections: Section[] = [
       {
         id: "q14",
         text: "We maintain an up-to-date inventory of integrations.",
+        example: "An integration inventory catalogs all connections between systems, including details like message types, data elements exchanged, responsible owners, and system dependencies. This helps manage changes and troubleshoot issues.",
         options: [
           { label: "Yes", value: 5 },
           { label: "Partial", value: 3 },
@@ -206,6 +212,7 @@ export const sections: Section[] = [
       {
         id: "q15",
         text: "There is a governance process before interfaces go live.",
+        example: "A governance process ensures interfaces are properly tested, documented, and approved before production deployment. This typically includes data mapping validation, end-to-end testing, security review, and formal sign-off from stakeholders.",
         options: [
           { label: "Always", value: 5 },
           { label: "Sometimes", value: 4 },
@@ -216,6 +223,7 @@ export const sections: Section[] = [
       {
         id: "q16",
         text: "Integration documentation is current and accessible.",
+        example: "Good documentation includes interface specifications, data mappings, system diagrams, message examples, contact information, and troubleshooting guides—all kept up-to-date and easily accessible by all relevant team members.",
         options: [
           { label: "Strongly Agree", value: 5 },
           { label: "Agree", value: 4 },
@@ -244,6 +252,7 @@ export const sections: Section[] = [
       {
         id: "q18",
         text: "We regularly audit integration logs.",
+        example: "Auditing integration logs means regularly reviewing logs to detect unauthorized access attempts, data breaches, or suspicious patterns. This is essential for security compliance (like HIPAA) and ensures you can track who accessed what data and when.",
         options: [
           { label: "Yes", value: 5 },
           { label: "Planned", value: 3 },
