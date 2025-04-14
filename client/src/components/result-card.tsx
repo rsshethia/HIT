@@ -188,7 +188,7 @@ export default function ResultCard({
     
     // Second footer line with developer info
     const footerY2 = pageHeight - 10;
-    doc.text('Developed in Bendigo by R.Shethia', margin, footerY2);
+    doc.text('Developed in Bendigo and supported by Rushabh Shethia', margin, footerY2);
     
     // Save the PDF
     doc.save(`healthcare-integration-assessment-${new Date().toISOString().slice(0,10)}.pdf`);
