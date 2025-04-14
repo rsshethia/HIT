@@ -66,81 +66,118 @@ export default function ResultCard({
   }
 
   const handleExport = () => {
-    // Create new PDF document
-    const doc = new jsPDF();
+    // Create new PDF document - use PDF-A4 format for better layout
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
     const textWidth = pageWidth - (margin * 2);
     
-    // Set title and date
+    // Header with logo and title
+    doc.setFillColor(250, 250, 250);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    // Title and date
     doc.setFontSize(18);
-    doc.setTextColor(0, 0, 100); // Dark blue for the title
-    doc.text('Healthcare Integration Maturity Assessment', margin, margin);
+    doc.setTextColor(0, 0, 150); // Dark blue for the title
+    doc.text('Healthcare Integration Maturity Assessment', margin, 15);
     
-    doc.setFontSize(12);
+    doc.setFontSize(10);
     doc.setTextColor(100, 100, 100); // Gray for the date
-    doc.text(`Assessment Date: ${new Date().toLocaleDateString()}`, margin, margin + 10);
+    doc.text(`Assessment Date: ${new Date().toLocaleDateString()}`, margin, 25);
     
-    // Overall score section
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text('Assessment Results', margin, margin + 25);
-    
-    // Create a box for the score with rounded corners - make it taller to fit content
-    const scoreBoxY = margin + 30;
-    doc.setDrawColor(200, 200, 200);
-    doc.setFillColor(245, 245, 245);
-    
-    // Split the status text into multiple lines if needed
-    const statusLines = doc.splitTextToSize(status, textWidth - 10);
-    const boxHeight = 10 + (statusLines.length * 7); // Base height + extra for each line
-    
-    doc.roundedRect(margin, scoreBoxY, textWidth, boxHeight, 3, 3, 'FD');
-    
-    doc.setFontSize(12);
-    doc.text(`Overall Score: ${score} out of ${maxScore} points (${percentage}%)`, margin + 5, scoreBoxY + 10);
-    doc.text(statusLines, margin + 5, scoreBoxY + 20);
-    
-    // Recommendations section - start after the dynamic-sized box
-    const recSectionY = scoreBoxY + boxHeight + 15;
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text('Recommended Next Steps', margin, recSectionY);
-    
-    // Process recommendations with proper text wrapping and spacing
-    let currentY = recSectionY + 10;
-    doc.setFontSize(11);
-    
-    recommendations.forEach((recommendation) => {
-      // Split long recommendations into multiple lines
-      const recLines = doc.splitTextToSize(recommendation, textWidth - 10);
+    // Define a function to draw a box around text with proper wrapping
+    const drawTextBox = (text, startY, title = null, boxColor = [245, 245, 245]) => {
+      // Split the text into lines that fit within the box width
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
       
-      // Add bullet point to first line
-      doc.text(`•`, margin, currentY);
-      doc.text(recLines[0], margin + 5, currentY);
+      // Calculate total content height
+      const lineHeight = 5; // mm
+      let contentHeight = lineHeight; // Start with minimum height
       
-      // Add any additional lines with proper indentation
-      for (let i = 1; i < recLines.length; i++) {
-        currentY += 6;
-        doc.text(recLines[i], margin + 5, currentY);
-        
-        // Check if we're approaching the bottom of the page
-        if (currentY > pageHeight - 30) {
-          doc.addPage();
-          currentY = margin;
-        }
+      if (title) {
+        doc.setFontSize(13);
+        contentHeight += lineHeight + 2; // Title plus spacing
       }
       
-      // Add spacing between recommendations
-      currentY += 10;
+      // Split text and measure total height
+      const textLines = doc.splitTextToSize(text, textWidth - 10);
+      contentHeight += (textLines.length * lineHeight);
+      
+      // Draw the box with padding
+      const padding = 5; // mm
+      const boxHeight = contentHeight + (padding * 2);
+      
+      doc.setFillColor(boxColor[0], boxColor[1], boxColor[2]);
+      doc.setDrawColor(220, 220, 220);
+      doc.roundedRect(margin - padding, startY - padding, textWidth + (padding * 2), boxHeight, 2, 2, 'FD');
+      
+      // Add title if specified
+      let currentY = startY + lineHeight;
+      if (title) {
+        doc.setFontSize(13);
+        doc.setTextColor(60, 60, 60);
+        doc.text(title, margin, currentY);
+        currentY += lineHeight + 2;
+      }
+      
+      // Add content text
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      textLines.forEach(line => {
+        doc.text(line, margin, currentY);
+        currentY += lineHeight;
+      });
+      
+      // Return the Y position below this box (for next content)
+      return startY + boxHeight;
+    };
+    
+    // Overall score section - title
+    let currentY = 45; // Start Y position after the header
+    
+    doc.setFontSize(15);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Assessment Results', margin, currentY);
+    currentY += 10;
+    
+    // Score details box
+    const scoreText = `Overall Score: ${score} out of ${maxScore} points (${percentage}%)\n\nMaturity Level: ${status}`;
+    currentY = drawTextBox(scoreText, currentY, null, [240, 245, 255]); // Light blue background
+    currentY += 10; // Add spacing after the box
+    
+    // Recommendations section
+    doc.setFontSize(15);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Recommended Next Steps', margin, currentY);
+    currentY += 10;
+    
+    // Draw individual box for each recommendation
+    recommendations.forEach((recommendation, index) => {
+      // Check if we need a page break
+      if (currentY > pageHeight - 50) {
+        doc.addPage();
+        currentY = margin;
+      }
+      
+      // Draw box around this recommendation with bullet point
+      const recText = `• ${recommendation}`;
+      currentY = drawTextBox(recText, currentY, null, [245, 255, 245]); // Light green background
+      currentY += 5; // Add spacing between recommendation boxes
     });
     
-    // Footer - make sure it's on the current page
-    const footerY = Math.min(currentY + 20, pageHeight - 20);
+    // Footer
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
+    const footerY = pageHeight - 15;
     doc.text('Healthcare Integration Self-Assessment Tool', margin, footerY);
+    doc.text(`Generated on ${new Date().toLocaleString()}`, pageWidth - margin - 65, footerY, {align: 'right'});
     
     // Save the PDF
     doc.save(`healthcare-integration-assessment-${new Date().toISOString().slice(0,10)}.pdf`);
