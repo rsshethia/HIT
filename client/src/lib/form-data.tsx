@@ -28,7 +28,7 @@ export const sections: Section[] = [
       {
         id: "q1",
         text: "How many of your systems are integrated?",
-        example: "Core systems could include your EHR, LIS, RIS, pharmacy, billing, and scheduling systems. Consider how many of these share data automatically.",
+        example: "Core systems could include your EMR, LIS, RIS, pharmacy, billing, and scheduling systems. Consider how many of these share data automatically.",
         options: [
           { label: "All core systems", value: 5 },
           { label: "Most core systems", value: 4 },
@@ -52,7 +52,7 @@ export const sections: Section[] = [
       {
         id: "q3",
         text: "Our systems can exchange data bi-directionally.",
-        example: "Bi-directional communication means systems can both send and receive data from each other. For example, your EHR can both send lab orders to the LIS and receive lab results from the LIS.",
+        example: "Bi-directional communication means systems can both send and receive data from each other. For example, your EMR can both send lab orders to the LIS and receive lab results from the LIS.",
         options: [
           { label: "Yes", value: 5 },
           { label: "No", value: 1 }
@@ -68,7 +68,7 @@ export const sections: Section[] = [
       {
         id: "q4",
         text: "Integrated systems update in near real-time.",
-        example: "Real-time updates mean that when data changes in one system, it's reflected in connected systems within seconds or minutes, not hours or days. For example, when a patient is admitted in the EHR, the bed management system updates immediately.",
+        example: "Real-time updates mean that when data changes in one system, it's reflected in connected systems within seconds or minutes, not hours or days. For example, when a patient is admitted in the EMR, the bed management system updates immediately.",
         options: [
           { label: "Strongly Agree", value: 5 },
           { label: "Agree", value: 4 },
@@ -127,7 +127,7 @@ export const sections: Section[] = [
       {
         id: "q9",
         text: "We experience duplicate or mismatched records due to integration issues.",
-        example: "Duplicate or mismatched records occur when patient identity isn't properly synchronized across systems. For example, a patient may be registered in the ED system but not matched to their existing record in the main EHR, creating duplicate entries and fragmented medical history.",
+        example: "Duplicate or mismatched records occur when patient identity isn't properly synchronized across systems. For example, a patient may be registered in the ED system but not matched to their existing record in the main EMR, creating duplicate entries and fragmented medical history.",
         options: [
           { label: "Frequently", value: 1 },
           { label: "Occasionally", value: 2 },
