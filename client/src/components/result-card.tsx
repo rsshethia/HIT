@@ -69,6 +69,7 @@ export default function ResultCard({
     // Create new PDF document
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
     const textWidth = pageWidth - (margin * 2);
     
@@ -86,31 +87,57 @@ export default function ResultCard({
     doc.setTextColor(0, 0, 0);
     doc.text('Assessment Results', margin, margin + 25);
     
-    // Create a box for the score with rounded corners
+    // Create a box for the score with rounded corners - make it taller to fit content
     const scoreBoxY = margin + 30;
     doc.setDrawColor(200, 200, 200);
     doc.setFillColor(245, 245, 245);
-    doc.roundedRect(margin, scoreBoxY, textWidth, 25, 3, 3, 'FD');
+    
+    // Split the status text into multiple lines if needed
+    const statusLines = doc.splitTextToSize(status, textWidth - 10);
+    const boxHeight = 10 + (statusLines.length * 7); // Base height + extra for each line
+    
+    doc.roundedRect(margin, scoreBoxY, textWidth, boxHeight, 3, 3, 'FD');
     
     doc.setFontSize(12);
     doc.text(`Overall Score: ${score} out of ${maxScore} points (${percentage}%)`, margin + 5, scoreBoxY + 10);
-    doc.text(`Maturity Level: ${status}`, margin + 5, scoreBoxY + 20);
+    doc.text(statusLines, margin + 5, scoreBoxY + 20);
     
-    // Recommendations section
+    // Recommendations section - start after the dynamic-sized box
+    const recSectionY = scoreBoxY + boxHeight + 15;
     doc.setFontSize(14);
     doc.setTextColor(0, 0, 0);
-    doc.text('Recommended Next Steps', margin, scoreBoxY + 40);
+    doc.text('Recommended Next Steps', margin, recSectionY);
     
+    // Process recommendations with proper text wrapping and spacing
+    let currentY = recSectionY + 10;
     doc.setFontSize(11);
-    recommendations.forEach((recommendation, index) => {
-      const yPosition = scoreBoxY + 50 + (index * 10);
-      doc.text(`• ${recommendation}`, margin, yPosition, { 
-        maxWidth: textWidth - 5
-      });
+    
+    recommendations.forEach((recommendation) => {
+      // Split long recommendations into multiple lines
+      const recLines = doc.splitTextToSize(recommendation, textWidth - 10);
+      
+      // Add bullet point to first line
+      doc.text(`•`, margin, currentY);
+      doc.text(recLines[0], margin + 5, currentY);
+      
+      // Add any additional lines with proper indentation
+      for (let i = 1; i < recLines.length; i++) {
+        currentY += 6;
+        doc.text(recLines[i], margin + 5, currentY);
+        
+        // Check if we're approaching the bottom of the page
+        if (currentY > pageHeight - 30) {
+          doc.addPage();
+          currentY = margin;
+        }
+      }
+      
+      // Add spacing between recommendations
+      currentY += 10;
     });
     
-    // Footer
-    const footerY = doc.internal.pageSize.getHeight() - 20;
+    // Footer - make sure it's on the current page
+    const footerY = Math.min(currentY + 20, pageHeight - 20);
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text('Healthcare Integration Self-Assessment Tool', margin, footerY);
