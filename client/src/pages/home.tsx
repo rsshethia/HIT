@@ -35,20 +35,53 @@ export default function Home() {
     let score = 0;
     let maxPossibleScore = 0;
 
-    for (const [key, value] of formData.entries()) {
+    // Convert FormData entries to array and iterate
+    Array.from(formData.entries()).forEach(([key, value]) => {
       if (key.startsWith('q')) {
         score += parseInt(value as string);
         maxPossibleScore += 5; // Max value for each question is 5
       }
-    }
+    });
 
     const percentage = (score / maxPossibleScore) * 100;
+    
+    // Determine maturity level and recommendations based on percentage
+    let status = '';
+    let recommendations: string[] = [];
+    
+    if (percentage >= 80) {
+      status = 'High Maturity – your integration landscape is robust and well-managed.';
+      recommendations = [
+        'Consider implementing continuous improvement processes for your integration ecosystem.',
+        'Explore advanced analytics for deeper insights into your integration patterns.',
+        'Mentor other organizations to share your integration best practices.',
+        'Investigate AI-powered predictive monitoring to anticipate integration issues.'
+      ];
+    } else if (percentage >= 60) {
+      status = 'Moderate Maturity – there is room for improvement in some areas.';
+      recommendations = [
+        'Strengthen governance procedures with formal testing and validation workflows.',
+        'Implement more comprehensive monitoring dashboards across all integrations.',
+        'Standardize integration patterns across the organization.',
+        'Create a documented strategy for improving data consistency.'
+      ];
+    } else {
+      status = 'Low Maturity – your integration environment may need significant attention.';
+      recommendations = [
+        'Prioritize the implementation of healthcare integration standards (HL7, FHIR).',
+        'Develop a formal integration governance strategy and documentation requirements.',
+        'Implement basic monitoring and alerting for critical integration points.',
+        'Create a roadmap to systematically address integration gaps.'
+      ];
+    }
     
     // Store results in sessionStorage for the results page
     sessionStorage.setItem('assessmentResults', JSON.stringify({
       score,
       maxPossibleScore,
-      percentage: percentage.toFixed(1)
+      percentage: percentage.toFixed(1),
+      status,
+      recommendations
     }));
 
     // Navigate to results page

@@ -1,11 +1,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { jsPDF } from "jspdf";
 
 interface ResultCardProps {
   score: number;
   maxScore: number;
   percentage: number;
+  status?: string;
+  recommendations?: string[];
   onReset: () => void;
 }
 
@@ -13,75 +16,107 @@ export default function ResultCard({
   score,
   maxScore,
   percentage,
+  status: providedStatus,
+  recommendations: providedRecommendations,
   onReset
 }: ResultCardProps) {
-  // Determine maturity level and recommendations based on percentage
-  let status = '';
+  // Determine maturity level and recommendations based on percentage if not provided
+  let status = providedStatus || '';
   let statusIcon = '';
   let statusIconClass = '';
-  let recommendations: string[] = [];
+  let recommendations = providedRecommendations || [];
 
+  // Set status icon based on percentage
   if (percentage >= 80) {
-    status = 'High Maturity – your integration landscape is robust and well-managed.';
+    if (!status) status = 'High Maturity – your integration landscape is robust and well-managed.';
     statusIcon = 'check_circle';
     statusIconClass = 'text-green-500';
-    recommendations = [
-      'Consider implementing continuous improvement processes for your integration ecosystem.',
-      'Explore advanced analytics for deeper insights into your integration patterns.',
-      'Mentor other organizations to share your integration best practices.',
-      'Investigate AI-powered predictive monitoring to anticipate integration issues.'
-    ];
+    if (recommendations.length === 0) {
+      recommendations = [
+        'Consider implementing continuous improvement processes for your integration ecosystem.',
+        'Explore advanced analytics for deeper insights into your integration patterns.',
+        'Mentor other organizations to share your integration best practices.',
+        'Investigate AI-powered predictive monitoring to anticipate integration issues.'
+      ];
+    }
   } else if (percentage >= 60) {
-    status = 'Moderate Maturity – there is room for improvement in some areas.';
+    if (!status) status = 'Moderate Maturity – there is room for improvement in some areas.';
     statusIcon = 'info';
     statusIconClass = 'text-amber-500';
-    recommendations = [
-      'Strengthen governance procedures with formal testing and validation workflows.',
-      'Implement more comprehensive monitoring dashboards across all integrations.',
-      'Standardize integration patterns across the organization.',
-      'Create a documented strategy for improving data consistency.'
-    ];
+    if (recommendations.length === 0) {
+      recommendations = [
+        'Strengthen governance procedures with formal testing and validation workflows.',
+        'Implement more comprehensive monitoring dashboards across all integrations.',
+        'Standardize integration patterns across the organization.',
+        'Create a documented strategy for improving data consistency.'
+      ];
+    }
   } else {
-    status = 'Low Maturity – your integration environment may need significant attention.';
+    if (!status) status = 'Low Maturity – your integration environment may need significant attention.';
     statusIcon = 'error';
     statusIconClass = 'text-red-500';
-    recommendations = [
-      'Prioritize the implementation of healthcare integration standards (HL7, FHIR).',
-      'Develop a formal integration governance strategy and documentation requirements.',
-      'Implement basic monitoring and alerting for critical integration points.',
-      'Create a roadmap to systematically address integration gaps.'
-    ];
+    if (recommendations.length === 0) {
+      recommendations = [
+        'Prioritize the implementation of healthcare integration standards (HL7, FHIR).',
+        'Develop a formal integration governance strategy and documentation requirements.',
+        'Implement basic monitoring and alerting for critical integration points.',
+        'Create a roadmap to systematically address integration gaps.'
+      ];
+    }
   }
 
   const handleExport = () => {
-    // Create CSV content with assessment data
-    const csvContent = [
-      'Healthcare Integration Maturity Assessment Results',
-      `Date: ${new Date().toLocaleDateString()}`,
-      '',
-      `Overall Score: ${score} out of ${maxScore} (${percentage}%)`,
-      `Maturity Level: ${status}`,
-      '',
-      'Recommendations:',
-      ...recommendations.map(rec => `- ${rec}`),
-    ].join('\n');
+    // Create new PDF document
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const textWidth = pageWidth - (margin * 2);
     
-    // Create a Blob containing the CSV data
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Set title and date
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 100); // Dark blue for the title
+    doc.text('Healthcare Integration Maturity Assessment', margin, margin);
     
-    // Create URL for the Blob
-    const url = URL.createObjectURL(blob);
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100); // Gray for the date
+    doc.text(`Assessment Date: ${new Date().toLocaleDateString()}`, margin, margin + 10);
     
-    // Create a link element and trigger download
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `healthcare-integration-assessment-${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
+    // Overall score section
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Assessment Results', margin, margin + 25);
     
-    // Clean up
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // Create a box for the score with rounded corners
+    const scoreBoxY = margin + 30;
+    doc.setDrawColor(200, 200, 200);
+    doc.setFillColor(245, 245, 245);
+    doc.roundedRect(margin, scoreBoxY, textWidth, 25, 3, 3, 'FD');
+    
+    doc.setFontSize(12);
+    doc.text(`Overall Score: ${score} out of ${maxScore} points (${percentage}%)`, margin + 5, scoreBoxY + 10);
+    doc.text(`Maturity Level: ${status}`, margin + 5, scoreBoxY + 20);
+    
+    // Recommendations section
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Recommended Next Steps', margin, scoreBoxY + 40);
+    
+    doc.setFontSize(11);
+    recommendations.forEach((recommendation, index) => {
+      const yPosition = scoreBoxY + 50 + (index * 10);
+      doc.text(`• ${recommendation}`, margin, yPosition, { 
+        maxWidth: textWidth - 5
+      });
+    });
+    
+    // Footer
+    const footerY = doc.internal.pageSize.getHeight() - 20;
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Healthcare Integration Self-Assessment Tool', margin, footerY);
+    
+    // Save the PDF
+    doc.save(`healthcare-integration-assessment-${new Date().toISOString().slice(0,10)}.pdf`);
   };
 
   return (

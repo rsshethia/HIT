@@ -7,6 +7,8 @@ interface AssessmentResult {
   score: number;
   maxPossibleScore: number;
   percentage: string;
+  status: string;
+  recommendations: string[];
 }
 
 export default function Results() {
@@ -73,6 +75,8 @@ export default function Results() {
           score={results.score}
           maxScore={results.maxPossibleScore}
           percentage={parseFloat(results.percentage)}
+          status={results.status}
+          recommendations={results.recommendations}
           onReset={handleReset}
         />
 
