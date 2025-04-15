@@ -60,13 +60,21 @@ export default function ResourcesPage() {
     }
   ];
 
-  // Create a sorted array of categories with Education first and hide Tools
-  const allCategories = Array.from(new Set(resources.map(resource => resource.category)));
+  // Filter resources to hide specific items
+  const filteredResources = resources.filter(resource => 
+    resource.title !== "HL7 Version 2" && 
+    resource.title !== "IHE Profiles" &&
+    resource.category !== "Tools" && 
+    resource.category !== "Frameworks"
+  );
+
+  // Create a sorted array of categories with Education first and hide Tools and Frameworks
+  const allCategories = Array.from(new Set(filteredResources.map(resource => resource.category)));
   const categories = [
     // Put Education first if it exists
     ...allCategories.filter(cat => cat === "Education"),
-    // Then add all other categories except Tools
-    ...allCategories.filter(cat => cat !== "Education" && cat !== "Tools")
+    // Then add all other categories except Tools and Frameworks
+    ...allCategories.filter(cat => cat !== "Education")
   ];
 
   return (
@@ -84,7 +92,7 @@ export default function ResourcesPage() {
               <div key={category} className="mb-12">
                 <h3 className="text-xl font-bold text-gray-900 mb-6">{category}</h3>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  {resources
+                  {filteredResources
                     .filter(resource => resource.category === category)
                     .map(resource => (
                       <Card key={resource.title} className="p-6 border border-gray-200 rounded-lg shadow-sm hover:shadow">
