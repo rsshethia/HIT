@@ -60,13 +60,13 @@ export default function ResourcesPage() {
     }
   ];
 
-  // Create a sorted array of categories with Education first
+  // Create a sorted array of categories with Education first and hide Tools
   const allCategories = Array.from(new Set(resources.map(resource => resource.category)));
   const categories = [
     // Put Education first if it exists
     ...allCategories.filter(cat => cat === "Education"),
-    // Then add all other categories
-    ...allCategories.filter(cat => cat !== "Education")
+    // Then add all other categories except Tools
+    ...allCategories.filter(cat => cat !== "Education" && cat !== "Tools")
   ];
 
   return (
