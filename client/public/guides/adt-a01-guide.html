@@ -284,12 +284,24 @@
                 margin: 0;
                 padding: 0;
                 background: none;
+                display: block; /* Reset flex layout */
+                gap: 0;
+            }
+            
+            .panel-container {
+                margin: 0;
+                padding: 0;
+                display: block; /* Reset flex layout for printing */
+                gap: 0;
             }
             
             .panel-page {
-                margin: 0;
+                margin: 0 auto; /* Center each panel */
                 box-shadow: none;
                 page-break-after: always;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                display: block; /* Ensure block display for print */
             }
             
             /* Ensure the last panel doesn't force an extra blank page */
@@ -297,9 +309,15 @@
                 page-break-after: avoid;
             }
             
-            /* Print controls are hidden when printing */
-            .controls-container {
-                display: none;
+            /* Hide all UI elements when printing */
+            .controls-container, 
+            .back-button {
+                display: none !important;
+            }
+            
+            /* Hide anything else that's not a panel */
+            body > *:not(.panel-container) {
+                display: none !important;
             }
             
             /* Dynamically set by JavaScript based on selected size */
@@ -639,16 +657,42 @@
                         break;
                 }
                 
+                // Additional print-time enhancements
+                printStyle.textContent += `
+                    @media print {
+                        /* Force each panel onto its own page */
+                        .panel-page {
+                            display: block;
+                            page-break-before: always;
+                            page-break-after: always;
+                            page-break-inside: avoid !important;
+                            break-inside: avoid !important;
+                            margin: 0 !important;
+                        }
+                        
+                        /* Ensure UI controls are completely removed */
+                        .back-button, .controls-container {
+                            display: none !important;
+                            visibility: hidden !important;
+                            opacity: 0 !important;
+                            position: absolute !important;
+                            left: -9999px !important;
+                        }
+                    }
+                `;
+                
                 // Add the style to the head
                 document.head.appendChild(printStyle);
                 
                 // Trigger print
-                window.print();
-                
-                // Remove the style element after printing
                 setTimeout(() => {
-                    document.head.removeChild(printStyle);
-                }, 1000);
+                    window.print();
+                    
+                    // Remove the style element after printing
+                    setTimeout(() => {
+                        document.head.removeChild(printStyle);
+                    }, 1000);
+                }, 100);
             });
         });
     </script>
