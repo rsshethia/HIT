@@ -1,0 +1,113 @@
+<h2>Common HL7 Message Types for PAS</h2>
+            
+            <h3>ADT (Admission, Discharge, Transfer) Messages</h3>
+            <table>
+                <tr>
+                    <th>Event Type</th>
+                    <th>Description</th>
+                    <th>Common Use</th>
+                </tr>
+                <tr>
+                    <td>ADT^A01</td>
+                    <td>Admit/Visit Notification</td>
+                    <td>New patient admission</td>
+                </tr>
+                <tr>
+                    <td>ADT^A02</td>
+                    <td>Transfer a Patient</td>
+                    <td>Move patient between locations</td>
+                </tr>
+                <tr>
+                    <td>ADT^A03</td>
+                    <td>Discharge/End Visit</td>
+                    <td>Patient discharge</td>
+                </tr>
+                <tr>
+                    <td>ADT^A04</td>
+                    <td>Register a Patient</td>
+                    <td>Outpatient registration</td>
+                </tr>
+                <tr>
+                    <td>ADT^A05</td>
+                    <td>Pre-admit a Patient</td>
+                    <td>Pre-admission registration</td>
+                </tr>
+                <tr>
+                    <td>ADT^A08</td>
+                    <td>Update Patient Information</td>
+                    <td>Demographics update</td>
+                </tr>
+                <tr>
+                    <td>ADT^A11</td>
+                    <td>Cancel Admission</td>
+                    <td>Cancel an admission</td>
+                </tr>
+                <tr>
+                    <td>ADT^A13</td>
+                    <td>Cancel Discharge</td>
+                    <td>Undo a discharge</td>
+                </tr>
+                <tr>
+                    <td>ADT^A28</td>
+                    <td>Add Person Information</td>
+                    <td>Add patient record</td>
+                </tr>
+                <tr>
+                    <td>ADT^A31</td>
+                    <td>Update Person Information</td>
+                    <td>Update demographics</td>
+                </tr>
+                <tr>
+                    <td>ADT^A40</td>
+                    <td>Merge Patient - Patient ID</td>
+                    <td>Link patient records</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="no-break">
+            <h3>SIU (Scheduling Information Unsolicited) Messages</h3>
+            <table>
+                <tr>
+                    <th>Event Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>SIU^S12</td>
+                    <td>Notification of New Appointment</td>
+                </tr>
+                <tr>
+                    <td>SIU^S13</td>
+                    <td>Notification of Appointment Rescheduling</td>
+                </tr>
+                <tr>
+                    <td>SIU^S14</td>
+                    <td>Notification of Appointment Modification</td>
+                </tr>
+                <tr>
+                    <td>SIU^S15</td>
+                    <td>Notification of Appointment Cancellation</td>
+                </tr>
+                <tr>
+                    <td>SIU^S17</td>
+                    <td>Notification of Appointment Addition</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="no-break">
+            <h3>ORM (Order Message) & ORU (Observation Result)</h3>
+            <table>
+                <tr>
+                    <th>Message Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>ORM^O01</td>
+                    <td>General Order Message</td>
+                </tr>
+                <tr>
+                    <td>ORU^R01</td>
+                    <td>Observation Result</td>
+                </tr>
+            </table>
