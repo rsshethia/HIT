@@ -597,174 +597,51 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Setup panel size changing
             const panelContainer = document.querySelector('.panel-container');
             const sizeRadios = document.querySelectorAll('input[name="size"]');
             const printBtn = document.getElementById('printBtn');
             
-            // Function to update panel sizes based on selection
+            // Update panel size when radio buttons change
             function updatePanelSize(sizeValue) {
-                // Remove any previous size classes
                 panelContainer.classList.remove('size-credit-card', 'size-postcard', 'size-a5', 'size-a4');
-                
-                // Add the new size class
-                switch(sizeValue) {
-                    case 'credit-card':
-                        panelContainer.classList.add('size-credit-card');
-                        break;
-                    case 'postcard':
-                        panelContainer.classList.add('size-postcard');
-                        break;
-                    case 'a5':
-                        panelContainer.classList.add('size-a5');
-                        break;
-                    case 'a4':
-                        panelContainer.classList.add('size-a4');
-                        break;
-                }
+                panelContainer.classList.add('size-' + sizeValue);
             }
             
             // Set initial size
             updatePanelSize('credit-card');
             
-            // Add event listeners to radio buttons
-            sizeRadios.forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    updatePanelSize(e.target.value);
+            // Listen for radio button changes
+            sizeRadios.forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    updatePanelSize(this.value);
                 });
             });
             
-            // Print button functionality with a completely different approach
+            // Very simple print handler
             printBtn.addEventListener('click', function() {
-                const selectedSize = document.querySelector('input[name="size"]:checked').value;
+                // Get selected size
+                var selectedSize = document.querySelector('input[name="size"]:checked').value;
                 
-                // Determine page size based on selection
-                let pageWidth, pageHeight;
-                switch(selectedSize) {
-                    case 'credit-card':
-                        pageWidth = "86mm";
-                        pageHeight = "54mm";
-                        break;
-                    case 'postcard':
-                        pageWidth = "105mm";
-                        pageHeight = "70mm";
-                        break;
-                    case 'a5':
-                        pageWidth = "148mm";
-                        pageHeight = "105mm";
-                        break;
-                    case 'a4':
-                    default:
-                        pageWidth = "210mm";
-                        pageHeight = "148mm";
-                        break;
-                }
+                // Define page size
+                var pageSize;
+                if (selectedSize === 'credit-card') pageSize = '86mm 54mm';
+                else if (selectedSize === 'postcard') pageSize = '105mm 70mm';
+                else if (selectedSize === 'a5') pageSize = '148mm 105mm';
+                else pageSize = '210mm 148mm';
                 
-                // Use window.open for each panel - a completely different technique
-                const printSeparatePanels = () => {
-                    // Get all panels
-                    const panels = document.querySelectorAll('.panel-page');
-                    let printIndex = 0;
-                    
-                    // Function to print next panel
-                    const printNextPanel = () => {
-                        if (printIndex >= panels.length) return;
-                        
-                        const panel = panels[printIndex];
-                        const isPanelOne = printIndex === 0;
-                        
-                        // Create simple HTML for the panel
-                        const html = `
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>ADT^A01 Guide - Page ${printIndex + 1}</title>
-                                <style>
-                                    @page {
-                                        size: ${pageWidth} ${pageHeight};
-                                        margin: 0;
-                                    }
-                                    body {
-                                        margin: 0;
-                                        padding: 0;
-                                        width: ${pageWidth};
-                                        height: ${pageHeight};
-                                        overflow: hidden;
-                                    }
-                                    .print-panel {
-                                        width: 100%;
-                                        height: 100%;
-                                        box-sizing: border-box;
-                                        ${isPanelOne ? 'background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%); color: white;' : ''}
-                                        position: relative;
-                                        display: flex;
-                                        flex-direction: column;
-                                        justify-content: center;
-                                        align-items: center;
-                                        text-align: center;
-                                        font-family: Arial, sans-serif;
-                                    }
-                                    h1 {
-                                        font-size: ${selectedSize === 'credit-card' ? '14px' : '24px'};
-                                        margin-bottom: 10px;
-                                    }
-                                    p {
-                                        font-size: ${selectedSize === 'credit-card' ? '10px' : '16px'};
-                                    }
-                                    .footer {
-                                        position: absolute;
-                                        bottom: 5px;
-                                        left: 0;
-                                        width: 100%;
-                                        font-size: ${selectedSize === 'credit-card' ? '8px' : '12px'};
-                                        opacity: 0.7;
-                                        text-align: center;
-                                    }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="print-panel">
-                                    ${printIndex === 0 ?
-                                        `<h1>HL7 ADT Message</h1>
-                                         <div style="padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 5px; font-size: ${selectedSize === 'credit-card' ? '20px' : '32px'}; font-weight: bold; margin: 10px 0;">A01</div>
-                                         <p>Patient Admission<br>Mini Reference</p>`
-                                    : printIndex === 1 ?
-                                        `<h1 style="color: #4ca1af;">ADT^A01 - Patient Admission</h1>
-                                         <p>The A01 message is generated when a patient is admitted to a healthcare facility.</p>`
-                                    : printIndex === 2 ?
-                                        `<h1 style="color: #4ca1af;">Key Data Elements</h1>
-                                         <p>Patient Demographics, Visit Information, Location, Provider Info, Diagnosis</p>`
-                                    :
-                                        `<h1 style="color: #4ca1af;">Impact on EMR</h1>
-                                         <p>Creates a new encounter, activates order sets, updates patient census</p>`
-                                    }
-                                    <div class="footer">Page ${printIndex + 1}/4 - R. Shethia 2025</div>
-                                </div>
-                                <script>
-                                    window.onload = function() {
-                                        window.print();
-                                        window.close();
-                                    }
-                                </script>
-                            </body>
-                            </html>
-                        `;
-                        
-                        // Open new window for this panel
-                        const win = window.open('', `print_${printIndex}`);
-                        win.document.write(html);
-                        win.document.close();
-                        
-                        // Move to next panel after a delay
-                        printIndex++;
-                        setTimeout(printNextPanel, 1000);
-                    };
-                    
-                    // Start printing panels
-                    printNextPanel();
-                };
+                // Create style for printing
+                var style = document.createElement('style');
+                style.innerHTML = '@page { size: ' + pageSize + '; margin: 0; }';
+                document.head.appendChild(style);
                 
-                // Start the print process
-                printSeparatePanels();
+                // Print
+                window.print();
+                
+                // Clean up
+                setTimeout(function() {
+                    document.head.removeChild(style);
+                }, 1000);
             });
         });
     </script>
