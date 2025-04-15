@@ -657,42 +657,122 @@
                         break;
                 }
                 
-                // Additional print-time enhancements
-                printStyle.textContent += `
-                    @media print {
-                        /* Force each panel onto its own page */
-                        .panel-page {
-                            display: block;
-                            page-break-before: always;
-                            page-break-after: always;
-                            page-break-inside: avoid !important;
-                            break-inside: avoid !important;
-                            margin: 0 !important;
+                // For more radical solution, we'll use an alternative printing approach that creates a new
+                // window for each panel instead of trying to fix the CSS
+                
+                // Prepare for printing
+                const panels = document.querySelectorAll('.panel-page');
+                
+                // Create a manager for the print operation
+                const printManager = {
+                    panels: Array.from(panels),
+                    currentIndex: 0,
+                    totalPanels: panels.length,
+                    windows: [],
+                    
+                    // Method to print the next panel
+                    printNext: function() {
+                        if (this.currentIndex >= this.totalPanels) {
+                            // Done printing all panels
+                            this.cleanup();
+                            return;
                         }
                         
-                        /* Ensure UI controls are completely removed */
-                        .back-button, .controls-container {
-                            display: none !important;
-                            visibility: hidden !important;
-                            opacity: 0 !important;
-                            position: absolute !important;
-                            left: -9999px !important;
-                        }
-                    }
-                `;
-                
-                // Add the style to the head
-                document.head.appendChild(printStyle);
-                
-                // Trigger print
-                setTimeout(() => {
-                    window.print();
+                        const panel = this.panels[this.currentIndex];
+                        const panelClone = panel.cloneNode(true);
+                        
+                        // Create print window for single panel
+                        const printWindow = window.open('', `print_${this.currentIndex}`, 'height=600,width=800');
+                        this.windows.push(printWindow);
+                        
+                        // Build HTML content with the isolated panel
+                        printWindow.document.write(`
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <title>Print Panel ${this.currentIndex + 1}</title>
+                                <style>
+                                    @page {
+                                        size: ${selectedSize === 'credit-card' ? '86mm 54mm' : 
+                                               selectedSize === 'postcard' ? '105mm 70mm' : 
+                                               selectedSize === 'a5' ? '148mm 105mm' : '210mm 148mm'};
+                                        margin: 0;
+                                    }
+                                    body {
+                                        margin: 0;
+                                        padding: 0;
+                                        background: none;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        min-height: 100vh;
+                                    }
+                                    .panel-container {
+                                        width: ${selectedSize === 'credit-card' ? '86mm' : 
+                                                 selectedSize === 'postcard' ? '105mm' : 
+                                                 selectedSize === 'a5' ? '148mm' : '210mm'};
+                                        height: ${selectedSize === 'credit-card' ? '54mm' : 
+                                                  selectedSize === 'postcard' ? '70mm' : 
+                                                  selectedSize === 'a5' ? '105mm' : '148mm'};
+                                        position: relative;
+                                        background-color: white;
+                                    }
+                                    ${document.querySelector('style').textContent}
+                                </style>
+                            </head>
+                            <body>
+                                <div class="panel-container">
+                                    ${panelClone.outerHTML}
+                                </div>
+                                <script>
+                                    window.onload = function() {
+                                        setTimeout(function() {
+                                            window.print();
+                                            setTimeout(function() {
+                                                window.close();
+                                            }, 200);
+                                        }, 200);
+                                    };
+                                </script>
+                            </body>
+                            </html>
+                        `);
+                        
+                        // Set up callback for when this window closes
+                        printWindow.onafterprint = () => {
+                            setTimeout(() => {
+                                this.currentIndex++;
+                                this.printNext();
+                            }, 500);
+                        };
+                        
+                        // If onafterprint doesn't fire (some browsers), use onunload
+                        printWindow.onunload = () => {
+                            setTimeout(() => {
+                                if (printWindow.closed) {
+                                    this.currentIndex++;
+                                    this.printNext();
+                                }
+                            }, 500);
+                        };
+                        
+                        printWindow.document.close();
+                    },
                     
-                    // Remove the style element after printing
-                    setTimeout(() => {
-                        document.head.removeChild(printStyle);
-                    }, 1000);
-                }, 100);
+                    // Clean up any open windows
+                    cleanup: function() {
+                        this.windows.forEach(win => {
+                            try {
+                                if (!win.closed) win.close();
+                            } catch (e) {
+                                console.error('Error closing print window:', e);
+                            }
+                        });
+                    }
+                };
+                
+                // Start the print process
+                printManager.printNext();
             });
         });
     </script>
