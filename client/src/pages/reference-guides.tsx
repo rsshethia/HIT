@@ -27,6 +27,7 @@ export default function ReferenceGuidesPage() {
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</th>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Common Use</th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PDF Guide</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -34,56 +35,77 @@ export default function ReferenceGuidesPage() {
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A01</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Admit/Visit Notification</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">New patient admission</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <a 
+                          href="#" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary-700 flex items-center"
+                        >
+                          <span className="material-icons text-sm mr-1">picture_as_pdf</span>
+                          View Guide
+                        </a>
+                      </td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A02</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Transfer a Patient</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Move patient between locations</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A03</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Discharge/End Visit</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Patient discharge</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A04</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Register a Patient</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Outpatient registration</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A05</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Pre-admit a Patient</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Pre-admission registration</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A08</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Update Patient Information</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Demographics update</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A11</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Cancel Admission</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Cancel an admission</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A13</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Cancel Discharge</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Undo a discharge</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A28</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Add Person Information</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Add patient record</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A31</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Update Person Information</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Update demographics</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A40</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Merge Patient - Patient ID</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Link patient records</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
                     </tr>
                   </tbody>
                 </table>
