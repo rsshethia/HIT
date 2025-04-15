@@ -150,7 +150,12 @@ export default function ReferenceGuidesPage() {
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ADT^A40</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Merge Patient - Patient ID</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Link patient records</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500"></td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <span className="text-gray-400 flex items-center">
+                          <span className="material-icons text-sm mr-1">schedule</span>
+                          Coming soon
+                        </span>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
