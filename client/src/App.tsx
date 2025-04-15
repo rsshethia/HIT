@@ -11,6 +11,7 @@ import ResourcesPage from "@/pages/resources";
 import ReferenceGuidesPage from "@/pages/reference-guides";
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
+import { DevHeader } from "@/components/dev-header";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex flex-col min-h-screen">
+        <DevHeader />
         <NavBar />
         <main className="flex-grow">
           <Router />
