@@ -633,173 +633,138 @@
                 });
             });
             
-            // Print button functionality
+            // Print button functionality with a completely different approach
             printBtn.addEventListener('click', function() {
                 const selectedSize = document.querySelector('input[name="size"]:checked').value;
-                const panels = document.querySelectorAll('.panel-page');
                 
-                // Create a new print document
-                const printWindow = window.open('', '_blank');
-                
-                if (!printWindow) {
-                    alert("Please allow popups for printing to work properly.");
-                    return;
+                // Determine page size based on selection
+                let pageWidth, pageHeight;
+                switch(selectedSize) {
+                    case 'credit-card':
+                        pageWidth = "86mm";
+                        pageHeight = "54mm";
+                        break;
+                    case 'postcard':
+                        pageWidth = "105mm";
+                        pageHeight = "70mm";
+                        break;
+                    case 'a5':
+                        pageWidth = "148mm";
+                        pageHeight = "105mm";
+                        break;
+                    case 'a4':
+                    default:
+                        pageWidth = "210mm";
+                        pageHeight = "148mm";
+                        break;
                 }
                 
-                // Start the document
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Print HL7 ADT^A01 Guide</title>
-                        <style>
-                            @page {
-                                size: ${selectedSize === 'credit-card' ? '86mm 54mm' : 
-                                     selectedSize === 'postcard' ? '105mm 70mm' : 
-                                     selectedSize === 'a5' ? '148mm 105mm' : '210mm 148mm'};
-                                margin: 0;
-                            }
-                            
-                            body {
-                                margin: 0;
-                                padding: 0;
-                                background: white;
-                            }
-                            
-                            .print-panel {
-                                width: ${selectedSize === 'credit-card' ? '86mm' : 
-                                       selectedSize === 'postcard' ? '105mm' : 
-                                       selectedSize === 'a5' ? '148mm' : '210mm'};
-                                height: ${selectedSize === 'credit-card' ? '54mm' : 
-                                        selectedSize === 'postcard' ? '70mm' : 
-                                        selectedSize === 'a5' ? '105mm' : '148mm'};
-                                margin: 0;
-                                page-break-after: always;
-                                position: relative;
-                                overflow: hidden;
-                            }
-                            
-                            /* Panel 1 - Cover */
-                            .panel-1 {
-                                background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
-                                color: white;
-                                display: flex;
-                                flex-direction: column;
-                                justify-content: center;
-                                align-items: center;
-                                text-align: center;
-                            }
-                            
-                            .title {
-                                font-size: ${selectedSize === 'credit-card' ? '16px' : 
-                                           selectedSize === 'postcard' ? '20px' : 
-                                           selectedSize === 'a5' ? '24px' : '30px'};
-                                font-weight: 700;
-                                margin-bottom: 10px;
-                            }
-                            
-                            .code-badge {
-                                display: inline-block;
-                                background-color: rgba(255, 255, 255, 0.2);
-                                padding: ${selectedSize === 'credit-card' ? '5px 10px' : 
-                                         selectedSize === 'postcard' ? '8px 15px' : 
-                                         selectedSize === 'a5' ? '10px 20px' : '15px 30px'};
-                                border-radius: 10px;
-                                font-size: ${selectedSize === 'credit-card' ? '20px' : 
-                                           selectedSize === 'postcard' ? '30px' : 
-                                           selectedSize === 'a5' ? '40px' : '50px'};
-                                font-weight: 700;
-                                margin: 10px 0;
-                            }
-                            
-                            .subtitle {
-                                font-size: ${selectedSize === 'credit-card' ? '10px' : 
-                                           selectedSize === 'postcard' ? '14px' : 
-                                           selectedSize === 'a5' ? '16px' : '20px'};
-                                opacity: 0.9;
-                                line-height: 1.2;
-                            }
-                            
-                            .footer {
-                                position: absolute;
-                                bottom: 5px;
-                                left: 0;
-                                right: 0;
-                                display: flex;
-                                justify-content: space-between;
-                                padding: 0 10px;
-                            }
-                            
-                            .page-indicator {
-                                font-size: ${selectedSize === 'credit-card' ? '8px' : '12px'};
-                                color: rgba(255, 255, 255, 0.7);
-                            }
-                            
-                            .watermark {
-                                font-size: ${selectedSize === 'credit-card' ? '8px' : '12px'};
-                                opacity: 0.7;
-                                color: rgba(255, 255, 255, 0.7);
-                            }
-                        </style>
-                    </head>
-                    <body>
-                `);
-                
-                // Write the Cover Panel manually for simplicity
-                printWindow.document.write(`
-                    <div class="print-panel panel-1">
-                        <div class="title">HL7 ADT Message</div>
-                        <div class="code-badge">A01</div>
-                        <div class="subtitle">Patient Admission<br>Mini Reference</div>
-                        <div class="footer">
-                            <div class="watermark">R. Shethia 2025</div>
-                            <div class="page-indicator">1/4</div>
-                        </div>
-                    </div>
+                // Use window.open for each panel - a completely different technique
+                const printSeparatePanels = () => {
+                    // Get all panels
+                    const panels = document.querySelectorAll('.panel-page');
+                    let printIndex = 0;
                     
-                    <!-- Page 2 with custom message -->
-                    <div class="print-panel">
-                        <div style="padding: 10px; font-family: Arial; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-                            <h2 style="color: #4ca1af;">ADT^A01 - Patient Admission Message</h2>
-                            <p>The A01 message is generated when a patient is admitted to a healthcare facility.</p>
-                            <p style="margin-top: 15px; text-align: center; color: #666;">2/4</p>
-                        </div>
-                    </div>
+                    // Function to print next panel
+                    const printNextPanel = () => {
+                        if (printIndex >= panels.length) return;
+                        
+                        const panel = panels[printIndex];
+                        const isPanelOne = printIndex === 0;
+                        
+                        // Create simple HTML for the panel
+                        const html = `
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <title>ADT^A01 Guide - Page ${printIndex + 1}</title>
+                                <style>
+                                    @page {
+                                        size: ${pageWidth} ${pageHeight};
+                                        margin: 0;
+                                    }
+                                    body {
+                                        margin: 0;
+                                        padding: 0;
+                                        width: ${pageWidth};
+                                        height: ${pageHeight};
+                                        overflow: hidden;
+                                    }
+                                    .print-panel {
+                                        width: 100%;
+                                        height: 100%;
+                                        box-sizing: border-box;
+                                        ${isPanelOne ? 'background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%); color: white;' : ''}
+                                        position: relative;
+                                        display: flex;
+                                        flex-direction: column;
+                                        justify-content: center;
+                                        align-items: center;
+                                        text-align: center;
+                                        font-family: Arial, sans-serif;
+                                    }
+                                    h1 {
+                                        font-size: ${selectedSize === 'credit-card' ? '14px' : '24px'};
+                                        margin-bottom: 10px;
+                                    }
+                                    p {
+                                        font-size: ${selectedSize === 'credit-card' ? '10px' : '16px'};
+                                    }
+                                    .footer {
+                                        position: absolute;
+                                        bottom: 5px;
+                                        left: 0;
+                                        width: 100%;
+                                        font-size: ${selectedSize === 'credit-card' ? '8px' : '12px'};
+                                        opacity: 0.7;
+                                        text-align: center;
+                                    }
+                                </style>
+                            </head>
+                            <body>
+                                <div class="print-panel">
+                                    ${printIndex === 0 ?
+                                        `<h1>HL7 ADT Message</h1>
+                                         <div style="padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 5px; font-size: ${selectedSize === 'credit-card' ? '20px' : '32px'}; font-weight: bold; margin: 10px 0;">A01</div>
+                                         <p>Patient Admission<br>Mini Reference</p>`
+                                    : printIndex === 1 ?
+                                        `<h1 style="color: #4ca1af;">ADT^A01 - Patient Admission</h1>
+                                         <p>The A01 message is generated when a patient is admitted to a healthcare facility.</p>`
+                                    : printIndex === 2 ?
+                                        `<h1 style="color: #4ca1af;">Key Data Elements</h1>
+                                         <p>Patient Demographics, Visit Information, Location, Provider Info, Diagnosis</p>`
+                                    :
+                                        `<h1 style="color: #4ca1af;">Impact on EMR</h1>
+                                         <p>Creates a new encounter, activates order sets, updates patient census</p>`
+                                    }
+                                    <div class="footer">Page ${printIndex + 1}/4 - R. Shethia 2025</div>
+                                </div>
+                                <script>
+                                    window.onload = function() {
+                                        window.print();
+                                        window.close();
+                                    }
+                                </script>
+                            </body>
+                            </html>
+                        `;
+                        
+                        // Open new window for this panel
+                        const win = window.open('', `print_${printIndex}`);
+                        win.document.write(html);
+                        win.document.close();
+                        
+                        // Move to next panel after a delay
+                        printIndex++;
+                        setTimeout(printNextPanel, 1000);
+                    };
                     
-                    <!-- Page 3 with custom message -->
-                    <div class="print-panel">
-                        <div style="padding: 10px; font-family: Arial; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-                            <h2 style="color: #4ca1af;">Key Data Elements</h2>
-                            <p>Patient Demographics, Visit Information, Location, Provider Info, Diagnosis</p>
-                            <p style="margin-top: 15px; text-align: center; color: #666;">3/4</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Page 4 with custom message -->
-                    <div class="print-panel">
-                        <div style="padding: 10px; font-family: Arial; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-                            <h2 style="color: #4ca1af;">Impact on EMR</h2>
-                            <p>Creates a new encounter, activates order sets, updates patient census</p>
-                            <p style="margin-top: 15px; text-align: center; color: #666;">4/4</p>
-                        </div>
-                    </div>
-                `);
+                    // Start printing panels
+                    printNextPanel();
+                };
                 
-                // End the document
-                printWindow.document.write(`
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                            setTimeout(function() {
-                                window.close();
-                            }, 500);
-                        };
-                    </script>
-                    </body>
-                    </html>
-                `);
-                
-                printWindow.document.close();
+                // Start the print process
+                printSeparatePanels();
             });
         });
     </script>
