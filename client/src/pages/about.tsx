@@ -38,11 +38,12 @@ export default function AboutPage() {
                 </dd>
               </div>
               <div className="text-center pt-8">
-                <Link href="/assessment">
-                  <a className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-700">
-                    <span className="material-icons mr-2">assessment</span>
-                    Start the Assessment
-                  </a>
+                <Link 
+                  href="/assessment"
+                  className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-700"
+                >
+                  <span className="material-icons mr-2">assessment</span>
+                  Start the Assessment
                 </Link>
               </div>
             </dl>

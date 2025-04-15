@@ -9,6 +9,7 @@ import LandingPage from "@/pages/landing-page";
 import AboutPage from "@/pages/about";
 import ResourcesPage from "@/pages/resources";
 import NavBar from "@/components/nav-bar";
+import Footer from "@/components/footer";
 
 function Router() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <main className="flex-grow">
           <Router />
         </main>
+        <Footer />
       </div>
       <Toaster />
     </QueryClientProvider>

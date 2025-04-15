@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { Link } from "wouter";
 
 export default function ResourcesPage() {
   const resources = [
@@ -98,13 +99,13 @@ export default function ResourcesPage() {
                 Take our assessment to evaluate your current integration capabilities and get personalized recommendations for improvement.
               </p>
               <div className="mt-6">
-                <a 
+                <Link
                   href="/assessment"
                   className="inline-flex items-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-700"
                 >
                   <span className="material-icons mr-2">assessment</span>
                   Start Assessment
-                </a>
+                </Link>
               </div>
             </div>
           </div>
