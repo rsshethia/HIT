@@ -37,7 +37,7 @@ export default function ReferenceGuidesPage() {
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">New patient admission</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
                         <a 
-                          href="#" 
+                          href="/guides/adt-a01-guide.html" 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="text-primary hover:text-primary-700 flex items-center"
