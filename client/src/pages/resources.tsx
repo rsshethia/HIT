@@ -60,7 +60,14 @@ export default function ResourcesPage() {
     }
   ];
 
-  const categories = Array.from(new Set(resources.map(resource => resource.category)));
+  // Create a sorted array of categories with Education first
+  const allCategories = Array.from(new Set(resources.map(resource => resource.category)));
+  const categories = [
+    // Put Education first if it exists
+    ...allCategories.filter(cat => cat === "Education"),
+    // Then add all other categories
+    ...allCategories.filter(cat => cat !== "Education")
+  ];
 
   return (
     <div className="bg-neutral-50 min-h-[calc(100vh-4rem)]">
