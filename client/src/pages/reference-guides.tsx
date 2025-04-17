@@ -6,7 +6,12 @@ export default function ReferenceGuidesPage() {
     <div className="bg-neutral-50 min-h-[calc(100vh-4rem)]">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8">
         <div className="mb-12">
-          <div className="mb-6">
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-8">Mini Reference Guides</h2>
+          <p className="text-lg text-gray-600 mb-6">
+            Quick reference guides for common healthcare integration message types and standards. These guides are designed to provide a handy reference for integration professionals working with healthcare systems.
+          </p>
+          
+          <div className="mb-12">
             <Link href="/resources">
               <Button variant="outline" className="inline-flex items-center w-full sm:w-auto">
                 <span className="material-icons mr-1 text-sm">arrow_back</span>
@@ -14,11 +19,6 @@ export default function ReferenceGuidesPage() {
               </Button>
             </Link>
           </div>
-          
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-8">Mini Reference Guides</h2>
-          <p className="text-lg text-gray-600 mb-12">
-            Quick reference guides for common healthcare integration message types and standards. These guides are designed to provide a handy reference for integration professionals working with healthcare systems.
-          </p>
           
           <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-8">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">Common HL7 Message Types for PAS</h3>
