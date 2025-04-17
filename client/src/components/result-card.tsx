@@ -284,7 +284,7 @@ export default function ResultCard({
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       
-      doc.setFontSize(10);
+      doc.setFontSize(8);
       doc.setTextColor(100, 100, 100);
       
       // Draw a light gray line above footer
@@ -292,17 +292,16 @@ export default function ResultCard({
       const footerLineY = pageHeight - 20;
       doc.line(margin, footerLineY, pageWidth - margin, footerLineY);
       
-      // First footer line with tool name and generation date
+      // First footer line with tool name and page numbers
       const footerY1 = pageHeight - 15;
       doc.text('Healthcare Integration Self-Assessment Tool', margin, footerY1);
       
       // Add page numbers on the right
       doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, footerY1, {align: 'right'});
       
-      // Second footer line with developer info and date
+      // Second footer line with developer info
       const footerY2 = pageHeight - 10;
-      doc.text('Developed with ❤️ in Bendigo, VIC - Australia. Supported by Rushabh Shethia', margin, footerY2);
-      doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth - margin, footerY2, {align: 'right'});
+      doc.text(`Generated: ${new Date().toLocaleDateString()} | Developed with ❤️ in Bendigo, VIC - Australia`, margin, footerY2);
     }
     
     // Save the PDF
