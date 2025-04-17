@@ -95,6 +95,20 @@ export default function ResultCard({
     const margin = 20;
     const textWidth = pageWidth - (margin * 2);
     
+    // Track all content sections for the table of contents
+    const contentSections = [];
+    
+    // Tool description from About page
+    const toolDescription = "This assessment tool helps healthcare organizations evaluate their integration capabilities across seven key dimensions: System Coverage, Timeliness, Data Quality, Monitoring, Scalability, Governance, and Security. The tool provides a maturity score and tailored recommendations to help organizations improve their integration landscape.";
+    
+    // Border for all pages (will add at the end)
+    const addPageBorder = (pageNum) => {
+      doc.setPage(pageNum);
+      doc.setDrawColor(200, 200, 220);
+      doc.setLineWidth(0.5);
+      doc.rect(5, 5, pageWidth - 10, pageHeight - 10, 'S');
+    };
+    
     // Header with logo and title
     doc.setFillColor(250, 250, 250);
     doc.rect(0, 0, pageWidth, 40, 'F');
@@ -156,11 +170,32 @@ export default function ResultCard({
       return startY + boxHeight;
     };
     
-    // Start position after the header
+    // Start with the tool description
     let currentY = 45;
+    doc.setFontSize(15);
+    doc.setTextColor(0, 0, 0);
+    doc.text('About This Assessment Tool', margin, currentY);
+    currentY += 10;
+    
+    currentY = drawTextBox(toolDescription, currentY, null, [245, 245, 250]); // Light purplish background
+    currentY += 10; // Add spacing after the box
+    
+    // Add Table of Contents header
+    doc.setFontSize(15);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Report Contents', margin, currentY);
+    currentY += 10;
+    
+    // We'll come back and fill this in later after we know what's in the document
+    const tocStartY = currentY;
+    
+    // Skip space for the TOC (we'll fill it in at the end)
+    currentY += 40;
     
     // Overall score section
     if (exportOptions.includeScore) {
+      contentSections.push("Overall Score");
+      
       doc.setFontSize(15);
       doc.setTextColor(0, 0, 0);
       doc.text('Assessment Results', margin, currentY);
@@ -177,6 +212,8 @@ export default function ResultCard({
       currentY += 10; // Add spacing after the box
     } else if (exportOptions.includeMaturityLevel) {
       // If score isn't included but maturity level is
+      contentSections.push("Maturity Level");
+      
       doc.setFontSize(15);
       doc.setTextColor(0, 0, 0);
       doc.text('Maturity Assessment', margin, currentY);
@@ -189,6 +226,8 @@ export default function ResultCard({
     
     // Recommendations section
     if (exportOptions.includeRecommendations && recommendations.length > 0) {
+      contentSections.push("Recommendations");
+      
       // Check if we need a page break
       if (currentY > pageHeight - 50) {
         doc.addPage();
@@ -217,6 +256,8 @@ export default function ResultCard({
     
     // User answers section
     if (exportOptions.includeAnswers && userAnswers && Object.keys(userAnswers).length > 0) {
+      contentSections.push("Assessment Answers");
+      
       // Always start answers on a new page regardless of available space
       doc.addPage();
       currentY = margin;
@@ -266,7 +307,8 @@ export default function ResultCard({
                 currentY = margin;
               }
               
-              const answerText = `Q: ${answer.question}\nA: ${answer.answer} (${answer.value}/5)`;
+              // Only show the answer text, not the score
+              const answerText = `Q: ${answer.question}\nA: ${answer.answer}`;
               currentY = drawTextBox(answerText, currentY, null, [250, 250, 255]); // Very light blue
               currentY += 5;
             }
@@ -277,11 +319,25 @@ export default function ResultCard({
       }
     }
     
+    // Fill in the table of contents
+    doc.setPage(1);
+    let tocY = tocStartY;
+    
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    
+    contentSections.forEach((section, index) => {
+      doc.text(`• ${section}`, margin + 5, tocY);
+      tocY += 7;
+    });
+    
     // Add page numbers and footer to all pages
     const totalPages = doc.getNumberOfPages();
     
-    // Loop through all pages
+    // Loop through all pages to add borders and footers
     for (let i = 1; i <= totalPages; i++) {
+      addPageBorder(i);
+      
       doc.setPage(i);
       
       doc.setFontSize(8);
