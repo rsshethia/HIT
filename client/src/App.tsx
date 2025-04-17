@@ -9,6 +9,7 @@ import LandingPage from "@/pages/landing-page";
 import AboutPage from "@/pages/about";
 import ResourcesPage from "@/pages/resources";
 import ReferenceGuidesPage from "@/pages/reference-guides";
+import IntegrationFlowPage from "@/pages/integration-flow";
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { DevHeader } from "@/components/dev-header";
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/about" component={AboutPage} />
       <Route path="/resources" component={ResourcesPage} />
       <Route path="/reference-guides" component={ReferenceGuidesPage} />
+      <Route path="/integration-flow" component={IntegrationFlowPage} />
       <Route component={NotFound} />
     </Switch>
   );
