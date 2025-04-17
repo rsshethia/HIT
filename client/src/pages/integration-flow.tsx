@@ -187,215 +187,211 @@ export default function IntegrationFlowPage() {
   return (
     <div className="bg-neutral-50 min-h-[calc(100vh-4rem)]">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8">
-        <div className="lg:grid lg:grid-cols-3 lg:gap-8">
-          <div>
-            <h2 className="text-3xl font-extrabold text-gray-900">Integration Flow</h2>
-            <p className="mt-4 text-lg text-gray-500">
-              Select a patient journey type to visualize how different healthcare systems interact 
-              through HL7 messages across the care process.
-            </p>
-            
-            <div className="mt-8 flex flex-col space-y-4">
-              <Link href="/resources">
-                <Button variant="outline" className="inline-flex items-center w-full sm:w-auto">
-                  <span className="material-icons mr-1 text-sm">arrow_back</span>
-                  Back to Resources
-                </Button>
-              </Link>
-            </div>
+        <div className="mb-12">
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-8">Integration Flow</h2>
+          <p className="text-lg text-gray-600 mb-6">
+            Select a patient journey type to visualize how different healthcare systems interact 
+            through HL7 messages across the care process.
+          </p>
+          
+          <div className="mb-12">
+            <Link href="/resources">
+              <Button variant="outline" className="inline-flex items-center w-full sm:w-auto">
+                <span className="material-icons mr-1 text-sm">arrow_back</span>
+                Back to Resources
+              </Button>
+            </Link>
           </div>
           
-          <div className="mt-12 lg:mt-0 lg:col-span-2">
-            <Card className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-              <div className="flex items-center mb-6">
-                <span className="material-icons text-primary mr-2 text-2xl">diagram</span>
-                <h2 className="text-xl font-semibold text-gray-800">Patient Journey Integration Flow</h2>
-              </div>
-              
-              {/* Configuration Section */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <h3 className="text-lg font-medium text-gray-700 mb-3">Configuration</h3>
-                <div className="flex flex-wrap gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Patient Type</label>
-                    <div className="flex flex-wrap gap-4">
-                      <label className="inline-flex items-center">
-                        <input
-                          type="radio"
-                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
-                          checked={patientType === 'inpatient'}
-                          onChange={() => {setPatientType('inpatient'); setActiveStep(0);}}
-                        />
-                        <span className="ml-2">Inpatient</span>
-                      </label>
-                      <label className="inline-flex items-center">
-                        <input
-                          type="radio"
-                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
-                          checked={patientType === 'outpatient'}
-                          onChange={() => {setPatientType('outpatient'); setActiveStep(0);}}
-                        />
-                        <span className="ml-2">Outpatient</span>
-                      </label>
-                      <label className="inline-flex items-center">
-                        <input
-                          type="radio"
-                          className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
-                          checked={patientType === 'emergency'}
-                          onChange={() => {setPatientType('emergency'); setActiveStep(0);}}
-                        />
-                        <span className="ml-2">Emergency</span>
-                      </label>
-                    </div>
+          <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+            <div className="flex items-center mb-6">
+              <span className="material-icons text-primary mr-2 text-2xl">diagram</span>
+              <h2 className="text-xl font-semibold text-gray-800">Patient Journey Integration Flow</h2>
+            </div>
+            
+            {/* Configuration Section */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h3 className="text-lg font-medium text-gray-700 mb-3">Configuration</h3>
+              <div className="flex flex-wrap gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Patient Type</label>
+                  <div className="flex flex-wrap gap-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                        checked={patientType === 'inpatient'}
+                        onChange={() => {setPatientType('inpatient'); setActiveStep(0);}}
+                      />
+                      <span className="ml-2">Inpatient</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                        checked={patientType === 'outpatient'}
+                        onChange={() => {setPatientType('outpatient'); setActiveStep(0);}}
+                      />
+                      <span className="ml-2">Outpatient</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                        checked={patientType === 'emergency'}
+                        onChange={() => {setPatientType('emergency'); setActiveStep(0);}}
+                      />
+                      <span className="ml-2">Emergency</span>
+                    </label>
                   </div>
                 </div>
               </div>
-              
-              {/* Journey Steps Navigation */}
-              <div className="flex mb-6 overflow-x-auto pb-2">
-                {currentJourney.map((step: JourneyStep, index: number) => (
+            </div>
+            
+            {/* Journey Steps Navigation */}
+            <div className="flex mb-6 overflow-x-auto pb-2">
+              {currentJourney.map((step: JourneyStep, index: number) => (
+                <div 
+                  key={index} 
+                  className={`flex items-center ${index === currentJourney.length - 1 ? '' : 'mr-2'}`}
+                >
                   <div 
-                    key={index} 
-                    className={`flex items-center ${index === currentJourney.length - 1 ? '' : 'mr-2'}`}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors
+                      ${index === activeStep ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                    onClick={() => setActiveStep(index)}
                   >
-                    <div 
-                      className={`px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors
-                        ${index === activeStep ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                      onClick={() => setActiveStep(index)}
-                    >
-                      {step.step}
-                    </div>
-                    {index < currentJourney.length - 1 && (
-                      <span className="material-icons mx-1 text-gray-400 text-sm">chevron_right</span>
-                    )}
+                    {step.step}
                   </div>
-                ))}
+                  {index < currentJourney.length - 1 && (
+                    <span className="material-icons mx-1 text-gray-400 text-sm">chevron_right</span>
+                  )}
+                </div>
+              ))}
+            </div>
+            
+            {/* Current Step Details */}
+            <div className="mb-6 p-6 border border-gray-200 rounded-lg bg-white shadow-sm">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-800">{currentJourney[activeStep].step}</h3>
+                <div className="flex items-center">
+                  <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getRiskColor(currentJourney[activeStep].risk)}`}>
+                    {currentJourney[activeStep].risk} Risk
+                  </div>
+                </div>
               </div>
               
-              {/* Current Step Details */}
-              <div className="mb-6 p-6 border border-gray-200 rounded-lg bg-white shadow-sm">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-gray-800">{currentJourney[activeStep].step}</h3>
-                  <div className="flex items-center">
-                    <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getRiskColor(currentJourney[activeStep].risk)}`}>
-                      {currentJourney[activeStep].risk} Risk
-                    </div>
-                  </div>
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center mb-2">
+                  <span className="material-icons text-primary mr-2">timeline</span>
+                  <h4 className="font-semibold text-gray-800">HL7 Message Trigger: {currentJourney[activeStep].message}</h4>
+                </div>
+                <p className="text-sm text-gray-600">
+                  This step initiates HL7 messages that flow between systems to ensure coordinated patient care.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center text-gray-700">
+                    <span className="material-icons text-gray-500 mr-2">dns</span>
+                    Primary Systems
+                  </h4>
+                  <ul className="space-y-2">
+                    {currentJourney[activeStep].systems.map((system: string, idx: number) => (
+                      <li key={idx} className="flex items-center bg-gray-100 p-2 rounded">
+                        <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                        <span className="text-gray-800">{system}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
                 
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center mb-2">
-                    <span className="material-icons text-primary mr-2">timeline</span>
-                    <h4 className="font-semibold text-gray-800">HL7 Message Trigger: {currentJourney[activeStep].message}</h4>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    This step initiates HL7 messages that flow between systems to ensure coordinated patient care.
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold mb-3 flex items-center text-gray-700">
-                      <span className="material-icons text-gray-500 mr-2">dns</span>
-                      Primary Systems
-                    </h4>
-                    <ul className="space-y-2">
-                      {currentJourney[activeStep].systems.map((system: string, idx: number) => (
-                        <li key={idx} className="flex items-center bg-gray-100 p-2 rounded">
-                          <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                          <span className="text-gray-800">{system}</span>
-                        </li>
-                      ))}
-                    </ul>
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center text-gray-700">
+                    <span className="material-icons text-gray-500 mr-2">schedule</span>
+                    Integration Timeframe
+                  </h4>
+                  <div className="bg-gray-100 p-3 rounded mb-4">
+                    <span className={`px-2 py-1 rounded text-xs font-semibold
+                      ${currentJourney[activeStep].timeframe.includes('Real-time') ? 'bg-green-100 text-green-800' : 
+                        'bg-yellow-100 text-yellow-800'}`}>
+                      {currentJourney[activeStep].timeframe}
+                    </span>
                   </div>
                   
-                  <div>
-                    <h4 className="font-semibold mb-3 flex items-center text-gray-700">
-                      <span className="material-icons text-gray-500 mr-2">schedule</span>
-                      Integration Timeframe
-                    </h4>
-                    <div className="bg-gray-100 p-3 rounded mb-4">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold
-                        ${currentJourney[activeStep].timeframe.includes('Real-time') ? 'bg-green-100 text-green-800' : 
-                          'bg-yellow-100 text-yellow-800'}`}>
-                        {currentJourney[activeStep].timeframe}
-                      </span>
-                    </div>
-                    
-                    <h4 className="font-semibold mb-3 flex items-center text-gray-700">
-                      <span className="material-icons text-gray-500 mr-2">warning</span>
-                      Critical Data Elements
-                    </h4>
-                    <ul className="bg-gray-100 p-3 rounded">
-                      {currentJourney[activeStep].data.map((item: string, idx: number) => (
-                        <li key={idx} className="mb-1 text-gray-700 flex items-center">
-                          <span className="material-icons text-primary mr-1 text-sm">arrow_right</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                
-                <div className="mt-6">
-                  <h4 className="font-semibold mb-3 text-gray-700">Downstream Systems Impact</h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {currentJourney[activeStep].downstreamSystems.map((system: string, idx: number) => (
-                      <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-2 text-sm text-center text-gray-700">
-                        {system}
-                      </div>
+                  <h4 className="font-semibold mb-3 flex items-center text-gray-700">
+                    <span className="material-icons text-gray-500 mr-2">warning</span>
+                    Critical Data Elements
+                  </h4>
+                  <ul className="bg-gray-100 p-3 rounded">
+                    {currentJourney[activeStep].data.map((item: string, idx: number) => (
+                      <li key={idx} className="mb-1 text-gray-700 flex items-center">
+                        <span className="material-icons text-primary mr-1 text-sm">arrow_right</span>
+                        {item}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
               </div>
               
-              {/* Navigation Buttons */}
-              <div className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={handlePrevious}
-                  disabled={activeStep === 0}
-                  className={`${activeStep === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <span className="material-icons mr-1 text-sm">arrow_back</span>
-                  Previous
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  onClick={handleReset}
-                >
-                  <span className="material-icons mr-1 text-sm">refresh</span>
-                  Reset
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  onClick={handleNext}
-                  disabled={activeStep === currentJourney.length - 1}
-                  className={`${activeStep === currentJourney.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  Next
-                  <span className="material-icons ml-1 text-sm">arrow_forward</span>
-                </Button>
-              </div>
-              
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <h3 className="text-lg font-medium text-gray-700 mb-4">Understanding HL7 Message Flow</h3>
-                <p className="text-gray-600">
-                  HL7 messages are triggered by specific events in the patient journey. Each message type serves 
-                  a distinct purpose in communicating clinical and administrative information between systems.
-                </p>
-                <div className="mt-4">
-                  <Link href="/reference-guides">
-                    <Button variant="outline" className="inline-flex items-center">
-                      View Message Type Reference
-                      <span className="material-icons ml-1 text-sm">open_in_new</span>
-                    </Button>
-                  </Link>
+              <div className="mt-6">
+                <h4 className="font-semibold mb-3 text-gray-700">Downstream Systems Impact</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {currentJourney[activeStep].downstreamSystems.map((system: string, idx: number) => (
+                    <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-2 text-sm text-center text-gray-700">
+                      {system}
+                    </div>
+                  ))}
                 </div>
               </div>
-            </Card>
+            </div>
+            
+            {/* Navigation Buttons */}
+            <div className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={activeStep === 0}
+                className={`${activeStep === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <span className="material-icons mr-1 text-sm">arrow_back</span>
+                Previous
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={handleReset}
+              >
+                <span className="material-icons mr-1 text-sm">refresh</span>
+                Reset
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={handleNext}
+                disabled={activeStep === currentJourney.length - 1}
+                className={`${activeStep === currentJourney.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                Next
+                <span className="material-icons ml-1 text-sm">arrow_forward</span>
+              </Button>
+            </div>
+            
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <h3 className="text-lg font-medium text-gray-700 mb-4">Understanding HL7 Message Flow</h3>
+              <p className="text-gray-600">
+                HL7 messages are triggered by specific events in the patient journey. Each message type serves 
+                a distinct purpose in communicating clinical and administrative information between systems.
+              </p>
+              <div className="mt-4">
+                <Link href="/reference-guides">
+                  <Button variant="outline" className="inline-flex items-center">
+                    View Message Type Reference
+                    <span className="material-icons ml-1 text-sm">open_in_new</span>
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
