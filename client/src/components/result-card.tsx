@@ -2,6 +2,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { jsPDF } from "jspdf";
+import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface ResultCardProps {
   score: number;
@@ -9,6 +12,11 @@ interface ResultCardProps {
   percentage: number;
   status?: string;
   recommendations?: string[];
+  userAnswers?: Record<string, { 
+    question: string;
+    answer: string;
+    value: number;
+  }>;
   onReset: () => void;
 }
 
@@ -18,8 +26,16 @@ export default function ResultCard({
   percentage,
   status: providedStatus,
   recommendations: providedRecommendations,
+  userAnswers,
   onReset
 }: ResultCardProps) {
+  // State for export options
+  const [exportOptions, setExportOptions] = useState({
+    includeScore: true,
+    includeMaturityLevel: true,
+    includeRecommendations: true,
+    includeAnswers: false
+  });
   // Determine maturity level and recommendations based on percentage if not provided
   let status = providedStatus || '';
   let statusIcon = '';
@@ -245,23 +261,82 @@ export default function ResultCard({
         </div>
       </div>
 
-      <div className="mt-6 pt-6 border-t border-gray-200 flex justify-between">
-        <Button 
-          variant="outline" 
-          onClick={onReset}
-          className="inline-flex items-center"
-        >
-          <span className="material-icons mr-1 text-sm">refresh</span>
-          Reset Assessment
-        </Button>
-        <Button 
-          variant="default"
-          onClick={handleExport}
-          className="inline-flex items-center bg-green-600 hover:bg-green-700"
-        >
-          <span className="material-icons mr-1 text-sm">download</span>
-          Export Results
-        </Button>
+      <div className="mt-6 pt-6 border-t border-gray-200">
+        <h3 className="text-lg font-medium text-gray-700 mb-4">Export Options</h3>
+        <p className="text-sm text-gray-500 mb-4">Select what to include in your exported PDF report:</p>
+        
+        <div className="space-y-3 mb-6">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="includeScore" 
+              checked={exportOptions.includeScore}
+              onCheckedChange={(checked) => 
+                setExportOptions(prev => ({ ...prev, includeScore: !!checked }))
+              }
+            />
+            <Label htmlFor="includeScore" className="text-sm font-medium">
+              Overall Score
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="includeMaturityLevel" 
+              checked={exportOptions.includeMaturityLevel}
+              onCheckedChange={(checked) => 
+                setExportOptions(prev => ({ ...prev, includeMaturityLevel: !!checked }))
+              }
+            />
+            <Label htmlFor="includeMaturityLevel" className="text-sm font-medium">
+              Maturity Level
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="includeRecommendations" 
+              checked={exportOptions.includeRecommendations}
+              onCheckedChange={(checked) => 
+                setExportOptions(prev => ({ ...prev, includeRecommendations: !!checked }))
+              }
+            />
+            <Label htmlFor="includeRecommendations" className="text-sm font-medium">
+              Recommendations
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="includeAnswers" 
+              checked={exportOptions.includeAnswers}
+              onCheckedChange={(checked) => 
+                setExportOptions(prev => ({ ...prev, includeAnswers: !!checked }))
+              }
+            />
+            <Label htmlFor="includeAnswers" className="text-sm font-medium">
+              Assessment Answers
+            </Label>
+          </div>
+        </div>
+        
+        <div className="flex justify-between items-center">
+          <Button 
+            variant="outline" 
+            onClick={onReset}
+            className="inline-flex items-center"
+          >
+            <span className="material-icons mr-1 text-sm">refresh</span>
+            Reset Assessment
+          </Button>
+          <Button 
+            variant="default"
+            onClick={handleExport}
+            className="inline-flex items-center bg-green-600 hover:bg-green-700"
+          >
+            <span className="material-icons mr-1 text-sm">download</span>
+            Export Results
+          </Button>
+        </div>
       </div>
     </Card>
   );

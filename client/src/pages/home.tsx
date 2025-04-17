@@ -34,12 +34,40 @@ export default function Home() {
     // Process the form data and redirect to results page
     let score = 0;
     let maxPossibleScore = 0;
+    const userAnswers: Record<string, { question: string, answer: string, value: number }> = {};
 
     // Convert FormData entries to array and iterate
     Array.from(formData.entries()).forEach(([key, value]) => {
       if (key.startsWith('q')) {
-        score += parseInt(value as string);
+        const numValue = parseInt(value as string);
+        score += numValue;
         maxPossibleScore += 5; // Max value for each question is 5
+        
+        // Find the corresponding question and selected option
+        // to store the full text for the report
+        const questionId = key;
+        let questionText = '';
+        let answerLabel = '';
+        
+        // Find this question in our sections data
+        for (const section of sections) {
+          const question = section.questions.find(q => q.id === questionId);
+          if (question) {
+            questionText = question.text;
+            const option = question.options.find(opt => opt.value === numValue);
+            if (option) {
+              answerLabel = option.label;
+            }
+            break;
+          }
+        }
+        
+        // Store the user's answer with context
+        userAnswers[questionId] = {
+          question: questionText,
+          answer: answerLabel,
+          value: numValue
+        };
       }
     });
 
@@ -81,7 +109,8 @@ export default function Home() {
       maxPossibleScore,
       percentage: percentage.toFixed(1),
       status,
-      recommendations
+      recommendations,
+      userAnswers
     }));
 
     // Navigate to results page

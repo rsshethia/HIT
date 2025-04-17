@@ -9,6 +9,11 @@ interface AssessmentResult {
   percentage: string;
   status: string;
   recommendations: string[];
+  userAnswers?: Record<string, { 
+    question: string;
+    answer: string;
+    value: number;
+  }>;
 }
 
 export default function Results() {
