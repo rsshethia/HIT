@@ -1,0 +1,330 @@
+import React, { useState } from 'react';
+import { ChevronRight, Server, Activity, Clock, AlertTriangle } from 'lucide-react';
+
+const PatientJourneyVisualizer = () => {
+  const [patientType, setPatientType] = useState('inpatient');
+  const [showDetails, setShowDetails] = useState({});
+  const [activeStep, setActiveStep] = useState(0);
+  
+  // Define different patient journeys based on type
+  const journeys = {
+    inpatient: [
+      {
+        step: "Registration",
+        message: "A01 - Patient Admission",
+        systems: ["Patient Administration System (PAS)", "Electronic Medical Record (EMR)"],
+        downstreamSystems: ["Billing System", "Bed Management", "Food Service System", "Pharmacy System"],
+        data: ["Patient Demographics", "Insurance Information", "Primary Diagnosis"],
+        timeframe: "Real-time",
+        risk: "Low"
+      },
+      {
+        step: "Bed Movement",
+        message: "A02 - Patient Transfer",
+        systems: ["Patient Administration System (PAS)", "Bed Management System", "EMR"],
+        downstreamSystems: ["Food Service System", "Nursing Assignment System"],
+        data: ["Bed Location", "Department", "Care Level"],
+        timeframe: "Real-time",
+        risk: "Medium"
+      },
+      {
+        step: "Physician Orders",
+        message: "O01 - Order Message",
+        systems: ["Patient Administration System (PAS)", "Computerized Physician Order Entry (CPOE)", "EMR"],
+        downstreamSystems: ["Pharmacy System", "Laboratory System", "Radiology System", "Food Service System"],
+        data: ["Medication Orders", "Lab Orders", "Diet Orders", "Activity Orders"],
+        timeframe: "Real-time",
+        risk: "High"
+      },
+      {
+        step: "Medication Administration",
+        message: "RAS - Pharmacy/Treatment Administration",
+        systems: ["Patient Administration System (PAS)", "Pharmacy System", "Medication Administration Record"],
+        downstreamSystems: ["Billing System", "EMR"],
+        data: ["Medication Details", "Administration Time", "Administering Staff"],
+        timeframe: "Real-time",
+        risk: "High"
+      },
+      {
+        step: "Discharge Planning",
+        message: "A03 - Patient Discharge",
+        systems: ["Patient Administration System (PAS)", "EMR"],
+        downstreamSystems: ["Billing System", "Bed Management", "Food Service System", "Pharmacy System"],
+        data: ["Discharge Summary", "Follow-up Instructions", "Prescriptions"],
+        timeframe: "Real-time",
+        risk: "Medium"
+      }
+    ],
+    outpatient: [
+      {
+        step: "Appointment Scheduling",
+        message: "SIU - Schedule Information Unsolicited",
+        systems: ["Patient Administration System (PAS)", "Scheduling System"],
+        downstreamSystems: ["EMR", "Billing System"],
+        data: ["Appointment Time", "Provider", "Clinic Location"],
+        timeframe: "Real-time",
+        risk: "Low"
+      },
+      {
+        step: "Check-in",
+        message: "ADT^A04 - Registration",
+        systems: ["Patient Administration System (PAS)", "EMR"],
+        downstreamSystems: ["Billing System"],
+        data: ["Patient Demographics", "Insurance Verification"],
+        timeframe: "Real-time",
+        risk: "Low"
+      },
+      {
+        step: "Clinician Visit",
+        message: "MDM - Medical Document Management",
+        systems: ["Patient Administration System (PAS)", "EMR"],
+        downstreamSystems: ["Billing System", "Lab System", "Radiology System"],
+        data: ["Clinical Notes", "Diagnoses", "Orders"],
+        timeframe: "Real-time",
+        risk: "Medium"
+      },
+      {
+        step: "Check-out",
+        message: "BAR - Billing Account Record",
+        systems: ["Patient Administration System (PAS)", "Billing System"],
+        downstreamSystems: ["EMR", "Claims Management System"],
+        data: ["Charges", "Follow-up Appointment"],
+        timeframe: "Real-time",
+        risk: "Low"
+      }
+    ],
+    emergency: [
+      {
+        step: "Emergency Registration",
+        message: "ADT^A04 - Emergency Registration",
+        systems: ["Patient Administration System (PAS)", "Emergency Department System", "EMR"],
+        downstreamSystems: ["Billing System", "Bed Management"],
+        data: ["Patient Demographics", "Chief Complaint", "Triage Level"],
+        timeframe: "Real-time",
+        risk: "High"
+      },
+      {
+        step: "Triage Assessment",
+        message: "ORU - Observation Result",
+        systems: ["Patient Administration System (PAS)", "Emergency Department System", "EMR"],
+        downstreamSystems: ["Bed Management", "Clinical Decision Support"],
+        data: ["Vital Signs", "Triage Assessment", "Priority Level"],
+        timeframe: "Real-time",
+        risk: "High"
+      },
+      {
+        step: "Diagnostic Orders",
+        message: "ORM - Order Message",
+        systems: ["Patient Administration System (PAS)", "Emergency Department System", "CPOE"],
+        downstreamSystems: ["Laboratory System", "Radiology System", "Pharmacy System"],
+        data: ["Lab Orders", "Imaging Orders", "Medication Orders"],
+        timeframe: "STAT/Real-time",
+        risk: "Critical"
+      },
+      {
+        step: "Disposition Decision",
+        message: "ADT^A06 - Transfer or ADT^A03 - Discharge",
+        systems: ["Patient Administration System (PAS)", "Emergency Department System", "EMR"],
+        downstreamSystems: ["Bed Management", "Billing System"],
+        data: ["Disposition Plan", "Admission or Discharge Orders"],
+        timeframe: "Real-time",
+        risk: "High"
+      }
+    ]
+  };
+
+  const currentJourney = journeys[patientType];
+  
+  const toggleDetails = (index) => {
+    setShowDetails(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
+  const handleNext = () => {
+    if (activeStep < currentJourney.length - 1) {
+      setActiveStep(activeStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (activeStep > 0) {
+      setActiveStep(activeStep - 1);
+    }
+  };
+
+  const handleReset = () => {
+    setActiveStep(0);
+  };
+
+  return (
+    <div className="flex flex-col p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Patient Journey Integration Flow</h1>
+      
+      <div className="mb-6 p-4 bg-white rounded-lg shadow">
+        <h2 className="text-lg font-semibold mb-3">Configuration</h2>
+        <div className="flex flex-wrap gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Patient Type</label>
+            <div className="flex gap-4">
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio h-4 w-4 text-blue-600"
+                  value="inpatient"
+                  checked={patientType === 'inpatient'}
+                  onChange={() => {setPatientType('inpatient'); setActiveStep(0);}}
+                />
+                <span className="ml-2">Inpatient</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio h-4 w-4 text-blue-600"
+                  value="outpatient"
+                  checked={patientType === 'outpatient'}
+                  onChange={() => {setPatientType('outpatient'); setActiveStep(0);}}
+                />
+                <span className="ml-2">Outpatient</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio h-4 w-4 text-blue-600"
+                  value="emergency"
+                  checked={patientType === 'emergency'}
+                  onChange={() => {setPatientType('emergency'); setActiveStep(0);}}
+                />
+                <span className="ml-2">Emergency</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex mb-4 overflow-x-auto pb-2">
+        {currentJourney.map((step, index) => (
+          <div 
+            key={index} 
+            className={`flex items-center ${index === currentJourney.length - 1 ? '' : 'mr-2'}`}
+          >
+            <div 
+              className={`px-4 py-2 rounded-lg text-sm font-medium cursor-pointer
+                ${index === activeStep ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+              onClick={() => setActiveStep(index)}
+            >
+              {step.step}
+            </div>
+            {index < currentJourney.length - 1 && (
+              <ChevronRight className="mx-1 text-gray-400" size={16} />
+            )}
+          </div>
+        ))}
+      </div>
+      
+      <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">{currentJourney[activeStep].step}</h2>
+          <div className="flex items-center space-x-1">
+            <div className={`px-3 py-1 rounded-full text-xs font-semibold
+              ${currentJourney[activeStep].risk === 'Low' ? 'bg-green-100 text-green-800' : 
+                currentJourney[activeStep].risk === 'Medium' ? 'bg-yellow-100 text-yellow-800' : 
+                currentJourney[activeStep].risk === 'High' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800'}`}>
+              {currentJourney[activeStep].risk} Risk
+            </div>
+          </div>
+        </div>
+        
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center mb-2">
+            <Activity className="text-blue-500 mr-2" size={20} />
+            <h3 className="font-semibold">HL7 Message Trigger: {currentJourney[activeStep].message}</h3>
+          </div>
+          <p className="text-sm text-gray-600">
+            This step initiates HL7 messages that flow between systems to ensure coordinated patient care.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="font-semibold mb-2 flex items-center">
+              <Server className="text-gray-500 mr-2" size={18} />
+              Primary Systems
+            </h3>
+            <ul className="space-y-2">
+              {currentJourney[activeStep].systems.map((system, idx) => (
+                <li key={idx} className="flex items-center bg-gray-100 p-2 rounded">
+                  <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                  {system}
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold mb-2 flex items-center">
+              <Clock className="text-gray-500 mr-2" size={18} />
+              Integration Timeframe
+            </h3>
+            <div className="bg-gray-100 p-3 rounded mb-4">
+              <span className={`px-2 py-1 rounded text-xs font-semibold
+                ${currentJourney[activeStep].timeframe === 'Real-time' ? 'bg-green-100 text-green-800' : 
+                  'bg-yellow-100 text-yellow-800'}`}>
+                {currentJourney[activeStep].timeframe}
+              </span>
+            </div>
+            
+            <h3 className="font-semibold mb-2 flex items-center">
+              <AlertTriangle className="text-gray-500 mr-2" size={18} />
+              Critical Data Elements
+            </h3>
+            <ul className="bg-gray-100 p-3 rounded text-sm">
+              {currentJourney[activeStep].data.map((item, idx) => (
+                <li key={idx} className="mb-1">{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        
+        <div className="mt-6">
+          <h3 className="font-semibold mb-3">Downstream Systems Impact</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {currentJourney[activeStep].downstreamSystems.map((system, idx) => (
+              <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-2 text-sm text-center">
+                {system}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex justify-between">
+        <button
+          onClick={handlePrevious}
+          disabled={activeStep === 0}
+          className={`px-4 py-2 rounded ${activeStep === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white'}`}
+        >
+          Previous
+        </button>
+        
+        <button
+          onClick={handleReset}
+          className="px-4 py-2 rounded bg-gray-200"
+        >
+          Reset
+        </button>
+        
+        <button
+          onClick={handleNext}
+          disabled={activeStep === currentJourney.length - 1}
+          className={`px-4 py-2 rounded ${activeStep === currentJourney.length - 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white'}`}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default PatientJourneyVisualizer;
