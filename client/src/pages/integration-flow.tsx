@@ -3,12 +3,29 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "wouter";
 
+// Define types for journey data
+type JourneyStep = {
+  step: string;
+  message: string;
+  systems: string[];
+  downstreamSystems: string[];
+  data: string[];
+  timeframe: string;
+  risk: "Low" | "Medium" | "High" | "Critical";
+}
+
+type PatientJourneyType = "inpatient" | "outpatient" | "emergency";
+
+type Journeys = {
+  [key in PatientJourneyType]: JourneyStep[];
+}
+
 export default function IntegrationFlowPage() {
-  const [patientType, setPatientType] = useState("inpatient");
+  const [patientType, setPatientType] = useState<PatientJourneyType>("inpatient");
   const [activeStep, setActiveStep] = useState(0);
 
   // Define different patient journeys based on type
-  const journeys = {
+  const journeys: Journeys = {
     inpatient: [
       {
         step: "Registration",
@@ -152,7 +169,7 @@ export default function IntegrationFlowPage() {
     setActiveStep(0);
   };
 
-  const getRiskColor = (risk) => {
+  const getRiskColor = (risk: JourneyStep['risk']): string => {
     switch(risk) {
       case 'Low':
         return 'bg-green-100 text-green-800';
@@ -172,7 +189,7 @@ export default function IntegrationFlowPage() {
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8">
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           <div>
-            <h2 className="text-3xl font-extrabold text-gray-900">Integration Flow Visualization</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900">Integration Flow</h2>
             <p className="mt-4 text-lg text-gray-500">
               Select a patient journey type to visualize how different healthcare systems interact 
               through HL7 messages across the care process.
@@ -236,7 +253,7 @@ export default function IntegrationFlowPage() {
               
               {/* Journey Steps Navigation */}
               <div className="flex mb-6 overflow-x-auto pb-2">
-                {currentJourney.map((step, index) => (
+                {currentJourney.map((step: JourneyStep, index: number) => (
                   <div 
                     key={index} 
                     className={`flex items-center ${index === currentJourney.length - 1 ? '' : 'mr-2'}`}
@@ -283,7 +300,7 @@ export default function IntegrationFlowPage() {
                       Primary Systems
                     </h4>
                     <ul className="space-y-2">
-                      {currentJourney[activeStep].systems.map((system, idx) => (
+                      {currentJourney[activeStep].systems.map((system: string, idx: number) => (
                         <li key={idx} className="flex items-center bg-gray-100 p-2 rounded">
                           <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
                           <span className="text-gray-800">{system}</span>
@@ -310,7 +327,7 @@ export default function IntegrationFlowPage() {
                       Critical Data Elements
                     </h4>
                     <ul className="bg-gray-100 p-3 rounded">
-                      {currentJourney[activeStep].data.map((item, idx) => (
+                      {currentJourney[activeStep].data.map((item: string, idx: number) => (
                         <li key={idx} className="mb-1 text-gray-700 flex items-center">
                           <span className="material-icons text-primary mr-1 text-sm">arrow_right</span>
                           {item}
@@ -323,7 +340,7 @@ export default function IntegrationFlowPage() {
                 <div className="mt-6">
                   <h4 className="font-semibold mb-3 text-gray-700">Downstream Systems Impact</h4>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {currentJourney[activeStep].downstreamSystems.map((system, idx) => (
+                    {currentJourney[activeStep].downstreamSystems.map((system: string, idx: number) => (
                       <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-2 text-sm text-center text-gray-700">
                         {system}
                       </div>
