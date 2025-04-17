@@ -60,7 +60,7 @@ export default function ResourcesPage() {
     },
     {
       title: "Integration Flow",
-      description: "Visualize integration flows based on patient type. This visualization tool demonstrates how selecting different patient journeys (inpatient, outpatient, emergency) reveals the systems integration touchpoints triggered by HL7 messages throughout the care process.",
+      description: "Visualize integration flows based on patient type. This visualization tool demonstrates how selecting different patient journeys reveals the systems integration touchpoints triggered by HL7 messages throughout the care process.",
       link: "/integration-flow",
       category: "Education",
       isInternalLink: true
