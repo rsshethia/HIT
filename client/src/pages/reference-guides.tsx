@@ -1,14 +1,19 @@
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 
 export default function ReferenceGuidesPage() {
   return (
     <div className="bg-neutral-50 min-h-[calc(100vh-4rem)]">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8">
         <div className="mb-12">
-          <Link href="/resources" className="text-primary hover:text-primary-700 flex items-center mb-6">
-            <span className="material-icons mr-1 text-sm">arrow_back</span>
-            Back to Resources
-          </Link>
+          <div className="mb-6">
+            <Link href="/resources">
+              <Button variant="outline" className="inline-flex items-center w-full sm:w-auto">
+                <span className="material-icons mr-1 text-sm">arrow_back</span>
+                Back to Resources
+              </Button>
+            </Link>
+          </div>
           
           <h2 className="text-3xl font-extrabold text-gray-900 mb-8">Mini Reference Guides</h2>
           <p className="text-lg text-gray-600 mb-12">
