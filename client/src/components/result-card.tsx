@@ -102,7 +102,7 @@ export default function ResultCard({
     const toolDescription = "This assessment tool helps healthcare organizations evaluate their integration capabilities across seven key dimensions: System Coverage, Timeliness, Data Quality, Monitoring, Scalability, Governance, and Security. The tool provides a maturity score and tailored recommendations to help organizations improve their integration landscape.";
     
     // Border for all pages (will add at the end)
-    const addPageBorder = (pageNum) => {
+    const addPageBorder = (pageNum: number) => {
       doc.setPage(pageNum);
       doc.setDrawColor(200, 200, 220);
       doc.setLineWidth(0.5);
@@ -228,16 +228,20 @@ export default function ResultCard({
     if (exportOptions.includeRecommendations && recommendations.length > 0) {
       contentSections.push("Recommendations");
       
-      // Check if we need a page break
-      if (currentY > pageHeight - 50) {
-        doc.addPage();
-        currentY = margin;
-      }
+      // Always start recommendations on a new page
+      doc.addPage();
+      currentY = margin;
       
-      doc.setFontSize(15);
-      doc.setTextColor(0, 0, 0);
-      doc.text('Recommended Next Steps', margin, currentY);
-      currentY += 10;
+      // Add a section header with background
+      doc.setFillColor(240, 255, 240); // Light green background for recommendations section header
+      doc.rect(0, 0, pageWidth, 30, 'F');
+      
+      doc.setFontSize(16);
+      doc.setTextColor(30, 100, 30); // Darker green for the title
+      doc.text('Recommended Next Steps', margin, 20);
+      
+      // Start content below the header
+      currentY = 40;
       
       // Draw individual box for each recommendation
       recommendations.forEach((recommendation, index) => {
@@ -357,7 +361,7 @@ export default function ResultCard({
       
       // Second footer line with developer info
       const footerY2 = pageHeight - 10;
-      doc.text(`Generated: ${new Date().toLocaleDateString()} | Developed with ❤️ in Bendigo, VIC - Australia`, margin, footerY2);
+      doc.text(`Generated: ${new Date().toLocaleDateString()} | Developed in Bendigo, VIC - Australia. Supported by Rushabh Shethia`, margin, footerY2);
     }
     
     // Save the PDF
