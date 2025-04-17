@@ -5,6 +5,7 @@ import { jsPDF } from "jspdf";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { sections } from "@/lib/form-data";
 
 interface ResultCardProps {
   score: number;
@@ -155,56 +156,154 @@ export default function ResultCard({
       return startY + boxHeight;
     };
     
-    // Overall score section - title
-    let currentY = 45; // Start Y position after the header
+    // Start position after the header
+    let currentY = 45;
     
-    doc.setFontSize(15);
-    doc.setTextColor(0, 0, 0);
-    doc.text('Assessment Results', margin, currentY);
-    currentY += 10;
-    
-    // Score details box
-    const scoreText = `Overall Score: ${score} out of ${maxScore} points (${percentage}%)\n\nMaturity Level: ${status}`;
-    currentY = drawTextBox(scoreText, currentY, null, [240, 245, 255]); // Light blue background
-    currentY += 10; // Add spacing after the box
+    // Overall score section
+    if (exportOptions.includeScore) {
+      doc.setFontSize(15);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Assessment Results', margin, currentY);
+      currentY += 10;
+      
+      let scoreText = `Overall Score: ${score} out of ${maxScore} points (${percentage}%)`;
+      
+      // Only include maturity level if that option is selected
+      if (exportOptions.includeMaturityLevel) {
+        scoreText += `\n\nMaturity Level: ${status}`;
+      }
+      
+      currentY = drawTextBox(scoreText, currentY, null, [240, 245, 255]); // Light blue background
+      currentY += 10; // Add spacing after the box
+    } else if (exportOptions.includeMaturityLevel) {
+      // If score isn't included but maturity level is
+      doc.setFontSize(15);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Maturity Assessment', margin, currentY);
+      currentY += 10;
+      
+      const maturityText = `Maturity Level: ${status}`;
+      currentY = drawTextBox(maturityText, currentY, null, [240, 245, 255]); // Light blue background
+      currentY += 10; // Add spacing after the box
+    }
     
     // Recommendations section
-    doc.setFontSize(15);
-    doc.setTextColor(0, 0, 0);
-    doc.text('Recommended Next Steps', margin, currentY);
-    currentY += 10;
-    
-    // Draw individual box for each recommendation
-    recommendations.forEach((recommendation, index) => {
+    if (exportOptions.includeRecommendations && recommendations.length > 0) {
       // Check if we need a page break
       if (currentY > pageHeight - 50) {
         doc.addPage();
         currentY = margin;
       }
       
-      // Draw box around this recommendation with bullet point
-      const recText = `• ${recommendation}`;
-      currentY = drawTextBox(recText, currentY, null, [245, 255, 245]); // Light green background
-      currentY += 5; // Add spacing between recommendation boxes
-    });
+      doc.setFontSize(15);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Recommended Next Steps', margin, currentY);
+      currentY += 10;
+      
+      // Draw individual box for each recommendation
+      recommendations.forEach((recommendation, index) => {
+        // Check if we need a page break
+        if (currentY > pageHeight - 50) {
+          doc.addPage();
+          currentY = margin;
+        }
+        
+        // Draw box around this recommendation with bullet point
+        const recText = `• ${recommendation}`;
+        currentY = drawTextBox(recText, currentY, null, [245, 255, 245]); // Light green background
+        currentY += 5; // Add spacing between recommendation boxes
+      });
+    }
     
-    // Footer
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
+    // User answers section
+    if (exportOptions.includeAnswers && userAnswers && Object.keys(userAnswers).length > 0) {
+      // Always start answers on a new page regardless of available space
+      doc.addPage();
+      currentY = margin;
+      
+      // Add a section header with background to make it clear this is a new section
+      doc.setFillColor(240, 240, 255); // Light blue background for answers section header
+      doc.rect(0, 0, pageWidth, 30, 'F');
+      
+      doc.setFontSize(16);
+      doc.setTextColor(50, 50, 150); // Darker blue for the title
+      doc.text('Your Assessment Answers', margin, 20);
+      
+      // Start content below the header
+      currentY = 40;
+      
+      // Group answers by section
+      const sectionIds = new Set();
+      for (const section of sections) {
+        sectionIds.add(section.id);
+      }
+      
+      // Process each section
+      for (const section of sections) {
+        // Check if any questions from this section were answered
+        const sectionQuestions = section.questions.filter(q => userAnswers[q.id]);
+        
+        if (sectionQuestions.length > 0) {
+          // Check if we need a page break
+          if (currentY > pageHeight - 60) {
+            doc.addPage();
+            currentY = margin;
+          }
+          
+          // Section title
+          doc.setFontSize(13);
+          doc.setTextColor(60, 60, 60);
+          doc.text(section.title, margin, currentY);
+          currentY += 8;
+          
+          // Process each question in this section
+          for (const question of sectionQuestions) {
+            const answer = userAnswers[question.id];
+            if (answer) {
+              // Check if we need a page break
+              if (currentY > pageHeight - 50) {
+                doc.addPage();
+                currentY = margin;
+              }
+              
+              const answerText = `Q: ${answer.question}\nA: ${answer.answer} (${answer.value}/5)`;
+              currentY = drawTextBox(answerText, currentY, null, [250, 250, 255]); // Very light blue
+              currentY += 5;
+            }
+          }
+          
+          currentY += 5; // Add extra space between sections
+        }
+      }
+    }
     
-    // Draw a light gray line above footer
-    doc.setDrawColor(200, 200, 200);
-    const footerLineY = pageHeight - 20;
-    doc.line(margin, footerLineY, pageWidth - margin, footerLineY);
+    // Add page numbers and footer to all pages
+    const totalPages = doc.getNumberOfPages();
     
-    // First footer line with tool name and generation date
-    const footerY1 = pageHeight - 15;
-    doc.text('Healthcare Integration Self-Assessment Tool', margin, footerY1);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth - margin, footerY1, {align: 'right'});
-    
-    // Second footer line with developer info
-    const footerY2 = pageHeight - 10;
-    doc.text('Developed with ❤️ in Bendigo, VIC - Australia. Supported by Rushabh Shethia', margin, footerY2);
+    // Loop through all pages
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      
+      // Draw a light gray line above footer
+      doc.setDrawColor(200, 200, 200);
+      const footerLineY = pageHeight - 20;
+      doc.line(margin, footerLineY, pageWidth - margin, footerLineY);
+      
+      // First footer line with tool name and generation date
+      const footerY1 = pageHeight - 15;
+      doc.text('Healthcare Integration Self-Assessment Tool', margin, footerY1);
+      
+      // Add page numbers on the right
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin, footerY1, {align: 'right'});
+      
+      // Second footer line with developer info and date
+      const footerY2 = pageHeight - 10;
+      doc.text('Developed with ❤️ in Bendigo, VIC - Australia. Supported by Rushabh Shethia', margin, footerY2);
+      doc.text(`Generated: ${new Date().toLocaleDateString()}`, pageWidth - margin, footerY2, {align: 'right'});
+    }
     
     // Save the PDF
     doc.save(`healthcare-integration-assessment-${new Date().toISOString().slice(0,10)}.pdf`);

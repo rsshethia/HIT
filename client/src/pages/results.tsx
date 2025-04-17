@@ -82,6 +82,7 @@ export default function Results() {
           percentage={parseFloat(results.percentage)}
           status={results.status}
           recommendations={results.recommendations}
+          userAnswers={results.userAnswers}
           onReset={handleReset}
         />
 
