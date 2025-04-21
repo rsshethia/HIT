@@ -104,10 +104,11 @@ export default function NavBar() {
       </div>
 
       {/* Mobile menu */}
-      <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden`}>
+      <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden absolute w-full bg-white shadow-lg z-50`}>
         <div className="pt-2 pb-3 space-y-1">
           <Link 
             href="/"
+            onClick={() => setIsMenuOpen(false)}
             className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
               isActive("/") 
                 ? "border-primary text-primary bg-primary-50" 
@@ -118,6 +119,7 @@ export default function NavBar() {
           </Link>
           <Link 
             href="/assessment"
+            onClick={() => setIsMenuOpen(false)}
             className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
               isActive("/assessment") 
                 ? "border-primary text-primary bg-primary-50" 
@@ -128,6 +130,7 @@ export default function NavBar() {
           </Link>
           <Link 
             href="/resources"
+            onClick={() => setIsMenuOpen(false)}
             className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
               isActive("/resources") 
                 ? "border-primary text-primary bg-primary-50" 
@@ -138,6 +141,7 @@ export default function NavBar() {
           </Link>
           <Link 
             href="/about"
+            onClick={() => setIsMenuOpen(false)}
             className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
               isActive("/about") 
                 ? "border-primary text-primary bg-primary-50" 
@@ -146,7 +150,7 @@ export default function NavBar() {
           >
             About
           </Link>
-          <div className="mt-4 pl-3 pr-4 space-y-2">
+          <div className="mt-4 px-4 space-y-3 pb-2">
             <Button 
               variant="outline"
               onClick={() => {

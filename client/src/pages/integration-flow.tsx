@@ -249,24 +249,26 @@ export default function IntegrationFlowPage() {
             </div>
             
             {/* Journey Steps Navigation */}
-            <div className="flex mb-6 overflow-x-auto pb-2">
-              {currentJourney.map((step: JourneyStep, index: number) => (
-                <div 
-                  key={index} 
-                  className={`flex items-center ${index === currentJourney.length - 1 ? '' : 'mr-2'}`}
-                >
+            <div className="flex mb-6 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="inline-flex min-w-full">
+                {currentJourney.map((step: JourneyStep, index: number) => (
                   <div 
-                    className={`px-4 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors
-                      ${index === activeStep ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
-                    onClick={() => setActiveStep(index)}
+                    key={index} 
+                    className={`flex items-center ${index === currentJourney.length - 1 ? '' : 'mr-1 sm:mr-2'} flex-shrink-0`}
                   >
-                    {step.step}
+                    <div 
+                      className={`px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium cursor-pointer transition-colors whitespace-nowrap
+                        ${index === activeStep ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                      onClick={() => setActiveStep(index)}
+                    >
+                      {step.step}
+                    </div>
+                    {index < currentJourney.length - 1 && (
+                      <span className="material-icons mx-1 text-gray-400 text-xs sm:text-sm">chevron_right</span>
+                    )}
                   </div>
-                  {index < currentJourney.length - 1 && (
-                    <span className="material-icons mx-1 text-gray-400 text-sm">chevron_right</span>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
             
             {/* Current Step Details */}
@@ -347,12 +349,13 @@ export default function IntegrationFlowPage() {
             </div>
             
             {/* Navigation Buttons */}
-            <div className="flex justify-between">
+            <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0">
               <Button
                 variant="outline"
                 onClick={handlePrevious}
                 disabled={activeStep === 0}
-                className={`${activeStep === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`${activeStep === 0 ? 'opacity-50 cursor-not-allowed' : ''} w-full sm:w-auto order-2 sm:order-1`}
+                size="sm"
               >
                 <span className="material-icons mr-1 text-sm">arrow_back</span>
                 Previous
@@ -361,6 +364,8 @@ export default function IntegrationFlowPage() {
               <Button
                 variant="outline"
                 onClick={handleReset}
+                className="w-full sm:w-auto order-1 sm:order-2"
+                size="sm"
               >
                 <span className="material-icons mr-1 text-sm">refresh</span>
                 Reset
@@ -370,7 +375,8 @@ export default function IntegrationFlowPage() {
                 variant="outline"
                 onClick={handleNext}
                 disabled={activeStep === currentJourney.length - 1}
-                className={`${activeStep === currentJourney.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`${activeStep === currentJourney.length - 1 ? 'opacity-50 cursor-not-allowed' : ''} w-full sm:w-auto order-3`}
+                size="sm"
               >
                 Next
                 <span className="material-icons ml-1 text-sm">arrow_forward</span>
