@@ -11,9 +11,13 @@ export default function AboutPage() {
             <p className="mt-4 text-lg text-gray-500">
               Learn more about Health Integration Tools, a comprehensive platform designed to help healthcare organizations improve their integration capabilities.
             </p>
-            <div className="mt-6">
-              <img src="https://img.shields.io/badge/Version-0.1.0-blue" alt="Version" className="mr-2" />
-              <img src="https://img.shields.io/badge/Updated-April%202025-green" alt="Last Updated" />
+            <div className="mt-6 flex items-center text-sm text-gray-500">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
+                v0.1.7
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                Updated: April 17, 2025
+              </span>
             </div>
           </div>
           <div className="mt-12 lg:mt-0 lg:col-span-2">
