@@ -13,10 +13,10 @@ export default function AboutPage() {
             </p>
             <div className="mt-6 flex items-center text-sm text-gray-500">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
-                v0.1.7
+                v 0.1.9
               </span>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Updated: April 17, 2025
+                Updated: April 21, 2025
               </span>
             </div>
           </div>
@@ -50,23 +50,11 @@ export default function AboutPage() {
                 </dd>
               </div>
               
-              <div>
-                <dt className="text-lg leading-6 font-medium text-gray-900">Benefits of Using HIT</dt>
-                <dd className="mt-2 text-base text-gray-500">
-                  <ul className="list-disc pl-5 mt-2 space-y-2">
-                    <li><span className="font-medium">Comprehensive Evaluation</span>: Assess your integration maturity across key dimensions like system coverage, data quality, and security.</li>
-                    <li><span className="font-medium">Visual Understanding</span>: Gain insights through interactive visualizations of integration flows and system interactions.</li>
-                    <li><span className="font-medium">Technical Reference</span>: Access detailed reference guides for implementation support.</li>
-                    <li><span className="font-medium">Knowledge Sharing</span>: Improve cross-functional understanding of healthcare integration concepts.</li>
-                    <li><span className="font-medium">Exportable Documentation</span>: Generate PDF reports for sharing with stakeholders.</li>
-                  </ul>
-                </dd>
-              </div>
-              
               <div className="flex flex-col sm:flex-row justify-center gap-4 pt-8">
                 <Button 
                   asChild
-                  className="inline-flex items-center justify-center"
+                  className="w-full sm:w-auto inline-flex items-center justify-center h-14"
+                  size="lg"
                 >
                   <Link href="/resources">
                     <span className="material-icons mr-2">apps</span>
@@ -77,7 +65,8 @@ export default function AboutPage() {
                 <Button 
                   asChild
                   variant="outline"
-                  className="inline-flex items-center justify-center"
+                  className="w-full sm:w-auto inline-flex items-center justify-center h-14"
+                  size="lg"
                 >
                   <Link href="/assessment">
                     <span className="material-icons mr-2">assessment</span>
