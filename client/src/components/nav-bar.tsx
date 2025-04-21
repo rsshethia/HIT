@@ -146,7 +146,18 @@ export default function NavBar() {
           >
             About
           </Link>
-          <div className="mt-4 pl-3 pr-4">
+          <div className="mt-4 pl-3 pr-4 space-y-2">
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setLocation("/resources");
+                setIsMenuOpen(false);
+              }}
+              className="w-full justify-center"
+            >
+              <span className="material-icons mr-1 text-sm">apps</span>
+              Explore Tools
+            </Button>
             <Button 
               variant="default"
               onClick={() => {
