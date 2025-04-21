@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 
 export default function AboutPage() {
   return (
@@ -6,45 +7,79 @@ export default function AboutPage() {
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8">
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           <div>
-            <h2 className="text-3xl font-extrabold text-gray-900">About This Tool</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900">About <span className="text-primary">HIT</span></h2>
             <p className="mt-4 text-lg text-gray-500">
-              Learn more about the Healthcare Integration Maturity Assessment tool, how it was developed, and how it can help your organization.
+              Learn more about Health Integration Tools, a comprehensive platform designed to help healthcare organizations improve their integration capabilities.
             </p>
+            <div className="mt-6">
+              <img src="https://img.shields.io/badge/Version-0.1.0-blue" alt="Version" className="mr-2" />
+              <img src="https://img.shields.io/badge/Updated-April%202025-green" alt="Last Updated" />
+            </div>
           </div>
           <div className="mt-12 lg:mt-0 lg:col-span-2">
             <dl className="space-y-12">
               <div>
-                <dt className="text-lg leading-6 font-medium text-gray-900">What is the Healthcare Integration Maturity Assessment?</dt>
+                <dt className="text-lg leading-6 font-medium text-gray-900">What is HIT?</dt>
                 <dd className="mt-2 text-base text-gray-500">
-                  This assessment tool helps healthcare organizations evaluate their integration capabilities across seven key dimensions: System Coverage, Timeliness, Data Quality, Monitoring, Scalability, Governance, and Security. The tool provides a maturity score and tailored recommendations to help organizations improve their integration landscape.
+                  Health Integration Tools (HIT) is a comprehensive platform that provides healthcare organizations with various tools to evaluate, visualize, and improve their integration capabilities. Our platform includes a maturity assessment tool, integration flow visualizations, reference guides, and educational resources to support all aspects of healthcare integration.
                 </dd>
               </div>
+              
               <div>
-                <dt className="text-lg leading-6 font-medium text-gray-900">How was this tool developed?</dt>
+                <dt className="text-lg leading-6 font-medium text-gray-900">Who is HIT designed for?</dt>
                 <dd className="mt-2 text-base text-gray-500">
-                  This assessment was developed based on industry best practices, healthcare interoperability standards (such as HL7, FHIR, and IHE profiles), and real-world experience with healthcare integration challenges. The questions and scoring methodology were refined through feedback from healthcare IT professionals and integration specialists.
+                  HIT is designed to cater to multiple roles within healthcare organizations:
+                  
+                  <ul className="list-disc pl-5 mt-2 space-y-2">
+                    <li><span className="font-medium">Directors and Managers</span>: The Maturity Assessment Tool helps leadership evaluate organizational integration capabilities and plan strategic improvements.</li>
+                    <li><span className="font-medium">Analysts</span>: The Integration Flow Visualizer helps analysts understand message flows across different patient journeys and system touchpoints.</li>
+                    <li><span className="font-medium">Developers</span>: The Reference Guides provide technical documentation on HL7 message types and implementation details for integration projects.</li>
+                    <li><span className="font-medium">Project Teams</span>: The comprehensive resources support cross-functional teams working on healthcare integration initiatives.</li>
+                  </ul>
                 </dd>
               </div>
+              
               <div>
-                <dt className="text-lg leading-6 font-medium text-gray-900">How does the assessment work?</dt>
+                <dt className="text-lg leading-6 font-medium text-gray-900">Our Approach</dt>
                 <dd className="mt-2 text-base text-gray-500">
-                  The assessment consists of 18 questions across 7 categories. Each question is scored based on your response, and the scores are aggregated to calculate an overall maturity percentage. Based on this percentage, the tool assigns a maturity level (Low, Moderate, or High) and provides tailored recommendations for improvement.
+                  HIT was developed based on industry best practices, healthcare interoperability standards (such as HL7, FHIR, and IHE profiles), and real-world experience with healthcare integration challenges. Our tools and methodologies are continuously refined through feedback from healthcare IT professionals and integration specialists.
                 </dd>
               </div>
+              
               <div>
-                <dt className="text-lg leading-6 font-medium text-gray-900">Who should use this tool?</dt>
+                <dt className="text-lg leading-6 font-medium text-gray-900">Benefits of Using HIT</dt>
                 <dd className="mt-2 text-base text-gray-500">
-                  This assessment is designed for healthcare IT leaders, integration architects, CIOs, CTOs, and other stakeholders responsible for healthcare systems integration. It's particularly valuable for organizations that are planning integration strategy improvements or evaluating their current integration capabilities.
+                  <ul className="list-disc pl-5 mt-2 space-y-2">
+                    <li><span className="font-medium">Comprehensive Evaluation</span>: Assess your integration maturity across key dimensions like system coverage, data quality, and security.</li>
+                    <li><span className="font-medium">Visual Understanding</span>: Gain insights through interactive visualizations of integration flows and system interactions.</li>
+                    <li><span className="font-medium">Technical Reference</span>: Access detailed reference guides for implementation support.</li>
+                    <li><span className="font-medium">Knowledge Sharing</span>: Improve cross-functional understanding of healthcare integration concepts.</li>
+                    <li><span className="font-medium">Exportable Documentation</span>: Generate PDF reports for sharing with stakeholders.</li>
+                  </ul>
                 </dd>
               </div>
-              <div className="text-center pt-8">
-                <Link 
-                  href="/assessment"
-                  className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-700"
+              
+              <div className="flex flex-col sm:flex-row justify-center gap-4 pt-8">
+                <Button 
+                  asChild
+                  className="inline-flex items-center justify-center"
                 >
-                  <span className="material-icons mr-2">assessment</span>
-                  Start the Assessment
-                </Link>
+                  <Link href="/resources">
+                    <span className="material-icons mr-2">apps</span>
+                    Explore All Tools
+                  </Link>
+                </Button>
+                
+                <Button 
+                  asChild
+                  variant="outline"
+                  className="inline-flex items-center justify-center"
+                >
+                  <Link href="/assessment">
+                    <span className="material-icons mr-2">assessment</span>
+                    Start the Assessment
+                  </Link>
+                </Button>
               </div>
             </dl>
           </div>
