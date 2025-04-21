@@ -23,7 +23,7 @@ export default function LandingPage() {
                 <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                   <Button
                     size="lg"
-                    className="mt-3 px-6 py-3 text-base font-medium shadow-md"
+                    className="px-6 py-3 text-base font-medium shadow-md h-14"
                     onClick={() => setLocation("/resources")}
                   >
                     <span className="material-icons mr-2">apps</span>
@@ -31,7 +31,8 @@ export default function LandingPage() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="mt-3 px-6 py-3 text-base font-medium bg-white"
+                    size="lg"
+                    className="px-6 py-3 text-base font-medium bg-white shadow-sm h-14"
                     onClick={() => setLocation("/assessment")}
                   >
                     <span className="material-icons mr-2">assessment</span>
@@ -202,13 +203,26 @@ export default function LandingPage() {
             <span className="block">Ready to improve your healthcare integration?</span>
             <span className="block text-indigo-100">Explore our tools today</span>
           </h2>
-          <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+          <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0 space-x-4">
             <div className="inline-flex rounded-md shadow">
               <Button 
                 onClick={() => setLocation("/resources")}
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-white hover:bg-indigo-50"
+                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-white hover:bg-indigo-50 h-14"
+                size="lg"
               >
+                <span className="material-icons mr-2">apps</span>
                 Explore Tools
+              </Button>
+            </div>
+            <div className="inline-flex rounded-md">
+              <Button 
+                onClick={() => setLocation("/assessment")}
+                className="inline-flex items-center justify-center px-6 py-3 border border-white text-base font-medium rounded-md text-white bg-transparent hover:bg-primary-700 h-14"
+                size="lg"
+                variant="outline"
+              >
+                <span className="material-icons mr-2">assessment</span>
+                Start Assessment
               </Button>
             </div>
           </div>
