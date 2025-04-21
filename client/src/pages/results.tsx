@@ -65,10 +65,10 @@ export default function Results() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <span className="material-icons text-primary text-3xl">healing</span>
+              <span className="material-icons text-primary text-3xl">device_hub</span>
             </div>
             <div className="ml-4">
-              <h1 className="text-2xl font-semibold text-gray-800">Healthcare Integration Self-Assessment</h1>
+              <h1 className="text-2xl font-semibold text-gray-800">HIT Assessment Tool</h1>
               <p className="text-gray-500 text-sm mt-1">Your Assessment Results</p>
             </div>
           </div>
@@ -101,7 +101,7 @@ export default function Results() {
       <footer className="bg-white border-t border-gray-200 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <p className="text-center text-gray-500 text-sm">
-            © {new Date().getFullYear()} Healthcare Integration Assessment Tool | 
+            © {new Date().getFullYear()} Health Integration Tools | 
             <a href="#" className="text-primary hover:text-primary-700 transition-colors ml-1">
               Privacy Policy
             </a>

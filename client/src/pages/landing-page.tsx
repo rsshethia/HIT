@@ -57,15 +57,15 @@ export default function LandingPage() {
           <div className="lg:text-center">
             <h2 className="text-base text-primary font-semibold tracking-wide uppercase">Our Tools</h2>
             <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-              Complete Healthcare Integration Toolkit
+              Evolving Healthcare Integration Toolkit
             </p>
             <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-              A powerful suite of tools designed to help healthcare organizations evaluate, visualize, and improve their integration capabilities.
+              A comprehensive suite of tools designed to help healthcare organizations evaluate, visualize, and improve their integration capabilities.
             </p>
           </div>
 
           <div className="mt-10">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-3">
               {/* Tool 1 */}
               <div className="pt-6">
                 <div className="flow-root bg-white rounded-lg px-6 pb-8 h-full border border-gray-100 hover:shadow-md transition-shadow">
@@ -129,29 +129,6 @@ export default function LandingPage() {
                       <Button variant="outline" size="sm" onClick={() => setLocation("/reference-guides")} className="w-full">
                         <span className="material-icons text-sm mr-1">arrow_forward</span>
                         View Guides
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tool 4 */}
-              <div className="pt-6">
-                <div className="flow-root bg-white rounded-lg px-6 pb-8 h-full border border-gray-100 hover:shadow-md transition-shadow">
-                  <div className="-mt-6">
-                    <div>
-                      <span className="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg">
-                        <span className="material-icons text-white">download</span>
-                      </span>
-                    </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">PDF Reporting</h3>
-                    <p className="mt-5 text-base text-gray-500">
-                      Customizable PDF export for assessment results and integration documentation.
-                    </p>
-                    <div className="mt-4">
-                      <Button variant="outline" size="sm" onClick={() => setLocation("/assessment")} className="w-full">
-                        <span className="material-icons text-sm mr-1">arrow_forward</span>
-                        Try It
                       </Button>
                     </div>
                   </div>
