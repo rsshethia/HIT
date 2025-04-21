@@ -114,7 +114,7 @@ export default function IntegrationFlowPage() {
     emergency: [
       {
         step: "Emergency Registration",
-        message: "ADT^A04 - Emergency Registration",
+        message: "ADT^A04 - Emergency Registration or ADT^A01 Emergency Admission",
         systems: ["Patient Administration System (PAS)", "Emergency Department System", "EMR"],
         downstreamSystems: ["Billing System", "Bed Management"],
         data: ["Patient Demographics", "Chief Complaint", "Triage Level"],
@@ -141,7 +141,7 @@ export default function IntegrationFlowPage() {
       },
       {
         step: "Disposition Decision",
-        message: "ADT^A06 - Transfer or ADT^A03 - Discharge",
+        message: "ADT^A03 - Discharge",
         systems: ["Patient Administration System (PAS)", "Emergency Department System", "EMR"],
         downstreamSystems: ["Bed Management", "Billing System"],
         data: ["Disposition Plan", "Admission or Discharge Orders"],

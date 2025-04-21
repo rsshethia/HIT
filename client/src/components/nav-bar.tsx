@@ -20,8 +20,10 @@ export default function NavBar() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="flex items-center">
-                <span className="material-icons text-primary text-3xl mr-2">healing</span>
-                <span className="font-bold text-xl text-gray-800 hidden md:block">Healthcare Integration</span>
+                <span className="material-icons text-primary text-3xl mr-2">device_hub</span>
+                <span className="font-bold text-xl text-gray-800 hidden md:block">
+                  <span className="text-primary">HIT</span> - Health Integration Tools
+                </span>
               </Link>
             </div>
             <div className="hidden md:ml-6 md:flex md:space-x-6">
@@ -68,7 +70,16 @@ export default function NavBar() {
             </div>
           </div>
           
-          <div className="hidden md:ml-6 md:flex md:items-center">
+          <div className="hidden md:ml-6 md:flex md:items-center space-x-2">
+            <Button 
+              variant="outline"
+              onClick={() => setLocation("/resources")}
+              size="sm"
+              className="inline-flex items-center"
+            >
+              <span className="material-icons mr-1 text-sm">apps</span>
+              Tools
+            </Button>
             <Button 
               variant="default"
               onClick={() => setLocation("/assessment")}
@@ -76,7 +87,7 @@ export default function NavBar() {
               className="inline-flex items-center"
             >
               <span className="material-icons mr-1 text-sm">assessment</span>
-              Start Assessment
+              Assessment
             </Button>
           </div>
           
