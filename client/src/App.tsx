@@ -12,6 +12,7 @@ import ReferenceGuidesPage from "@/pages/reference-guides";
 import IntegrationFlowPage from "@/pages/integration-flow";
 import VisualizationsPage from "@/pages/visualizations";
 import IntegrationMappingPage from "@/pages/integration-mapping";
+import ObservableDemoPage from "@/pages/observable-demo";
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { DevHeader } from "@/components/dev-header";
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/integration-flow" component={IntegrationFlowPage} />
       <Route path="/visualizations" component={VisualizationsPage} />
       <Route path="/integration-mapping" component={IntegrationMappingPage} />
+      <Route path="/observable-demo" component={ObservableDemoPage} />
       <Route component={NotFound} />
     </Switch>
   );
