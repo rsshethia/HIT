@@ -14,6 +14,9 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
+import NetworkDiagram from '@/components/network-diagram';
+import IntegrationMatrix from '@/components/integration-matrix';
+import SankeyDiagram from '@/components/sankey-diagram';
 
 interface System {
   id: string;
@@ -457,13 +460,22 @@ export default function IntegrationMappingPage() {
                         Color-coding based on integration quality.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="flex justify-center py-6">
-                      <div className="w-full max-w-3xl h-96 bg-gray-100 flex items-center justify-center border rounded-md">
-                        <p className="text-gray-500 text-center">
-                          Network diagram visualization will be rendered here.<br />
-                          Implementing D3.js force-directed graph visualization.
-                        </p>
-                      </div>
+                    <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
+                      {systems.length > 0 && connections.length > 0 ? (
+                        <NetworkDiagram 
+                          systems={systems} 
+                          connections={connections} 
+                          width={700} 
+                          height={500}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
+                          <p className="text-gray-500 text-center">
+                            Add systems and connections to generate a network diagram.<br />
+                            You can drag nodes to reposition them in the visualization.
+                          </p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -477,13 +489,22 @@ export default function IntegrationMappingPage() {
                         Color-coded cells based on integration quality.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="flex justify-center py-6">
-                      <div className="w-full max-w-3xl h-96 bg-gray-100 flex items-center justify-center border rounded-md">
-                        <p className="text-gray-500 text-center">
-                          Integration matrix visualization will be rendered here.<br />
-                          Implementing D3.js matrix visualization.
-                        </p>
-                      </div>
+                    <CardContent className="flex justify-center py-6 h-[600px] overflow-auto">
+                      {systems.length > 0 ? (
+                        <IntegrationMatrix 
+                          systems={systems} 
+                          connections={connections} 
+                          width={Math.max(700, systems.length * 100)} 
+                          height={Math.max(500, systems.length * 100)}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
+                          <p className="text-gray-500 text-center">
+                            Add systems and connections to generate an integration matrix.<br />
+                            The matrix shows the relationship between each system pair.
+                          </p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -497,13 +518,22 @@ export default function IntegrationMappingPage() {
                         Colors represent integration quality and highlight bottlenecks.
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="flex justify-center py-6">
-                      <div className="w-full max-w-3xl h-96 bg-gray-100 flex items-center justify-center border rounded-md">
-                        <p className="text-gray-500 text-center">
-                          Sankey diagram visualization will be rendered here.<br />
-                          Implementing D3.js Sankey diagram visualization.
-                        </p>
-                      </div>
+                    <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
+                      {systems.length > 1 && connections.length > 0 ? (
+                        <SankeyDiagram 
+                          systems={systems} 
+                          connections={connections} 
+                          width={700} 
+                          height={500}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
+                          <p className="text-gray-500 text-center">
+                            Add systems and connections with volume data to generate a Sankey diagram.<br />
+                            The width of connections represents message volume.
+                          </p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
