@@ -126,7 +126,7 @@ export default function IntegrationMappingPage() {
       source: sourceSystem,
       target: targetSystem,
       direction,
-      quality,
+      quality: 'automated', // Default to automated since we removed the selector
       volume: dataVolume
     };
     
@@ -475,20 +475,7 @@ export default function IntegrationMappingPage() {
                   </Select>
                 </div>
                 
-                <div>
-                  <Label htmlFor="quality" className="mb-2 block">Integration Quality</Label>
-                  <Select value={quality} onValueChange={value => setQuality(value as 'automated' | 'semi-automated' | 'manual')}>
-                    <SelectTrigger id="quality">
-                      <SelectValue placeholder="Select quality" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="automated">Automated</SelectItem>
-                      <SelectItem value="semi-automated">Semi-automated</SelectItem>
-                      <SelectItem value="manual">Manual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
+
 
                 
                 <div className="flex items-end">
@@ -504,7 +491,6 @@ export default function IntegrationMappingPage() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Direction</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quality</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                       </tr>
                     </thead>
@@ -520,16 +506,6 @@ export default function IntegrationMappingPage() {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{targetSystem.name}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                               {connection.direction === 'bidirectional' ? 'Bidirectional' : 'One-way'}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                connection.quality === 'automated' ? 'bg-green-100 text-green-800' :
-                                connection.quality === 'semi-automated' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-red-100 text-red-800'
-                              }`}>
-                                {connection.quality === 'automated' ? 'Automated' :
-                                 connection.quality === 'semi-automated' ? 'Semi-automated' : 'Manual'}
-                              </span>
                             </td>
 
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
