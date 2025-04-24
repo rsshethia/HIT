@@ -22,6 +22,9 @@ interface SankeyDiagramProps {
   width?: number;
   height?: number;
   className?: string;
+  title?: string;
+  subtitle?: string;
+  showExportLabels?: boolean;
 }
 
 const SankeyDiagram: React.FC<SankeyDiagramProps> = ({

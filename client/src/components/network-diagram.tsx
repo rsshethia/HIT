@@ -90,8 +90,7 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
     // Define arrow markers for directed links
-    svg
-      .append('defs')
+    svg.append('defs')
       .selectAll('marker')
       .data(['end', 'end-automated', 'end-semi-automated', 'end-manual'])
       .enter()
@@ -149,7 +148,7 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
       .force('collision', d3.forceCollide().radius(70));
 
     // Add links
-    const link = svg
+    const link = mainG
       .selectAll('.link')
       .data(linkData)
       .enter()
@@ -169,7 +168,7 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
       });
 
     // Add nodes
-    const node = svg
+    const node = mainG
       .selectAll('.node')
       .data(nodeData)
       .enter()
@@ -261,10 +260,10 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
     }
 
     // Add a legend
-    const legend = svg
+    const legend = mainG
       .append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(${width / 2 - 100}, ${height / 2 - 100})`);
+      .attr('transform', `translate(-100, -100)`);
 
     const qualities = [
       { quality: 'automated', label: 'Automated', color: '#10b981' },
@@ -301,7 +300,7 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
     return () => {
       simulation.stop();
     };
-  }, [systems, connections, width, height]);
+  }, [systems, connections, width, height, title, subtitle, showExportLabels]);
 
   return (
     <div className={`network-diagram-container ${className}`}>

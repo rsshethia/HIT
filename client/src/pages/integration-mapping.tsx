@@ -590,6 +590,9 @@ export default function IntegrationMappingPage() {
                             connections={connections} 
                             width={700} 
                             height={500}
+                            title="System Network Diagram"
+                            subtitle={`${systems.length} Systems and ${connections.length} Connections`}
+                            showExportLabels={activeVisualization === 'network'}
                           />
                         </div>
                       ) : (
