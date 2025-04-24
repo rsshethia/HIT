@@ -64,6 +64,13 @@ export default function ResourcesPage() {
       link: "/integration-flow",
       category: "Education",
       isInternalLink: true
+    },
+    {
+      title: "D3.js Data Visualizations",
+      description: "Interactive visualization components for assessment data. Explore pie charts, bar charts, and radar diagrams for visualizing integration metrics and assessment results.",
+      link: "/visualizations",
+      category: "Education",
+      isInternalLink: true
     }
   ];
 
