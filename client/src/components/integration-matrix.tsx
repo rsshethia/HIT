@@ -43,12 +43,12 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
     // Clear previous visualization
     d3.select(svgRef.current).selectAll('*').remove();
 
-    // Add additional top margin for the title when showing export labels
+    // Increase margins for better spacing and readability
     const margin = { 
-      top: showExportLabels ? 140 : 120, 
-      right: 20, 
-      bottom: showExportLabels ? 40 : 20, 
-      left: 120 
+      top: showExportLabels ? 160 : 140, 
+      right: 40, 
+      bottom: showExportLabels ? 80 : 60, 
+      left: 160 
     };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
@@ -173,12 +173,31 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
     // Add row labels (Y-axis)
     rows
       .append('text')
-      .attr('x', -10)
+      .attr('x', -15)
       .attr('y', y.bandwidth() / 2)
       .attr('dy', '0.32em')
       .attr('text-anchor', 'end')
       .attr('font-size', '12px')
-      .text(d => d.name);
+      .attr('font-weight', 'bold')
+      .attr('fill', '#1e3a8a')  // Darker blue for better readability
+      .text(d => d.name)
+      // Add a white background to row labels for better readability
+      .each(function() {
+        const bbox = this.getBBox();
+        const padding = 3;
+        const parent = this.parentNode;
+        if (parent) {
+          d3.select(parent as Element)
+            .insert('rect', 'text')
+            .attr('x', bbox.x - padding)
+            .attr('y', bbox.y - padding)
+            .attr('width', bbox.width + (padding * 2))
+            .attr('height', bbox.height + (padding * 2))
+            .attr('fill', 'white')
+            .attr('fill-opacity', 0.9)
+            .attr('rx', 2);
+        }
+      });
 
     // Create columns
     const columns = svg
@@ -192,13 +211,32 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
     // Add column labels (X-axis)
     columns
       .append('text')
-      .attr('y', -10)
+      .attr('y', -15)
       .attr('x', x.bandwidth() / 2)
       .attr('dy', '0.32em')
-      .attr('text-anchor', 'start')
-      .attr('transform', d => `rotate(-45, ${x.bandwidth() / 2}, -10)`)
+      .attr('text-anchor', 'end')
+      .attr('transform', d => `rotate(-45, ${x.bandwidth() / 2}, -15)`)
       .attr('font-size', '12px')
-      .text(d => d.name);
+      .attr('font-weight', 'bold')
+      .attr('fill', '#1e3a8a')  // Darker blue for better readability
+      .text(d => d.name)
+      // Add a white background to column labels for better readability
+      .each(function() {
+        const bbox = this.getBBox();
+        const padding = 3;
+        const parent = this.parentNode;
+        if (parent) {
+          d3.select(parent as Element)
+            .insert('rect', 'text')
+            .attr('x', bbox.x - padding)
+            .attr('y', bbox.y - padding)
+            .attr('width', bbox.width + (padding * 2))
+            .attr('height', bbox.height + (padding * 2))
+            .attr('fill', 'white')
+            .attr('fill-opacity', 0.9)
+            .attr('rx', 2);
+        }
+      });
 
     // Create grid cells for each source-target pair
     systems.forEach(source => {
@@ -250,11 +288,36 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
       });
     });
 
-    // Add a legend
+    // Add a combined legend with background
+    const legendBg = svg
+      .append('g')
+      .attr('class', 'legend-container');
+      
+    // Add background rectangle for the entire legend area
+    legendBg.append('rect')
+      .attr('x', -5)
+      .attr('y', innerHeight + 10)
+      .attr('width', innerWidth + 10)
+      .attr('height', 60)
+      .attr('fill', 'white')
+      .attr('stroke', '#e5e7eb')
+      .attr('stroke-width', 1)
+      .attr('rx', 5);
+    
+    // Add "Legend:" label
+    legendBg.append('text')
+      .attr('x', 5)
+      .attr('y', innerHeight + 25)
+      .text('Legend:')
+      .attr('font-weight', 'bold')
+      .attr('font-size', '12px')
+      .attr('fill', '#1f2937');
+
+    // Add connection quality legend
     const legend = svg
       .append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(0, ${innerHeight + 20})`);
+      .attr('transform', `translate(60, ${innerHeight + 25})`);
 
     const qualities = [
       { quality: 'automated', label: 'Automated', color: '#10b981' },
@@ -269,22 +332,26 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
       .enter()
       .append('g')
       .attr('class', 'legend-item')
-      .attr('transform', (d, i) => `translate(${i * 120}, 0)`)
+      .attr('transform', (d, i) => `translate(${i * 130}, 0)`) // Increased spacing
       .each(function(d) {
         const g = d3.select(this);
+        // Larger colored square
         g.append('rect')
           .attr('x', 0)
           .attr('y', 0)
-          .attr('width', 15)
-          .attr('height', 15)
+          .attr('width', 16)
+          .attr('height', 16)
           .attr('fill', d.color)
-          .attr('stroke', '#d1d5db');
+          .attr('stroke', '#d1d5db')
+          .attr('rx', 2); // Rounded corners
 
+        // Improved label styling
         g.append('text')
-          .attr('x', 25)
-          .attr('y', 12)
+          .attr('x', 26)
+          .attr('y', 13)
           .text(d.label)
           .attr('font-size', '12px')
+          .attr('font-weight', 'medium')
           .attr('fill', '#374151');
       });
 
@@ -292,7 +359,7 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
     const directionLegend = svg
       .append('g')
       .attr('class', 'direction-legend')
-      .attr('transform', `translate(${innerWidth - 200}, ${innerHeight + 20})`);
+      .attr('transform', `translate(60, ${innerHeight + 50})`);
 
     const directions = [
       { symbol: '→', label: 'One-way' },
@@ -305,21 +372,33 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
       .enter()
       .append('g')
       .attr('class', 'direction-item')
-      .attr('transform', (d, i) => `translate(${i * 100}, 0)`)
+      .attr('transform', (d, i) => `translate(${i * 130}, 0)`) // Match spacing with quality legend
       .each(function(d) {
         const g = d3.select(this);
+        
+        // Circle background for symbol
+        g.append('circle')
+          .attr('cx', 8)
+          .attr('cy', 0)
+          .attr('r', 8)
+          .attr('fill', '#e5e7eb');
+          
+        // Direction symbol
         g.append('text')
-          .attr('x', 0)
-          .attr('y', 12)
+          .attr('x', 8)
+          .attr('y', 5)
+          .attr('text-anchor', 'middle')
           .text(d.symbol)
-          .attr('font-size', '18px')
+          .attr('font-size', '16px')
           .attr('fill', '#374151');
 
+        // Label
         g.append('text')
-          .attr('x', 25)
-          .attr('y', 12)
+          .attr('x', 26)
+          .attr('y', 5)
           .text(d.label)
           .attr('font-size', '12px')
+          .attr('font-weight', 'medium')
           .attr('fill', '#374151');
       });
 
