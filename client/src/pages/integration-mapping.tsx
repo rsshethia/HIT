@@ -17,7 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import NetworkDiagram from '@/components/network-diagram';
 import IntegrationMatrix from '@/components/integration-matrix';
 import SankeyDiagram from '@/components/sankey-diagram';
-import MarkovPlot from '@/components/markov-plot';
+
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -216,8 +216,6 @@ export default function IntegrationMappingPage() {
         title = "Integration Matrix - Healthcare System Integration";
       } else if (activeVisualization === 'sankey') {
         title = "Data Flow Diagram - Healthcare System Integration";
-      } else if (activeVisualization === 'markov') {
-        title = "Markov Transition Analysis - Healthcare System Integration";
       }
 
       // Capture the content of the visualization
@@ -543,11 +541,10 @@ export default function IntegrationMappingPage() {
               </p>
               
               <Tabs defaultValue="network" className="w-full mb-6" onValueChange={setActiveVisualization}>
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="network">Network Diagram</TabsTrigger>
                   <TabsTrigger value="matrix">Integration Matrix</TabsTrigger>
                   <TabsTrigger value="sankey">Data Flow Diagram</TabsTrigger>
-                  <TabsTrigger value="markov">Markov Analysis</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="network" className="mt-6">
@@ -652,39 +649,7 @@ export default function IntegrationMappingPage() {
                   </Card>
                 </TabsContent>
                 
-                <TabsContent value="markov" className="mt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Markov Transition Analysis</CardTitle>
-                      <CardDescription>
-                        Probabilistic representation of transitions between systems.
-                        Shows likelihood of data flowing from one system to another.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
-                      {systems.length > 1 && connections.length > 0 ? (
-                        <div ref={vizRef}>
-                          <MarkovPlot 
-                            systems={systems} 
-                            connections={connections} 
-                            width={800} 
-                            height={500}
-                            title="Markov Transition Analysis"
-                            subtitle={`Probabilistic Flow for ${systems.length} Systems`}
-                            showExportLabels={activeVisualization === 'markov'}
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
-                          <p className="text-gray-500 text-center">
-                            Add systems and connections to generate a Markov transition diagram.<br />
-                            The diagram shows transition probabilities between your systems.
-                          </p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+
               </Tabs>
               
               <div className="flex justify-center mt-6 space-x-4">
@@ -696,12 +661,7 @@ export default function IntegrationMappingPage() {
                   <span className="material-icons mr-2">image</span>
                   Export as PNG
                 </Button>
-                {activeVisualization === 'matrix' && (
-                  <Button variant="outline" disabled>
-                    <span className="material-icons mr-2">table_view</span>
-                    Export as Excel
-                  </Button>
-                )}
+
               </div>
             </div>
           </div>
