@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +17,8 @@ import { toast } from '@/hooks/use-toast';
 import NetworkDiagram from '@/components/network-diagram';
 import IntegrationMatrix from '@/components/integration-matrix';
 import SankeyDiagram from '@/components/sankey-diagram';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface System {
   id: string;
@@ -185,12 +187,145 @@ export default function IntegrationMappingPage() {
     setStep(step - 1);
   };
   
-  // Handle generating the PDF (placeholder for future implementation)
-  const handleGeneratePDF = () => {
-    toast({
-      title: "PDF Generation",
-      description: "PDF export functionality will be implemented in a future update.",
-    });
+  // Create refs for capturing visualization content
+  const vizRef = useRef<HTMLDivElement>(null);
+
+  // Handle generating the PDF
+  const handleGeneratePDF = async () => {
+    if (!vizRef.current) {
+      toast({
+        title: "Error",
+        description: "No visualization content found to export.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      toast({
+        title: "Generating PDF",
+        description: "Please wait...",
+      });
+
+      // Get current visualization's title based on active tab
+      let title = "Healthcare System Integration";
+      if (activeVisualization === 'network') {
+        title = "Network Diagram - Healthcare System Integration";
+      } else if (activeVisualization === 'matrix') {
+        title = "Integration Matrix - Healthcare System Integration";
+      } else if (activeVisualization === 'sankey') {
+        title = "Data Flow Diagram - Healthcare System Integration";
+      }
+
+      // Capture the content of the visualization
+      const canvas = await html2canvas(vizRef.current, {
+        allowTaint: true,
+        useCORS: true,
+        scale: 2, // Higher scale for better quality
+        backgroundColor: '#ffffff',
+      });
+      
+      // Create PDF
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+      });
+      
+      // Calculate dimensions to fit the image properly
+      const imgWidth = 280; // A4 landscape width in mm (with margins)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // Add title and metadata
+      pdf.setFontSize(16);
+      pdf.text(title, 15, 15);
+      
+      // Add date
+      const date = new Date().toLocaleDateString();
+      pdf.setFontSize(10);
+      pdf.text(`Generated on: ${date}`, 15, 22);
+      
+      // Add image
+      pdf.addImage(imgData, 'PNG', 15, 30, imgWidth, imgHeight);
+      
+      // Add summary of systems and connections
+      const pageHeight = pdf.internal.pageSize.height;
+      let yPos = 30 + imgHeight + 10;
+      
+      // Check if we need to add a new page for the summary
+      if (yPos > pageHeight - 30) {
+        pdf.addPage();
+        yPos = 20;
+      }
+      
+      pdf.setFontSize(12);
+      pdf.text('Summary:', 15, yPos);
+      yPos += 7;
+      pdf.setFontSize(10);
+      pdf.text(`Total Systems: ${systems.length}`, 15, yPos);
+      yPos += 5;
+      pdf.text(`Total Connections: ${connections.length}`, 15, yPos);
+      
+      // Save the PDF
+      pdf.save(`healthcare-integration-${activeVisualization}.pdf`);
+      
+      toast({
+        title: "Success!",
+        description: "PDF has been generated and downloaded.",
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Handle exporting as PNG
+  const handleGeneratePNG = async () => {
+    if (!vizRef.current) {
+      toast({
+        title: "Error",
+        description: "No visualization content found to export.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      toast({
+        title: "Generating PNG",
+        description: "Please wait...",
+      });
+      
+      // Capture the content of the visualization
+      const canvas = await html2canvas(vizRef.current, {
+        allowTaint: true,
+        useCORS: true,
+        scale: 2, // Higher scale for better quality
+        backgroundColor: '#ffffff',
+      });
+      
+      // Convert to PNG and download
+      const link = document.createElement('a');
+      link.download = `healthcare-integration-${activeVisualization}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      
+      toast({
+        title: "Success!",
+        description: "PNG has been generated and downloaded.",
+      });
+    } catch (error) {
+      console.error('Error generating PNG:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate PNG. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Example systems for demonstration purposes
@@ -462,12 +597,14 @@ export default function IntegrationMappingPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
                       {systems.length > 0 && connections.length > 0 ? (
-                        <NetworkDiagram 
-                          systems={systems} 
-                          connections={connections} 
-                          width={700} 
-                          height={500}
-                        />
+                        <div ref={vizRef}>
+                          <NetworkDiagram 
+                            systems={systems} 
+                            connections={connections} 
+                            width={700} 
+                            height={500}
+                          />
+                        </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
                           <p className="text-gray-500 text-center">
@@ -491,12 +628,14 @@ export default function IntegrationMappingPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-auto">
                       {systems.length > 0 ? (
-                        <IntegrationMatrix 
-                          systems={systems} 
-                          connections={connections} 
-                          width={Math.max(700, systems.length * 100)} 
-                          height={Math.max(500, systems.length * 100)}
-                        />
+                        <div ref={vizRef}>
+                          <IntegrationMatrix 
+                            systems={systems} 
+                            connections={connections} 
+                            width={Math.max(700, systems.length * 100)} 
+                            height={Math.max(500, systems.length * 100)}
+                          />
+                        </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
                           <p className="text-gray-500 text-center">
@@ -520,12 +659,14 @@ export default function IntegrationMappingPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
                       {systems.length > 1 && connections.length > 0 ? (
-                        <SankeyDiagram 
-                          systems={systems} 
-                          connections={connections} 
-                          width={700} 
-                          height={500}
-                        />
+                        <div ref={vizRef}>
+                          <SankeyDiagram 
+                            systems={systems} 
+                            connections={connections} 
+                            width={700} 
+                            height={500}
+                          />
+                        </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
                           <p className="text-gray-500 text-center">
@@ -544,12 +685,12 @@ export default function IntegrationMappingPage() {
                   <span className="material-icons mr-2">picture_as_pdf</span>
                   Export as PDF
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={handleGeneratePNG}>
                   <span className="material-icons mr-2">image</span>
                   Export as PNG
                 </Button>
                 {activeVisualization === 'matrix' && (
-                  <Button variant="outline">
+                  <Button variant="outline" disabled>
                     <span className="material-icons mr-2">table_view</span>
                     Export as Excel
                   </Button>
