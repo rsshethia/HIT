@@ -33,6 +33,9 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
   width = 800,
   height = 600,
   className = '',
+  title = 'Data Flow Diagram',
+  subtitle = 'System Integration Flow',
+  showExportLabels = false,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -42,15 +45,60 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
     // Clear previous visualization
     d3.select(svgRef.current).selectAll('*').remove();
 
-    const margin = { top: 10, right: 10, bottom: 10, left: 10 };
+    // Adjust margins to accommodate title when showing export labels
+    const margin = { 
+      top: showExportLabels ? 70 : 10, 
+      right: 10, 
+      bottom: 10, 
+      left: 10 
+    };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
     const svg = d3
       .select(svgRef.current)
       .attr('width', width)
-      .attr('height', height)
-      .append('g')
+      .attr('height', height);
+      
+    // Add title and subtitle for exports
+    if (showExportLabels) {
+      // Add title
+      svg.append('text')
+        .attr('x', width / 2)
+        .attr('y', 30)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '24px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#111827')
+        .text(title);
+        
+      // Add subtitle
+      svg.append('text')
+        .attr('x', width / 2)
+        .attr('y', 55)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '16px')
+        .attr('fill', '#4B5563')
+        .text(subtitle);
+        
+      // Add date
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      svg.append('text')
+        .attr('x', width - 20)
+        .attr('y', height - 10)
+        .attr('text-anchor', 'end')
+        .attr('font-size', '12px')
+        .attr('fill', '#6B7280')
+        .text(`Generated on: ${currentDate}`);
+    }
+    
+    // Main visualization group
+    const mainG = svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
     // Create system map for quick lookups
@@ -169,7 +217,7 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
       const targetY = targetPos.y + targetPos.height / 2;
       const controlPointX = (sourceX + targetX) / 2;
       
-      svg.append('path')
+      mainG.append('path')
          .attr('d', `M${sourceX},${sourceY} C${controlPointX},${sourceY} ${controlPointX},${targetY} ${targetX},${targetY}`)
          .attr('stroke', qualityColors[link.quality as keyof typeof qualityColors] || '#9ca3af')
          .attr('stroke-width', linkWidth)
@@ -185,7 +233,7 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
       if (!pos) return;
       
       // Node rectangle
-      svg.append('rect')
+      mainG.append('rect')
          .attr('x', pos.x)
          .attr('y', pos.y)
          .attr('width', pos.width)
@@ -196,7 +244,7 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
          .attr('stroke', '#1e40af');
       
       // Node label
-      svg.append('text')
+      mainG.append('text')
          .attr('x', pos.x + pos.width / 2)
          .attr('y', pos.y + pos.height / 2)
          .attr('dy', '0.35em')
@@ -209,7 +257,7 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
     });
 
     // Add a legend
-    const legend = svg
+    const legend = mainG
       .append('g')
       .attr('class', 'legend')
       .attr('transform', `translate(20, ${innerHeight - 60})`);
@@ -245,7 +293,7 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
           .attr('fill', '#374151');
       });
 
-  }, [systems, connections, width, height]);
+  }, [systems, connections, width, height, title, subtitle, showExportLabels]);
 
   return (
     <div className={`sankey-diagram-container ${className}`}>

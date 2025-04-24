@@ -658,6 +658,9 @@ export default function IntegrationMappingPage() {
                             connections={connections} 
                             width={700} 
                             height={500}
+                            title="Data Flow Diagram"
+                            subtitle={`Integration Flow for ${systems.length} Systems`}
+                            showExportLabels={activeVisualization === 'sankey'}
                           />
                         </div>
                       ) : (
