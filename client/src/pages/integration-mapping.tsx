@@ -16,7 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 // Network diagram removed per user request
 import IntegrationMatrix from '@/components/integration-matrix';
-import ForceDirectedGraph from '@/components/sankey-diagram';
+import ForceDirectedGraph from '@/components/force-directed-graph';
 
 interface System {
   id: string;
@@ -28,7 +28,7 @@ interface Connection {
   target: string;
   direction: 'one-way' | 'bidirectional';
   quality: 'automated' | 'semi-automated' | 'manual';
-  volume?: number; // Optional volume for Sankey diagram
+  volume?: number; // Optional volume to determine connection line thickness
 }
 
 export default function IntegrationMappingPage() {
@@ -490,7 +490,7 @@ export default function IntegrationMappingPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
                       {systems.length > 1 && connections.length > 0 ? (
-                        <SankeyDiagram 
+                        <ForceDirectedGraph 
                           systems={systems} 
                           connections={connections} 
                           width={700} 
