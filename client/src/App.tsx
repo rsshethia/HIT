@@ -10,6 +10,7 @@ import AboutPage from "@/pages/about";
 import ResourcesPage from "@/pages/resources";
 import ReferenceGuidesPage from "@/pages/reference-guides";
 import IntegrationFlowPage from "@/pages/integration-flow";
+import VisualizationsPage from "@/pages/visualizations";
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { DevHeader } from "@/components/dev-header";
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/resources" component={ResourcesPage} />
       <Route path="/reference-guides" component={ReferenceGuidesPage} />
       <Route path="/integration-flow" component={IntegrationFlowPage} />
+      <Route path="/visualizations" component={VisualizationsPage} />
       <Route component={NotFound} />
     </Switch>
   );
