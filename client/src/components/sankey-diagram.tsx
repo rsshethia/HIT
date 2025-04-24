@@ -15,7 +15,7 @@ interface Connection {
   volume?: number;
 }
 
-interface SankeyDiagramProps {
+interface ForceDirectedGraphProps {
   systems: System[];
   connections: Connection[];
   width?: number;
@@ -23,7 +23,7 @@ interface SankeyDiagramProps {
   className?: string;
 }
 
-const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
+const ForceDirectedGraph: React.FC<ForceDirectedGraphProps> = ({
   systems,
   connections,
   width = 800,
@@ -55,16 +55,16 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
       systemMap.set(system.id, system);
     });
 
-    // Process data for D3 Sankey format
+    // Process data for D3 force-directed graph
     const nodeMap = new Map();
     systems.forEach(system => {
       nodeMap.set(system.id, { name: system.name });
     });
 
-    // Create nodes array for Sankey
+    // Create nodes array for the graph
     const nodes = Array.from(nodeMap.values());
 
-    // Create links array for Sankey 
+    // Create links array for the graph 
     const links = connections.map(conn => {
       const source = systemMap.get(conn.source)?.name || 'Unknown';
       const target = systemMap.get(conn.target)?.name || 'Unknown';
@@ -312,10 +312,10 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
   }, [systems, connections, width, height]);
 
   return (
-    <div className={`sankey-diagram-container ${className}`}>
+    <div className={`force-directed-graph-container ${className}`}>
       <svg ref={svgRef} width={width} height={height}></svg>
     </div>
   );
 };
 
-export default SankeyDiagram;
+export default ForceDirectedGraph;
