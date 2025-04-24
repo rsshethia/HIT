@@ -85,6 +85,7 @@ export default function ResourcesPage() {
   const filteredResources = resources.filter(resource => 
     resource.title !== "HL7 Version 2" && 
     resource.title !== "IHE Profiles" &&
+    resource.title !== "D3.js Data Visualizations" &&
     resource.category !== "Tools" && 
     resource.category !== "Frameworks"
   );

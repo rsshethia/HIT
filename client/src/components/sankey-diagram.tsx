@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
-import { sankey, sankeyLinkHorizontal } from 'd3-sankey';
+// Use only d3 without specific d3-sankey import
+// This helps avoid runtime errors related to d3-sankey module
 
 interface System {
   id: string;
@@ -77,18 +78,7 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
       };
     });
 
-    // Create a Sankey generator
-    const sankeyGenerator = sankey()
-      .nodeWidth(20)
-      .nodePadding(10)
-      .extent([[0, 0], [innerWidth, innerHeight]]);
-
-    // Run the Sankey algorithm to compute positions
-    const sankeyData = sankeyGenerator({
-      nodes: nodes.map(d => Object.assign({}, d)),
-      links: links.map(d => Object.assign({}, d))
-    });
-
+    // Since we have issues with d3-sankey, let's implement a simple flow diagram
     // Set up colors based on integration quality
     const qualityColors = {
       'automated': '#10b981',     // Green
@@ -96,52 +86,124 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
       'manual': '#ef4444'         // Red
     };
 
-    // Add links
-    svg
-      .append('g')
-      .selectAll('path')
-      .data(sankeyData.links)
-      .enter()
-      .append('path')
-      .attr('d', sankeyLinkHorizontal())
-      .attr('stroke', (d: any) => qualityColors[d.quality as keyof typeof qualityColors] || '#9ca3af')
-      .attr('stroke-width', (d: any) => Math.max(1, d.width))
-      .attr('fill', 'none')
-      .attr('opacity', 0.7)
-      .append('title')
-      .text((d: any) => `${d.source.name} → ${d.target.name}\nVolume: ${d.value} msg/hr\nQuality: ${d.quality}`);
+    // Calculate total message volume for scaling
+    const totalVolume = links.reduce((sum, link) => sum + (link.value), 0);
+    const maxVolumePerLink = Math.max(...links.map(link => link.value));
+    
+    // Set up dynamic positioning
+    const nodeWidth = 150;
+    const nodeHeight = 30;
+    const nodePadding = 15;
+    
+    // Calculate positions for nodes (simple left-to-right layout)
+    // Group by source/target to determine columns
+    const nodePositions = new Map();
+    const sources = new Set(links.map(link => link.source));
+    const targets = new Set(links.map(link => link.target));
+    
+    // Put pure sources on left, pure targets on right, and mixed in middle
+    const leftNodes: string[] = [];
+    const middleNodes: string[] = [];
+    const rightNodes: string[] = [];
+    
+    nodes.forEach((node: any) => {
+      const nodeName = node.name;
+      if (sources.has(nodeName) && !targets.has(nodeName)) {
+        leftNodes.push(nodeName);
+      } else if (!sources.has(nodeName) && targets.has(nodeName)) {
+        rightNodes.push(nodeName);
+      } else {
+        middleNodes.push(nodeName);
+      }
+    });
+    
+    // Set positions for each node
+    const leftX = 20;
+    const middleX = innerWidth / 2 - nodeWidth / 2;
+    const rightX = innerWidth - nodeWidth - 20;
+    
+    leftNodes.forEach((nodeName, index) => {
+      nodePositions.set(nodeName, {
+        x: leftX,
+        y: 50 + index * (nodeHeight + nodePadding),
+        width: nodeWidth,
+        height: nodeHeight
+      });
+    });
+    
+    middleNodes.forEach((nodeName, index) => {
+      nodePositions.set(nodeName, {
+        x: middleX,
+        y: 100 + index * (nodeHeight + nodePadding),
+        width: nodeWidth,
+        height: nodeHeight
+      });
+    });
+    
+    rightNodes.forEach((nodeName, index) => {
+      nodePositions.set(nodeName, {
+        x: rightX,
+        y: 50 + index * (nodeHeight + nodePadding),
+        width: nodeWidth,
+        height: nodeHeight
+      });
+    });
 
-    // Add nodes
-    const node = svg
-      .append('g')
-      .selectAll('rect')
-      .data(sankeyData.nodes)
-      .enter()
-      .append('rect')
-      .attr('x', (d: any) => d.x0)
-      .attr('y', (d: any) => d.y0)
-      .attr('height', (d: any) => d.y1 - d.y0)
-      .attr('width', (d: any) => d.x1 - d.x0)
-      .attr('fill', '#3b82f6')
-      .attr('stroke', '#1e40af')
-      .append('title')
-      .text((d: any) => `${d.name}\nMessages: ${d.value}`);
+    // Draw connections
+    links.forEach(link => {
+      const sourcePos = nodePositions.get(link.source);
+      const targetPos = nodePositions.get(link.target);
+      
+      if (!sourcePos || !targetPos) return;
+      
+      // Calculate link width based on volume
+      const linkWidth = 2 + (link.value / maxVolumePerLink) * 8;
+      
+      // Draw a simple curved path between source and target
+      const sourceX = sourcePos.x + sourcePos.width;
+      const sourceY = sourcePos.y + sourcePos.height / 2;
+      const targetX = targetPos.x;
+      const targetY = targetPos.y + targetPos.height / 2;
+      const controlPointX = (sourceX + targetX) / 2;
+      
+      svg.append('path')
+         .attr('d', `M${sourceX},${sourceY} C${controlPointX},${sourceY} ${controlPointX},${targetY} ${targetX},${targetY}`)
+         .attr('stroke', qualityColors[link.quality as keyof typeof qualityColors] || '#9ca3af')
+         .attr('stroke-width', linkWidth)
+         .attr('fill', 'none')
+         .attr('opacity', 0.7)
+         .append('title')
+         .text(`${link.source} → ${link.target}\nVolume: ${link.value} msg/hr\nQuality: ${link.quality}`);
+    });
 
-    // Add node labels
-    svg
-      .append('g')
-      .selectAll('text')
-      .data(sankeyData.nodes)
-      .enter()
-      .append('text')
-      .attr('x', (d: any) => d.x0 < innerWidth / 2 ? d.x1 + 6 : d.x0 - 6)
-      .attr('y', (d: any) => (d.y1 + d.y0) / 2)
-      .attr('dy', '0.35em')
-      .attr('text-anchor', (d: any) => d.x0 < innerWidth / 2 ? 'start' : 'end')
-      .attr('font-size', '10px')
-      .attr('font-weight', 'bold')
-      .attr('pointer-events', 'none')
-      .text((d: any) => d.name);
+    // Draw nodes
+    nodes.forEach((node: any) => {
+      const pos = nodePositions.get(node.name);
+      if (!pos) return;
+      
+      // Node rectangle
+      svg.append('rect')
+         .attr('x', pos.x)
+         .attr('y', pos.y)
+         .attr('width', pos.width)
+         .attr('height', pos.height)
+         .attr('rx', 5)
+         .attr('ry', 5)
+         .attr('fill', '#3b82f6')
+         .attr('stroke', '#1e40af');
+      
+      // Node label
+      svg.append('text')
+         .attr('x', pos.x + pos.width / 2)
+         .attr('y', pos.y + pos.height / 2)
+         .attr('dy', '0.35em')
+         .attr('text-anchor', 'middle')
+         .attr('font-size', '10px')
+         .attr('fill', 'white')
+         .attr('font-weight', 'bold')
+         .attr('pointer-events', 'none')
+         .text(node.name);
+    });
 
     // Add a legend
     const legend = svg
