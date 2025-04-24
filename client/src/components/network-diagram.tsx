@@ -85,9 +85,9 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
         .text(`Generated on: ${currentDate}`);
     }
 
-    // Main visualization group, offset to the right
+    // Main visualization group, centered with a bit more space for the legend
     const mainG = svg.append('g')
-      .attr('transform', `translate(${width / 2 + 80}, ${height / 2})`);
+      .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
     // Define arrow markers for directed links
     svg.append('defs')
@@ -141,11 +141,16 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
         d3
           .forceLink(linkData)
           .id((d: any) => d.id)
-          .distance(180) // Increased distance between nodes
+          .distance(200) // Further increase distance between nodes
       )
-      .force('charge', d3.forceManyBody().strength(-800)) // Stronger repulsion
+      .force('charge', d3.forceManyBody().strength(-1000)) // Stronger repulsion for more spacing
       .force('center', d3.forceCenter(0, 0))
-      .force('collision', d3.forceCollide().radius(80)); // Larger collision radius
+      .force('collision', d3.forceCollide().radius(90)) // Larger collision radius to prevent overlap
+      .force('x', d3.forceX(0).strength(0.07)) // Add horizontal centering force
+      .force('y', d3.forceY(0).strength(0.07)); // Add vertical centering force
+      
+    // Increase iterations for better layout convergence
+    simulation.alpha(1).alphaDecay(0.02);
 
     // Add links
     const link = mainG
@@ -216,7 +221,21 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
 
     // Update positions on each tick of the simulation
     simulation.on('tick', () => {
-      // Update link paths
+      // Define the boundary constraint to keep nodes within visible area
+      // Leave some padding from the edges to ensure nodes are fully visible
+      const radius = 40; // Slightly larger than node radius for padding
+      const boundaryX = width / 2 - radius * 1.5;
+      const boundaryY = height / 2 - radius * 1.5;
+      
+      // Apply constraints to node positions to keep them within boundaries
+      nodeData.forEach((d: any) => {
+        // Constrain x position
+        d.x = Math.max(-boundaryX, Math.min(boundaryX, d.x));
+        // Constrain y position 
+        d.y = Math.max(-boundaryY, Math.min(boundaryY, d.y));
+      });
+      
+      // Draw curved paths for links to make them visually distinct
       link.attr('d', (d: any) => {
         const sourceX = d.source.x;
         const sourceY = d.source.y;
@@ -227,22 +246,45 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
         const dx = targetX - sourceX;
         const dy = targetY - sourceY;
         const angle = Math.atan2(dy, dx);
-
+        
+        // Create slightly curved paths
+        const curvature = 0.2;
+        const midX = (sourceX + targetX) / 2;
+        const midY = (sourceY + targetY) / 2;
+        
         // Offset for bidirectional links
         const offset = d.direction === 'bidirectional' ? 8 : 0;
 
         // Calculate perpendicular offset for bidirectional links
         const offsetX = offset * Math.sin(angle);
         const offsetY = -offset * Math.cos(angle);
-
-        return `M${sourceX + offsetX},${sourceY + offsetY} L${targetX + offsetX},${targetY + offsetY}`;
+        
+        // Apply offset for curved paths
+        const pathOffsetX = -curvature * dy;
+        const pathOffsetY = curvature * dx;
+        
+        // For bidirectional paths, add a curve
+        if (d.direction === 'bidirectional') {
+          return `M${sourceX + offsetX},${sourceY + offsetY} 
+                  Q${midX + pathOffsetX},${midY + pathOffsetY} 
+                  ${targetX + offsetX},${targetY + offsetY}`;
+        } else {
+          // For one-way paths, use straight lines
+          return `M${sourceX + offsetX},${sourceY + offsetY} 
+                  L${targetX + offsetX},${targetY + offsetY}`;
+        }
       });
 
       // Update node positions
       node.attr('transform', (d: any) => `translate(${d.x}, ${d.y})`);
     });
 
-    // Drag functions
+    // Boundary constraints for dragging
+    const radius = 40;
+    const boundaryX = width / 2 - radius * 1.5;
+    const boundaryY = height / 2 - radius * 1.5;
+
+    // Enhanced drag functions with boundary constraints
     function dragStarted(event: any, d: any) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
@@ -250,14 +292,22 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
     }
 
     function dragged(event: any, d: any) {
-      d.fx = event.x;
-      d.fy = event.y;
+      // Apply boundary constraints when dragging
+      const x = Math.max(-boundaryX, Math.min(boundaryX, event.x));
+      const y = Math.max(-boundaryY, Math.min(boundaryY, event.y));
+      
+      d.fx = x;
+      d.fy = y;
     }
 
     function dragEnded(event: any, d: any) {
       if (!event.active) simulation.alphaTarget(0);
+      // Release the node to be controlled by the force simulation again
       d.fx = null;
       d.fy = null;
+      
+      // Restart with a gentler alpha for smoother settling
+      simulation.alpha(0.3).restart();
     }
 
     // Add a legend in the bottom left corner
