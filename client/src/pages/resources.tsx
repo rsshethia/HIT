@@ -71,6 +71,13 @@ export default function ResourcesPage() {
       link: "/visualizations",
       category: "Education",
       isInternalLink: true
+    },
+    {
+      title: "Integration Mapping Tool",
+      description: "Create interactive visualizations of your healthcare system integrations. Map system connections, specify data flow directions, and generate network diagrams, matrices, and Sankey diagrams.",
+      link: "/integration-mapping",
+      category: "Education",
+      isInternalLink: true
     }
   ];
 

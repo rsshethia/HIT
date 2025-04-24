@@ -11,6 +11,7 @@ import ResourcesPage from "@/pages/resources";
 import ReferenceGuidesPage from "@/pages/reference-guides";
 import IntegrationFlowPage from "@/pages/integration-flow";
 import VisualizationsPage from "@/pages/visualizations";
+import IntegrationMappingPage from "@/pages/integration-mapping";
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { DevHeader } from "@/components/dev-header";
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/reference-guides" component={ReferenceGuidesPage} />
       <Route path="/integration-flow" component={IntegrationFlowPage} />
       <Route path="/visualizations" component={VisualizationsPage} />
+      <Route path="/integration-mapping" component={IntegrationMappingPage} />
       <Route component={NotFound} />
     </Switch>
   );
