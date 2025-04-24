@@ -138,7 +138,7 @@ export default function IntegrationMappingPage() {
         source: targetSystem,
         target: sourceSystem,
         direction,
-        quality,
+        quality: 'automated', // Default to automated since we removed the selector
         volume: dataVolume
       };
       setConnections(prevConnections => [...prevConnections, reverseConnection]);
@@ -429,8 +429,8 @@ export default function IntegrationMappingPage() {
             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Connection Mapping</h3>
               <p className="text-gray-600 mb-4">
-                Define the connections between your systems. For each connection, specify the source and target systems,
-                the direction of data flow, and the quality of integration.
+                Define the connections between your systems. For each connection, specify the source and target systems
+                and the direction of data flow.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -474,9 +474,6 @@ export default function IntegrationMappingPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                
-
-
                 
                 <div className="flex items-end">
                   <Button onClick={handleAddConnection} className="w-full">Add Connection</Button>
@@ -555,7 +552,7 @@ export default function IntegrationMappingPage() {
                       <CardTitle>Network Diagram</CardTitle>
                       <CardDescription>
                         Systems represented as nodes with connections shown as directional arrows.
-                        Color-coding based on integration quality.
+                        Visualize your system relationships and data flows.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
@@ -589,7 +586,7 @@ export default function IntegrationMappingPage() {
                       <CardTitle>Integration Matrix</CardTitle>
                       <CardDescription>
                         Grid showing all systems on both axes with intersection cells showing connection type and direction.
-                        Color-coded cells based on integration quality.
+                        Provides a comprehensive view of your integration landscape.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-auto">
@@ -623,7 +620,7 @@ export default function IntegrationMappingPage() {
                       <CardTitle>Data Flow Diagram</CardTitle>
                       <CardDescription>
                         Visual representation of data flow between systems.
-                        Colors represent integration quality and highlight potential improvement areas.
+                        Shows the volume and direction of information exchange between your systems.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
