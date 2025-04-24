@@ -20,6 +20,9 @@ interface IntegrationMatrixProps {
   width?: number;
   height?: number;
   className?: string;
+  title?: string;
+  subtitle?: string;
+  showExportLabels?: boolean;
 }
 
 const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
@@ -28,6 +31,9 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
   width = 800,
   height = 600,
   className = '',
+  title = 'Integration Matrix',
+  subtitle = 'System Connection Map',
+  showExportLabels = false,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -37,7 +43,13 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
     // Clear previous visualization
     d3.select(svgRef.current).selectAll('*').remove();
 
-    const margin = { top: 120, right: 20, bottom: 20, left: 120 };
+    // Add additional top margin for the title when showing export labels
+    const margin = { 
+      top: showExportLabels ? 140 : 120, 
+      right: 20, 
+      bottom: showExportLabels ? 40 : 20, 
+      left: 120 
+    };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -47,6 +59,63 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
       .attr('height', height)
       .append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
+      
+    // Add title and subtitle for exports
+    if (showExportLabels) {
+      // Add title
+      svg.append('text')
+        .attr('x', innerWidth / 2)
+        .attr('y', -80)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '24px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#111827')
+        .text(title);
+        
+      // Add subtitle
+      svg.append('text')
+        .attr('x', innerWidth / 2)
+        .attr('y', -50)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '16px')
+        .attr('fill', '#4B5563')
+        .text(subtitle);
+        
+      // Add date
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      svg.append('text')
+        .attr('x', innerWidth / 2)
+        .attr('y', -25)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '12px')
+        .attr('fill', '#6B7280')
+        .text(`Generated on: ${currentDate}`);
+        
+      // Add guiding text
+      svg.append('text')
+        .attr('x', -10)
+        .attr('y', -80)
+        .attr('text-anchor', 'start')
+        .attr('font-size', '12px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#374151')
+        .text('Source Systems →');
+        
+      svg.append('text')
+        .attr('y', -10)
+        .attr('x', -80)
+        .attr('text-anchor', 'start')
+        .attr('transform', 'rotate(-90)')
+        .attr('font-size', '12px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#374151')
+        .text('↑ Target Systems');
+    }
 
     // Create scales for row and column positions
     const x = d3.scaleBand().range([0, innerWidth]).paddingInner(0.1);
@@ -254,7 +323,7 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
           .attr('fill', '#374151');
       });
 
-  }, [systems, connections, width, height]);
+  }, [systems, connections, width, height, title, subtitle, showExportLabels]);
 
   return (
     <div className={`integration-matrix-container ${className}`}>

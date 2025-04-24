@@ -621,6 +621,9 @@ export default function IntegrationMappingPage() {
                             connections={connections} 
                             width={Math.max(700, systems.length * 100)} 
                             height={Math.max(500, systems.length * 100)}
+                            title="System Integration Matrix"
+                            subtitle={`Connection Map for ${systems.length} Systems`}
+                            showExportLabels={activeVisualization === 'matrix'}
                           />
                         </div>
                       ) : (

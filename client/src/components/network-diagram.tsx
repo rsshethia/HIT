@@ -20,6 +20,9 @@ interface NetworkDiagramProps {
   width?: number;
   height?: number;
   className?: string;
+  title?: string;
+  subtitle?: string;
+  showExportLabels?: boolean;
 }
 
 const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
@@ -28,6 +31,9 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
   width = 800,
   height = 600,
   className = '',
+  title = 'Network Diagram',
+  subtitle = 'System Connection Map', 
+  showExportLabels = false,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -40,8 +46,47 @@ const NetworkDiagram: React.FC<NetworkDiagramProps> = ({
     const svg = d3
       .select(svgRef.current)
       .attr('width', width)
-      .attr('height', height)
-      .append('g')
+      .attr('height', height);
+      
+    // Add title and subtitle for exports
+    if (showExportLabels) {
+      // Add title
+      svg.append('text')
+        .attr('x', width / 2)
+        .attr('y', 40)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '24px')
+        .attr('font-weight', 'bold')
+        .attr('fill', '#111827')
+        .text(title);
+        
+      // Add subtitle
+      svg.append('text')
+        .attr('x', width / 2)
+        .attr('y', 70)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '16px')
+        .attr('fill', '#4B5563')
+        .text(subtitle);
+        
+      // Add date
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      svg.append('text')
+        .attr('x', width / 2)
+        .attr('y', 95)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '12px')
+        .attr('fill', '#6B7280')
+        .text(`Generated on: ${currentDate}`);
+    }
+    
+    // Main visualization group, centered in SVG
+    const mainG = svg.append('g')
       .attr('transform', `translate(${width / 2}, ${height / 2})`);
 
     // Define arrow markers for directed links
