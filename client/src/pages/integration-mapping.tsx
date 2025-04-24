@@ -489,17 +489,7 @@ export default function IntegrationMappingPage() {
                   </Select>
                 </div>
                 
-                <div>
-                  <Label htmlFor="dataVolume" className="mb-2 block">Data Volume (messages/hour)</Label>
-                  <Input 
-                    id="dataVolume" 
-                    type="number" 
-                    min="1" 
-                    max="1000"
-                    value={dataVolume} 
-                    onChange={(e) => setDataVolume(parseInt(e.target.value) || 10)}
-                  />
-                </div>
+
                 
                 <div className="flex items-end">
                   <Button onClick={handleAddConnection} className="w-full">Add Connection</Button>
@@ -515,7 +505,6 @@ export default function IntegrationMappingPage() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Direction</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quality</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume</th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                       </tr>
                     </thead>
@@ -542,9 +531,7 @@ export default function IntegrationMappingPage() {
                                  connection.quality === 'semi-automated' ? 'Semi-automated' : 'Manual'}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {connection.volume} msg/hr
-                            </td>
+
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               <Button 
                                 variant="ghost" 
@@ -651,10 +638,10 @@ export default function IntegrationMappingPage() {
                 <TabsContent value="sankey" className="mt-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Data Flow Sankey Diagram</CardTitle>
+                      <CardTitle>Data Flow Diagram</CardTitle>
                       <CardDescription>
-                        Visual representation of data volume between systems where width of connections represents relative data flow.
-                        Colors represent integration quality and highlight bottlenecks.
+                        Visual representation of data flow between systems.
+                        Colors represent integration quality and highlight potential improvement areas.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
@@ -670,8 +657,8 @@ export default function IntegrationMappingPage() {
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
                           <p className="text-gray-500 text-center">
-                            Add systems and connections with volume data to generate a Sankey diagram.<br />
-                            The width of connections represents message volume.
+                            Add systems and connections to generate a data flow diagram.<br />
+                            The diagram shows the relationships between your systems.
                           </p>
                         </div>
                       )}
