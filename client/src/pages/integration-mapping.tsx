@@ -448,7 +448,7 @@ export default function IntegrationMappingPage() {
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="network">Network Diagram</TabsTrigger>
                   <TabsTrigger value="matrix">Integration Matrix</TabsTrigger>
-                  <TabsTrigger value="sankey">Data Flow Diagram</TabsTrigger>
+                  <TabsTrigger value="sankey">Force-Directed Graph</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="network" className="mt-6">
@@ -512,10 +512,10 @@ export default function IntegrationMappingPage() {
                 <TabsContent value="sankey" className="mt-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Data Flow Sankey Diagram</CardTitle>
+                      <CardTitle>Patent Suits Style Force-Directed Graph</CardTitle>
                       <CardDescription>
-                        Visual representation of data volume between systems where width of connections represents relative data flow.
-                        Colors represent integration quality and highlight bottlenecks.
+                        Interactive force-directed graph showing systems and their connections with directional arrows.
+                        Colors represent integration quality and line thickness shows data volume.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
@@ -529,8 +529,8 @@ export default function IntegrationMappingPage() {
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
                           <p className="text-gray-500 text-center">
-                            Add systems and connections with volume data to generate a Sankey diagram.<br />
-                            The width of connections represents message volume.
+                            Add systems and connections to generate an interactive force-directed graph.<br />
+                            You can drag nodes to better visualize system relationships.
                           </p>
                         </div>
                       )}

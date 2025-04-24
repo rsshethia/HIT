@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
-// Use only d3 without specific d3-sankey import
-// This helps avoid runtime errors related to d3-sankey module
+// Using a force-directed graph similar to the "Mobile Patent Suits" example from D3.js
 
 interface System {
   id: string;
@@ -78,7 +77,7 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
       };
     });
 
-    // Since we have issues with d3-sankey, let's implement a simple flow diagram
+    // Mobile Patent Suits style diagram
     // Set up colors based on integration quality
     const qualityColors = {
       'automated': '#10b981',     // Green
@@ -86,124 +85,192 @@ const SankeyDiagram: React.FC<SankeyDiagramProps> = ({
       'manual': '#ef4444'         // Red
     };
 
-    // Calculate total message volume for scaling
-    const totalVolume = links.reduce((sum, link) => sum + (link.value), 0);
-    const maxVolumePerLink = Math.max(...links.map(link => link.value));
-    
-    // Set up dynamic positioning
-    const nodeWidth = 150;
-    const nodeHeight = 30;
-    const nodePadding = 15;
-    
-    // Calculate positions for nodes (simple left-to-right layout)
-    // Group by source/target to determine columns
-    const nodePositions = new Map();
-    const sources = new Set(links.map(link => link.source));
-    const targets = new Set(links.map(link => link.target));
-    
-    // Put pure sources on left, pure targets on right, and mixed in middle
-    const leftNodes: string[] = [];
-    const middleNodes: string[] = [];
-    const rightNodes: string[] = [];
-    
-    nodes.forEach((node: any) => {
-      const nodeName = node.name;
-      if (sources.has(nodeName) && !targets.has(nodeName)) {
-        leftNodes.push(nodeName);
-      } else if (!sources.has(nodeName) && targets.has(nodeName)) {
-        rightNodes.push(nodeName);
-      } else {
-        middleNodes.push(nodeName);
+    // Prepare data for force-directed graph
+    const nodeData = nodes.map((node: any) => ({
+      id: node.name,
+      name: node.name,
+      group: 1, // All nodes in the same group by default
+      // Add required properties for force simulation
+      index: 0,
+      x: width / 2 + (Math.random() - 0.5) * 100,
+      y: height / 2 + (Math.random() - 0.5) * 100,
+      vx: 0,
+      vy: 0,
+      fx: null as (number | null),
+      fy: null as (number | null),
+    }));
+
+    // Create a map for quick node lookups
+    const nodesById = new Map(nodeData.map(n => [n.id, n]));
+
+    // Create links with proper references to node objects
+    const linkData = links.map(link => {
+      const sourceNode = nodesById.get(link.source);
+      const targetNode = nodesById.get(link.target);
+      
+      if (!sourceNode || !targetNode) {
+        console.warn(`Missing node reference for link: ${link.source} -> ${link.target}`);
+        return null;
       }
-    });
-    
-    // Set positions for each node
-    const leftX = 20;
-    const middleX = innerWidth / 2 - nodeWidth / 2;
-    const rightX = innerWidth - nodeWidth - 20;
-    
-    leftNodes.forEach((nodeName, index) => {
-      nodePositions.set(nodeName, {
-        x: leftX,
-        y: 50 + index * (nodeHeight + nodePadding),
-        width: nodeWidth,
-        height: nodeHeight
+      
+      return {
+        source: sourceNode,
+        target: targetNode,
+        quality: link.quality,
+        value: link.value || 1,
+      };
+    }).filter(link => link !== null) as any[];
+
+    // Define arrow markers for directed links
+    svg
+      .append('defs')
+      .selectAll('marker')
+      .data(['arrow-automated', 'arrow-semi-automated', 'arrow-manual'])
+      .enter()
+      .append('marker')
+      .attr('id', d => d)
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 28) // Positioned relative to the node radius
+      .attr('refY', 0)
+      .attr('markerWidth', 6)
+      .attr('markerHeight', 6)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,-5L10,0L0,5')
+      .attr('fill', d => {
+        if (d === 'arrow-automated') return '#10b981';
+        if (d === 'arrow-semi-automated') return '#f59e0b';
+        return '#ef4444';
       });
-    });
-    
-    middleNodes.forEach((nodeName, index) => {
-      nodePositions.set(nodeName, {
-        x: middleX,
-        y: 100 + index * (nodeHeight + nodePadding),
-        width: nodeWidth,
-        height: nodeHeight
+
+    // Create force simulation
+    const simulation = d3
+      .forceSimulation(nodeData)
+      .force('link', d3.forceLink(linkData).id((d: any) => d.id).distance(150))
+      .force('charge', d3.forceManyBody().strength(-400))
+      .force('center', d3.forceCenter(innerWidth / 2, innerHeight / 2))
+      .force('x', d3.forceX(innerWidth / 2).strength(0.1))
+      .force('y', d3.forceY(innerHeight / 2).strength(0.1))
+      .force('collision', d3.forceCollide().radius(60));
+
+    // Create links (connections between nodes)
+    const link = svg
+      .selectAll('.link')
+      .data(linkData)
+      .enter()
+      .append('line')
+      .attr('class', 'link')
+      .attr('stroke', (d: any) => qualityColors[d.quality as keyof typeof qualityColors] || '#9ca3af')
+      .attr('stroke-width', (d: any) => Math.max(1, Math.sqrt(d.value)))
+      .attr('stroke-opacity', 0.8)
+      .attr('marker-end', (d: any) => `url(#arrow-${d.quality})`)
+      .on('mouseover', function(event, d: any) {
+        // Highlight on hover
+        d3.select(this)
+          .attr('stroke-opacity', 1)
+          .attr('stroke-width', (d: any) => Math.max(2, Math.sqrt(d.value) + 1));
+      })
+      .on('mouseout', function(event, d: any) {
+        // Restore original appearance
+        d3.select(this)
+          .attr('stroke-opacity', 0.8)
+          .attr('stroke-width', (d: any) => Math.max(1, Math.sqrt(d.value)));
+      })
+      .append('title')
+      .text((d: any) => `${d.source.id} → ${d.target.id}\nVolume: ${d.value} msg/hr\nQuality: ${d.quality}`);
+
+    // Create nodes
+    const node = svg
+      .selectAll('.node')
+      .data(nodeData)
+      .enter()
+      .append('g')
+      .attr('class', 'node')
+      .call(
+        d3.drag<SVGGElement, any>()
+          .on('start', dragStarted)
+          .on('drag', dragged)
+          .on('end', dragEnded)
+      );
+
+    // Add circles to nodes 
+    node
+      .append('circle')
+      .attr('r', 25)
+      .attr('fill', '#3b82f6')
+      .attr('stroke', '#1e40af')
+      .attr('stroke-width', 2);
+
+    // Add system names inside nodes
+    node
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '-0.1em')
+      .attr('font-size', '10px')
+      .attr('fill', 'white')
+      .attr('font-weight', 'bold')
+      .attr('pointer-events', 'none')
+      .text((d: any) => {
+        const words = d.name.split(' ');
+        return words.length > 0 ? words[0] : '';
       });
-    });
-    
-    rightNodes.forEach((nodeName, index) => {
-      nodePositions.set(nodeName, {
-        x: rightX,
-        y: 50 + index * (nodeHeight + nodePadding),
-        width: nodeWidth,
-        height: nodeHeight
+
+    // Add second line of text for multi-word names
+    node
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', '1em')
+      .attr('font-size', '10px')
+      .attr('fill', 'white')
+      .attr('pointer-events', 'none')
+      .text((d: any) => {
+        const words = d.name.split(' ');
+        if (words.length > 1) {
+          const remainingWords = words.slice(1).join(' ');
+          if (remainingWords.length > 15) {
+            return remainingWords.substring(0, 15) + '...';
+          }
+          return remainingWords;
+        }
+        return '';
       });
+
+    // Update positions on each tick of the simulation
+    simulation.on('tick', () => {
+      // Constrain nodes to the visualization area with padding
+      nodeData.forEach((d: any) => {
+        d.x = Math.max(30, Math.min(innerWidth - 30, d.x));
+        d.y = Math.max(30, Math.min(innerHeight - 30, d.y));
+      });
+
+      // Update link positions
+      link
+        .attr('x1', (d: any) => d.source.x)
+        .attr('y1', (d: any) => d.source.y)
+        .attr('x2', (d: any) => d.target.x)
+        .attr('y2', (d: any) => d.target.y);
+
+      // Update node positions
+      node.attr('transform', (d: any) => `translate(${d.x}, ${d.y})`);
     });
 
-    // Draw connections
-    links.forEach(link => {
-      const sourcePos = nodePositions.get(link.source);
-      const targetPos = nodePositions.get(link.target);
-      
-      if (!sourcePos || !targetPos) return;
-      
-      // Calculate link width based on volume
-      const linkWidth = 2 + (link.value / maxVolumePerLink) * 8;
-      
-      // Draw a simple curved path between source and target
-      const sourceX = sourcePos.x + sourcePos.width;
-      const sourceY = sourcePos.y + sourcePos.height / 2;
-      const targetX = targetPos.x;
-      const targetY = targetPos.y + targetPos.height / 2;
-      const controlPointX = (sourceX + targetX) / 2;
-      
-      svg.append('path')
-         .attr('d', `M${sourceX},${sourceY} C${controlPointX},${sourceY} ${controlPointX},${targetY} ${targetX},${targetY}`)
-         .attr('stroke', qualityColors[link.quality as keyof typeof qualityColors] || '#9ca3af')
-         .attr('stroke-width', linkWidth)
-         .attr('fill', 'none')
-         .attr('opacity', 0.7)
-         .append('title')
-         .text(`${link.source} → ${link.target}\nVolume: ${link.value} msg/hr\nQuality: ${link.quality}`);
-    });
+    // Drag functions
+    function dragStarted(event: any, d: any) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
 
-    // Draw nodes
-    nodes.forEach((node: any) => {
-      const pos = nodePositions.get(node.name);
-      if (!pos) return;
-      
-      // Node rectangle
-      svg.append('rect')
-         .attr('x', pos.x)
-         .attr('y', pos.y)
-         .attr('width', pos.width)
-         .attr('height', pos.height)
-         .attr('rx', 5)
-         .attr('ry', 5)
-         .attr('fill', '#3b82f6')
-         .attr('stroke', '#1e40af');
-      
-      // Node label
-      svg.append('text')
-         .attr('x', pos.x + pos.width / 2)
-         .attr('y', pos.y + pos.height / 2)
-         .attr('dy', '0.35em')
-         .attr('text-anchor', 'middle')
-         .attr('font-size', '10px')
-         .attr('fill', 'white')
-         .attr('font-weight', 'bold')
-         .attr('pointer-events', 'none')
-         .text(node.name);
-    });
+    function dragged(event: any, d: any) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragEnded(event: any, d: any) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
 
     // Add a legend
     const legend = svg
