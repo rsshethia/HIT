@@ -14,9 +14,9 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-// Network diagram removed per user request
+import NetworkDiagram from '@/components/network-diagram';
 import IntegrationMatrix from '@/components/integration-matrix';
-import ForceDirectedGraph from '@/components/force-directed-graph';
+import SankeyDiagram from '@/components/sankey-diagram';
 
 interface System {
   id: string;
@@ -36,7 +36,7 @@ export default function IntegrationMappingPage() {
   const [systems, setSystems] = useState<System[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [newSystemName, setNewSystemName] = useState<string>('');
-  const [activeVisualization, setActiveVisualization] = useState<string>('matrix');
+  const [activeVisualization, setActiveVisualization] = useState<string>('network');
   
   // For connection setup
   const [sourceSystem, setSourceSystem] = useState<string>('');
@@ -444,11 +444,41 @@ export default function IntegrationMappingPage() {
                 Select a visualization type to view and export your integration map.
               </p>
               
-              <Tabs defaultValue="matrix" className="w-full mb-6" onValueChange={setActiveVisualization}>
-                <TabsList className="grid w-full grid-cols-2">
+              <Tabs defaultValue="network" className="w-full mb-6" onValueChange={setActiveVisualization}>
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="network">Network Diagram</TabsTrigger>
                   <TabsTrigger value="matrix">Integration Matrix</TabsTrigger>
-                  <TabsTrigger value="sankey">Force-Directed Graph</TabsTrigger>
+                  <TabsTrigger value="sankey">Data Flow Diagram</TabsTrigger>
                 </TabsList>
+                
+                <TabsContent value="network" className="mt-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Network Diagram</CardTitle>
+                      <CardDescription>
+                        Systems represented as nodes with connections shown as directional arrows.
+                        Color-coding based on integration quality.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
+                      {systems.length > 0 && connections.length > 0 ? (
+                        <NetworkDiagram 
+                          systems={systems} 
+                          connections={connections} 
+                          width={700} 
+                          height={500}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
+                          <p className="text-gray-500 text-center">
+                            Add systems and connections to generate a network diagram.<br />
+                            You can drag nodes to reposition them in the visualization.
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
                 
                 <TabsContent value="matrix" className="mt-6">
                   <Card>
@@ -482,15 +512,15 @@ export default function IntegrationMappingPage() {
                 <TabsContent value="sankey" className="mt-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Patent Suits Style Force-Directed Graph</CardTitle>
+                      <CardTitle>Data Flow Sankey Diagram</CardTitle>
                       <CardDescription>
-                        Interactive force-directed graph showing systems and their connections with directional arrows.
-                        Colors represent integration quality and line thickness shows data volume.
+                        Visual representation of data volume between systems where width of connections represents relative data flow.
+                        Colors represent integration quality and highlight bottlenecks.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
                       {systems.length > 1 && connections.length > 0 ? (
-                        <ForceDirectedGraph 
+                        <SankeyDiagram 
                           systems={systems} 
                           connections={connections} 
                           width={700} 
@@ -499,8 +529,8 @@ export default function IntegrationMappingPage() {
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
                           <p className="text-gray-500 text-center">
-                            Add systems and connections to generate an interactive force-directed graph.<br />
-                            You can drag nodes to better visualize system relationships.
+                            Add systems and connections with volume data to generate a Sankey diagram.<br />
+                            The width of connections represents message volume.
                           </p>
                         </div>
                       )}
