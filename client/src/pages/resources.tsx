@@ -85,6 +85,13 @@ export default function ResourcesPage() {
       link: "/observable-demo",
       category: "Education",
       isInternalLink: true
+    },
+    {
+      title: "Maturity Assessment Tool",
+      description: "Evaluate your organization's integration maturity across critical domains and receive personalized recommendations for improvement.",
+      link: "/assessment",
+      category: "Education",
+      isInternalLink: true
     }
   ];
 
@@ -155,22 +162,7 @@ export default function ResourcesPage() {
             ))}
 
 
-            
-            <div className="mt-12 bg-primary-50 p-6 rounded-lg border border-primary-100">
-              <h3 className="text-lg font-medium text-gray-900">Want to improve your integration maturity?</h3>
-              <p className="mt-2 text-base text-gray-600">
-                Take our assessment to evaluate your current integration capabilities and get personalized recommendations for improvement.
-              </p>
-              <div className="mt-6">
-                <Link
-                  href="/assessment"
-                  className="inline-flex items-center px-5 py-2 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-700"
-                >
-                  <span className="material-icons mr-2">assessment</span>
-                  Start Assessment
-                </Link>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
