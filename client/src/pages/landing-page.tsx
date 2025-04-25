@@ -27,7 +27,7 @@ export default function LandingPage() {
                     onClick={() => setLocation("/resources")}
                   >
                     <span className="material-icons mr-2">apps</span>
-                    Explore Tools
+                    Explore Tools and Resources
                   </Button>
                 </div>
               </div>

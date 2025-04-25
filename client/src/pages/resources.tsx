@@ -85,13 +85,6 @@ export default function ResourcesPage() {
       link: "/integration-mapping",
       category: "Education",
       isInternalLink: true
-    },
-    {
-      title: "Observable Plot Demo",
-      description: "Explore interactive data visualizations using Observable Plot. Add and customize data points to generate real-time visualizations for healthcare integration metrics.",
-      link: "/observable-demo",
-      category: "Education",
-      isInternalLink: true
     }
   ];
 
