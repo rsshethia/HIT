@@ -37,16 +37,7 @@ export default function NavBar() {
               >
                 Home
               </Link>
-              <Link 
-                href="/assessment"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  isActive("/assessment") 
-                    ? "border-primary text-gray-900" 
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Assessment
-              </Link>
+
               <Link 
                 href="/resources"
                 className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
@@ -80,7 +71,7 @@ export default function NavBar() {
             </div>
           </div>
           
-          <div className="hidden md:ml-6 md:flex md:items-center space-x-2">
+          <div className="hidden md:ml-6 md:flex md:items-center">
             <Button 
               variant="outline"
               onClick={() => setLocation("/resources")}
@@ -89,15 +80,6 @@ export default function NavBar() {
             >
               <span className="material-icons mr-1 text-sm">apps</span>
               Tools
-            </Button>
-            <Button 
-              variant="default"
-              onClick={() => setLocation("/assessment")}
-              size="sm"
-              className="inline-flex items-center"
-            >
-              <span className="material-icons mr-1 text-sm">assessment</span>
-              Assessment
             </Button>
           </div>
           
@@ -127,17 +109,7 @@ export default function NavBar() {
           >
             Home
           </Link>
-          <Link 
-            href="/assessment"
-            onClick={() => setIsMenuOpen(false)}
-            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-              isActive("/assessment") 
-                ? "border-primary text-primary bg-primary-50" 
-                : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-            }`}
-          >
-            Assessment
-          </Link>
+
           <Link 
             href="/resources"
             onClick={() => setIsMenuOpen(false)}
@@ -171,7 +143,7 @@ export default function NavBar() {
           >
             About
           </Link>
-          <div className="mt-4 px-4 space-y-3 pb-2">
+          <div className="mt-4 px-4 pb-2">
             <Button 
               variant="outline"
               onClick={() => {
@@ -182,17 +154,6 @@ export default function NavBar() {
             >
               <span className="material-icons mr-1 text-sm">apps</span>
               Explore Tools
-            </Button>
-            <Button 
-              variant="default"
-              onClick={() => {
-                setLocation("/assessment");
-                setIsMenuOpen(false);
-              }}
-              className="w-full justify-center"
-            >
-              <span className="material-icons mr-1 text-sm">assessment</span>
-              Start Assessment
             </Button>
           </div>
         </div>

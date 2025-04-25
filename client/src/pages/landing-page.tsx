@@ -29,15 +29,6 @@ export default function LandingPage() {
                     <span className="material-icons mr-2">apps</span>
                     Explore Tools
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full sm:w-auto px-6 py-3 text-base font-medium bg-white shadow-sm h-14"
-                    onClick={() => setLocation("/assessment")}
-                  >
-                    <span className="material-icons mr-2">assessment</span>
-                    Start Assessment
-                  </Button>
                 </div>
               </div>
             </div>
@@ -66,31 +57,8 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-10">
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-2 max-w-4xl mx-auto">
               {/* Tool 1 */}
-              <div className="pt-6">
-                <div className="flow-root bg-white rounded-lg px-6 pb-8 h-full border border-gray-100 hover:shadow-md transition-shadow">
-                  <div className="-mt-6">
-                    <div>
-                      <span className="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg">
-                        <span className="material-icons text-white">analytics</span>
-                      </span>
-                    </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Maturity Assessment</h3>
-                    <p className="mt-5 text-base text-gray-500">
-                      Evaluate your integration maturity across 7 critical domains with personalized recommendations.
-                    </p>
-                    <div className="mt-4">
-                      <Button variant="outline" size="sm" onClick={() => setLocation("/assessment")} className="w-full">
-                        <span className="material-icons text-sm mr-1">arrow_forward</span>
-                        Get Started
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tool 2 */}
               <div className="pt-6">
                 <div className="flow-root bg-white rounded-lg px-6 pb-8 h-full border border-gray-100 hover:shadow-md transition-shadow">
                   <div className="-mt-6">
@@ -113,7 +81,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Tool 3 */}
+              {/* Tool 2 */}
               <div className="pt-6">
                 <div className="flow-root bg-white rounded-lg px-6 pb-8 h-full border border-gray-100 hover:shadow-md transition-shadow">
                   <div className="-mt-6">
@@ -203,8 +171,8 @@ export default function LandingPage() {
             <span className="block">Improve your healthcare integration?</span>
             <span className="block text-indigo-100">Explore our tools today</span>
           </h2>
-          <div className="mt-8 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 lg:mt-0 lg:flex-shrink-0">
-            <div className="inline-flex rounded-md shadow w-full sm:w-auto">
+          <div className="mt-8 lg:mt-0 lg:flex-shrink-0">
+            <div className="inline-flex rounded-md shadow w-full">
               <Button 
                 onClick={() => setLocation("/resources")}
                 className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-white hover:bg-indigo-50 h-14"
@@ -212,17 +180,6 @@ export default function LandingPage() {
               >
                 <span className="material-icons mr-2">apps</span>
                 Explore Tools
-              </Button>
-            </div>
-            <div className="inline-flex rounded-md w-full sm:w-auto">
-              <Button 
-                onClick={() => setLocation("/assessment")}
-                className="w-full inline-flex items-center justify-center px-6 py-3 border border-white text-base font-medium rounded-md text-white bg-transparent hover:bg-primary-700 h-14"
-                size="lg"
-                variant="outline"
-              >
-                <span className="material-icons mr-2">assessment</span>
-                Start Assessment
               </Button>
             </div>
           </div>
