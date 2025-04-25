@@ -179,7 +179,7 @@ export default function LandingPage() {
                 size="lg"
               >
                 <span className="material-icons mr-2">apps</span>
-                Explore Tools
+                Explore Tools and Resources
               </Button>
             </div>
           </div>

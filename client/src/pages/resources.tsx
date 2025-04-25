@@ -52,6 +52,13 @@ export default function ResourcesPage() {
       category: "Tools"
     },
     {
+      title: "Maturity Assessment Tool",
+      description: "Evaluate your organization's integration maturity across critical domains and receive personalized recommendations for improvement.",
+      link: "/assessment",
+      category: "Education",
+      isInternalLink: true
+    },
+    {
       title: "Mini Reference Guides",
       description: "Quick reference guides for common HL7 message types including ADT, SIU, ORM, and ORU messages used in healthcare integration.",
       link: "/reference-guides",
@@ -83,13 +90,6 @@ export default function ResourcesPage() {
       title: "Observable Plot Demo",
       description: "Explore interactive data visualizations using Observable Plot. Add and customize data points to generate real-time visualizations for healthcare integration metrics.",
       link: "/observable-demo",
-      category: "Education",
-      isInternalLink: true
-    },
-    {
-      title: "Maturity Assessment Tool",
-      description: "Evaluate your organization's integration maturity across critical domains and receive personalized recommendations for improvement.",
-      link: "/assessment",
       category: "Education",
       isInternalLink: true
     }

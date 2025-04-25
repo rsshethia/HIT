@@ -79,7 +79,7 @@ export default function NavBar() {
               className="inline-flex items-center"
             >
               <span className="material-icons mr-1 text-sm">apps</span>
-              Tools
+              Tools & Resources
             </Button>
           </div>
           
@@ -153,7 +153,7 @@ export default function NavBar() {
               className="w-full justify-center"
             >
               <span className="material-icons mr-1 text-sm">apps</span>
-              Explore Tools
+              Explore Tools and Resources
             </Button>
           </div>
         </div>
