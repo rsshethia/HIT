@@ -17,6 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import NetworkDiagram from '@/components/network-diagram';
 import IntegrationMatrix from '@/components/integration-matrix';
 import SankeyDiagram from '@/components/sankey-diagram';
+import DependencyMapper from '@/components/dependency-mapper';
 
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -216,6 +217,8 @@ export default function IntegrationMappingPage() {
         title = "Integration Matrix - Healthcare System Integration";
       } else if (activeVisualization === 'sankey') {
         title = "Data Flow Diagram - Healthcare System Integration";
+      } else if (activeVisualization === 'reactflow') {
+        title = "ReactFlow Dependency Map - Healthcare System Integration";
       }
 
       // Capture the content of the visualization
@@ -541,10 +544,11 @@ export default function IntegrationMappingPage() {
               </p>
               
               <Tabs defaultValue="network" className="w-full mb-6" onValueChange={setActiveVisualization}>
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="network">Network Diagram</TabsTrigger>
                   <TabsTrigger value="matrix">Integration Matrix</TabsTrigger>
                   <TabsTrigger value="sankey">Data Flow Diagram</TabsTrigger>
+                  <TabsTrigger value="reactflow">ReactFlow Canvas</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="network" className="mt-6">
@@ -649,6 +653,37 @@ export default function IntegrationMappingPage() {
                   </Card>
                 </TabsContent>
                 
+                <TabsContent value="reactflow" className="mt-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>ReactFlow Canvas</CardTitle>
+                      <CardDescription>
+                        Interactive draggable network diagram with enhanced controls.
+                        Visualize your system relationships with more flexibility.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
+                      {systems.length > 0 && connections.length > 0 ? (
+                        <div ref={vizRef} className="w-full h-full">
+                          <DependencyMapper 
+                            systems={systems} 
+                            connections={connections} 
+                            title="System Dependency Map"
+                            subtitle={`${systems.length} Systems and ${connections.length} Connections`}
+                            showExportLabels={activeVisualization === 'reactflow'}
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
+                          <p className="text-gray-500 text-center">
+                            Add systems and connections to generate an interactive flow diagram.<br />
+                            You can drag nodes, pan, and zoom to explore your system relationships.
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
 
               </Tabs>
               
