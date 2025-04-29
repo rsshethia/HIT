@@ -1,0 +1,90 @@
+// HIT-Aligned Dynamic Dependency Mapper (Step 1 Scaffold)
+import React, { useState } from "react";
+import ReactFlow, {
+  ReactFlowProvider,
+  Background,
+  Controls,
+  MiniMap,
+  addEdge,
+  useNodesState,
+  useEdgesState,
+  MarkerType,
+} from "reactflow";
+import "reactflow/dist/style.css";
+
+import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
+
+const initialNodes = [
+  {
+    id: "emr",
+    data: { label: "EMR System" },
+    position: { x: 100, y: 100 },
+    style: {
+      backgroundColor: "#4f46e5",
+      color: "white",
+      borderRadius: 16,
+      padding: 12,
+      fontWeight: 600,
+    },
+  },
+  {
+    id: "clinical-docs",
+    data: { label: "Clinical Documentation" },
+    position: { x: 400, y: 100 },
+    style: {
+      backgroundColor: "#e0e7ff",
+      color: "#1f2937",
+      borderRadius: 8,
+      padding: 12,
+    },
+  },
+];
+
+const initialEdges = [
+  {
+    id: "e1",
+    source: "clinical-docs",
+    target: "emr",
+    type: "smoothstep",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      color: "#fb923c", // FHIR = orange
+    },
+    style: {
+      stroke: "#fb923c",
+      strokeWidth: 2,
+    },
+    data: {
+      protocol: "FHIR",
+      description: "Documents stored using FHIR DocumentReference",
+    },
+  },
+];
+
+export default function DependencyMapper() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  return (
+    <div className="w-full h-[90vh] bg-gray-50">
+      <ReactFlowProvider>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          fitView
+        >
+          <MiniMap
+            nodeColor={(n) =>
+              n.id === "emr" ? "#4f46e5" : "#a5b4fc"
+            }
+          />
+          <Controls />
+          <Background color="#e5e7eb" gap={24} />
+        </ReactFlow>
+      </ReactFlowProvider>
+    </div>
+  );
+}
