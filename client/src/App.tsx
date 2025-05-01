@@ -14,6 +14,7 @@ import VisualizationsPage from "@/pages/visualizations";
 import IntegrationMappingPage from "@/pages/integration-mapping";
 import ObservableDemoPage from "@/pages/observable-demo";
 import GuidesPage from "@/pages/guides";
+import HL7FlowGamePage from "@/pages/hl7-flow-game";
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { DevHeader } from "@/components/dev-header";
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/integration-mapping" component={IntegrationMappingPage} />
       <Route path="/observable-demo" component={ObservableDemoPage} />
       <Route path="/guides" component={GuidesPage} />
+      <Route path="/hl7-flow-game" component={HL7FlowGamePage} />
       <Route component={NotFound} />
     </Switch>
   );

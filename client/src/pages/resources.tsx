@@ -85,6 +85,13 @@ export default function ResourcesPage() {
       link: "/integration-mapping",
       category: "Education",
       isInternalLink: true
+    },
+    {
+      title: "HL7 Flow",
+      description: "An interactive 8-bit style game that visualizes HL7 ADT message flow between hospital systems when patients are admitted, transferred, and discharged.",
+      link: "/hl7-flow-game",
+      category: "Games",
+      isInternalLink: true
     }
   ];
 

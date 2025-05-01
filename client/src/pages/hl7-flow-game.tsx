@@ -1,0 +1,643 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'wouter';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+
+// Game elements and styles
+const HOSPITAL_BED_HEIGHT = 80;
+const HOSPITAL_BED_WIDTH = 160;
+const BED_SPACING = 40;
+const PATIENT_SIZE = 50;
+const SERVER_SIZE = 100;
+const MESSAGE_SIZE = 30;
+
+interface Position {
+  x: number;
+  y: number;
+}
+
+interface Hospital {
+  beds: {
+    entry: Position;
+    bed1: Position;
+    bed2: Position;
+    bed3: Position;
+    exit: Position;
+  };
+}
+
+interface Servers {
+  sender: Position;
+  receiver: Position;
+}
+
+interface Message {
+  type: 'A01' | 'A02' | 'A03';
+  position: Position;
+  visible: boolean;
+  active: boolean;
+}
+
+enum GameStage {
+  INTRO = 'intro',
+  PLAYING = 'playing',
+  COMPLETE = 'complete'
+}
+
+export default function HL7FlowGamePage() {
+  const [gameStage, setGameStage] = useState<GameStage>(GameStage.INTRO);
+  const [patientPosition, setPatientPosition] = useState<Position | null>(null);
+  const [currentBed, setCurrentBed] = useState<string | null>(null);
+  const [message, setMessage] = useState<Message | null>(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  
+  const gameContainerRef = useRef<HTMLDivElement>(null);
+  const patientRef = useRef<HTMLDivElement>(null);
+
+  // Hospital and server layout configuration
+  const hospital: Hospital = {
+    beds: {
+      entry: { x: 40, y: 150 },
+      bed1: { x: 40, y: 250 },
+      bed2: { x: 40, y: 350 },
+      bed3: { x: 40, y: 450 },
+      exit: { x: 40, y: 550 }
+    }
+  };
+
+  const servers: Servers = {
+    sender: { x: 400, y: 250 },
+    receiver: { x: 400, y: 450 }
+  };
+
+  // Initialize patient at entry position
+  useEffect(() => {
+    if (gameStage === GameStage.PLAYING && !patientPosition) {
+      setPatientPosition({ ...hospital.beds.entry });
+      setCurrentBed('entry');
+    }
+  }, [gameStage]);
+
+  // Handle patient dragging
+  const handlePatientDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (gameStage !== GameStage.PLAYING) return;
+    
+    setDragActive(true);
+    
+    const patientElement = patientRef.current;
+    const gameContainer = gameContainerRef.current;
+    
+    if (!patientElement || !gameContainer) return;
+    
+    // Calculate the initial offset
+    const rect = patientElement.getBoundingClientRect();
+    const gameRect = gameContainer.getBoundingClientRect();
+    
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!dragActive) return;
+      
+      // Calculate the new position
+      const x = moveEvent.clientX - gameRect.left - offsetX;
+      const y = moveEvent.clientY - gameRect.top - offsetY;
+      
+      setPatientPosition({ x, y });
+    };
+    
+    const handleMouseUp = () => {
+      setDragActive(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      
+      // Check if patient is dropped on a bed
+      checkBedPlacement();
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+  
+  // Check if patient is placed on a bed
+  const checkBedPlacement = () => {
+    if (!patientPosition) return;
+    
+    const bedEntries = Object.entries(hospital.beds);
+    
+    // Find the closest bed
+    let closestBed: string | null = null;
+    let closestDistance = Infinity;
+    
+    for (const [bedName, bedPos] of bedEntries) {
+      const distance = Math.sqrt(
+        Math.pow(patientPosition.x - bedPos.x, 2) + 
+        Math.pow(patientPosition.y - bedPos.y, 2)
+      );
+      
+      if (distance < closestDistance && distance < HOSPITAL_BED_HEIGHT) {
+        closestBed = bedName;
+        closestDistance = distance;
+      }
+    }
+    
+    if (closestBed) {
+      // Snap patient to the closest bed
+      setPatientPosition({ ...hospital.beds[closestBed as keyof typeof hospital.beds] });
+      
+      if (closestBed !== currentBed) {
+        handleBedChange(currentBed, closestBed);
+        setCurrentBed(closestBed);
+      }
+    }
+  };
+  
+  // Handle patient movement between beds and generate appropriate HL7 messages
+  const handleBedChange = (fromBed: string | null, toBed: string) => {
+    let messageType: 'A01' | 'A02' | 'A03';
+    
+    // Determine message type based on the patient's movement
+    if (fromBed === 'entry' && ['bed1', 'bed2', 'bed3'].includes(toBed)) {
+      messageType = 'A01'; // Admission
+    } else if (['bed1', 'bed2', 'bed3'].includes(fromBed || '') && 
+               ['bed1', 'bed2', 'bed3'].includes(toBed)) {
+      messageType = 'A02'; // Transfer
+    } else if (['bed1', 'bed2', 'bed3'].includes(fromBed || '') && toBed === 'exit') {
+      messageType = 'A03'; // Discharge
+    } else {
+      return; // No message for other movements
+    }
+    
+    // Create and animate the message
+    const newMessage: Message = {
+      type: messageType,
+      position: { ...servers.sender },
+      visible: true,
+      active: true
+    };
+    
+    setMessage(newMessage);
+    
+    // Mark step as completed
+    const newCompletedSteps = new Set(completedSteps);
+    
+    if (messageType === 'A01') {
+      newCompletedSteps.add('admission');
+    } else if (messageType === 'A02') {
+      newCompletedSteps.add('transfer');
+    } else if (messageType === 'A03') {
+      newCompletedSteps.add('discharge');
+    }
+    
+    setCompletedSteps(newCompletedSteps);
+    
+    // Animate message movement
+    let step = 0;
+    const totalSteps = 50; // For smooth animation
+    
+    const moveMessage = () => {
+      if (step >= totalSteps) {
+        setMessage(prev => prev ? { ...prev, active: false } : null);
+        
+        // Check if all steps are completed
+        if (newCompletedSteps.size >= 3) {
+          setTimeout(() => {
+            setGameStage(GameStage.COMPLETE);
+          }, 1000);
+        }
+        
+        return;
+      }
+      
+      const progress = step / totalSteps;
+      const newX = servers.sender.x + (servers.receiver.x - servers.sender.x) * progress;
+      const newY = servers.sender.y + (servers.receiver.y - servers.sender.y) * progress;
+      
+      setMessage(prev => prev ? { 
+        ...prev, 
+        position: { x: newX, y: newY } 
+      } : null);
+      
+      step++;
+      requestAnimationFrame(moveMessage);
+    };
+    
+    requestAnimationFrame(moveMessage);
+  };
+
+  // Start the game
+  const startGame = () => {
+    setGameStage(GameStage.PLAYING);
+    setShowInstructions(false);
+  };
+
+  // Restart the game
+  const restartGame = () => {
+    setGameStage(GameStage.PLAYING);
+    setPatientPosition({ ...hospital.beds.entry });
+    setCurrentBed('entry');
+    setMessage(null);
+    setCompletedSteps(new Set());
+  };
+
+  // Render intro screen
+  const renderIntro = () => (
+    <div className="flex flex-col items-center justify-center h-full">
+      <Card className="w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle className="text-3xl">HL7 Flow Game</CardTitle>
+          <CardDescription className="text-lg">
+            Learn HL7 ADT messages by moving a patient through a hospital
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="p-4 bg-blue-50 rounded-md border border-blue-200">
+            <h3 className="text-xl font-semibold mb-2">How to Play:</h3>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Drag the patient to one of the hospital beds (Triggers an A01 Admission message)</li>
+              <li>Move the patient between beds (Triggers an A02 Transfer message)</li>
+              <li>Finally, drag the patient to the exit (Triggers an A03 Discharge message)</li>
+            </ol>
+            <p className="mt-4 font-medium">Watch the HL7 messages flow between servers as you move the patient!</p>
+          </div>
+          <div className="flex justify-center">
+            <Button size="lg" onClick={startGame}>Start Game</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  // Render game completion screen
+  const renderCompletion = () => (
+    <div className="flex flex-col items-center justify-center h-full">
+      <Card className="w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle className="text-2xl text-center">
+            <span className="text-green-600">✓</span> Congratulations!
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="p-6 bg-green-50 rounded-md border border-green-200">
+            <h3 className="text-xl font-semibold mb-4 text-center">You've completed the HL7 Flow simulation!</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-semibold">You learned about these HL7 ADT messages:</h4>
+                <ul className="mt-2 space-y-2">
+                  <li className="flex items-center">
+                    <Badge variant="outline" className="mr-2 bg-blue-100">A01</Badge>
+                    <span>Admission/Visit Notification - Sent when a patient is admitted to a hospital</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Badge variant="outline" className="mr-2 bg-purple-100">A02</Badge>
+                    <span>Transfer a Patient - Sent when a patient is transferred between locations</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Badge variant="outline" className="mr-2 bg-amber-100">A03</Badge>
+                    <span>Discharge/End Visit - Sent when a patient is discharged from the hospital</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <Separator />
+              
+              <p className="text-gray-700">
+                These messages are part of the <strong>HL7 v2.x standard</strong> and are foundational 
+                for healthcare integrations, ensuring that patient information flows smoothly between 
+                different healthcare systems.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex justify-center space-x-4">
+            <Button variant="outline" onClick={restartGame}>Play Again</Button>
+            <Link href="/resources">
+              <Button>Back to Resources</Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  // Render game play area
+  const renderGame = () => (
+    <div className="relative h-full" ref={gameContainerRef}>
+      {/* Split screen layout */}
+      <div className="absolute left-0 top-0 w-1/2 h-full bg-blue-50 border-r border-gray-300 flex flex-col">
+        <div className="p-4 border-b border-gray-300">
+          <h3 className="text-xl font-bold">Hospital</h3>
+        </div>
+        
+        {/* Render hospital beds */}
+        <div className="relative flex-grow">
+          {/* Entry */}
+          <div 
+            className="absolute border-2 border-gray-400 bg-gray-100 rounded-lg flex items-center justify-center"
+            style={{
+              left: hospital.beds.entry.x,
+              top: hospital.beds.entry.y,
+              width: HOSPITAL_BED_WIDTH,
+              height: HOSPITAL_BED_HEIGHT,
+              transform: 'translateX(-50%) translateY(-50%)'
+            }}
+          >
+            <span className="font-bold text-gray-700">ENTRY</span>
+          </div>
+          
+          {/* Bed 1 */}
+          <div 
+            className="absolute border-2 border-blue-500 bg-blue-50 rounded-lg flex items-center justify-center"
+            style={{
+              left: hospital.beds.bed1.x,
+              top: hospital.beds.bed1.y,
+              width: HOSPITAL_BED_WIDTH,
+              height: HOSPITAL_BED_HEIGHT,
+              transform: 'translateX(-50%) translateY(-50%)'
+            }}
+          >
+            <div className="relative w-full h-full">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="font-bold text-blue-700">BED 1</span>
+              </div>
+              <div className="absolute -top-6 left-0 right-0 flex justify-center">
+                <Badge variant="outline" className="bg-blue-100">Emergency</Badge>
+              </div>
+            </div>
+          </div>
+          
+          {/* Bed 2 */}
+          <div 
+            className="absolute border-2 border-green-500 bg-green-50 rounded-lg flex items-center justify-center"
+            style={{
+              left: hospital.beds.bed2.x,
+              top: hospital.beds.bed2.y,
+              width: HOSPITAL_BED_WIDTH,
+              height: HOSPITAL_BED_HEIGHT,
+              transform: 'translateX(-50%) translateY(-50%)'
+            }}
+          >
+            <div className="relative w-full h-full">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="font-bold text-green-700">BED 2</span>
+              </div>
+              <div className="absolute -top-6 left-0 right-0 flex justify-center">
+                <Badge variant="outline" className="bg-green-100">ICU</Badge>
+              </div>
+            </div>
+          </div>
+          
+          {/* Bed 3 */}
+          <div 
+            className="absolute border-2 border-purple-500 bg-purple-50 rounded-lg flex items-center justify-center"
+            style={{
+              left: hospital.beds.bed3.x,
+              top: hospital.beds.bed3.y,
+              width: HOSPITAL_BED_WIDTH,
+              height: HOSPITAL_BED_HEIGHT,
+              transform: 'translateX(-50%) translateY(-50%)'
+            }}
+          >
+            <div className="relative w-full h-full">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="font-bold text-purple-700">BED 3</span>
+              </div>
+              <div className="absolute -top-6 left-0 right-0 flex justify-center">
+                <Badge variant="outline" className="bg-purple-100">Ward</Badge>
+              </div>
+            </div>
+          </div>
+          
+          {/* Exit */}
+          <div 
+            className="absolute border-2 border-gray-400 bg-gray-100 rounded-lg flex items-center justify-center"
+            style={{
+              left: hospital.beds.exit.x,
+              top: hospital.beds.exit.y,
+              width: HOSPITAL_BED_WIDTH,
+              height: HOSPITAL_BED_HEIGHT,
+              transform: 'translateX(-50%) translateY(-50%)'
+            }}
+          >
+            <span className="font-bold text-gray-700">EXIT</span>
+          </div>
+          
+          {/* Patient character (8-bit style) */}
+          {patientPosition && (
+            <div 
+              ref={patientRef}
+              className={`absolute cursor-move flex items-center justify-center ${
+                dragActive ? 'z-50' : 'z-10'
+              }`}
+              style={{
+                left: patientPosition.x,
+                top: patientPosition.y,
+                width: PATIENT_SIZE,
+                height: PATIENT_SIZE,
+                transform: 'translateX(-50%) translateY(-50%)',
+                transition: dragActive ? 'none' : 'all 0.3s ease-out'
+              }}
+              onMouseDown={handlePatientDragStart}
+            >
+              <div className="w-full h-full bg-red-500 rounded-full flex items-center justify-center text-white font-bold pixelated">
+                P
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Server side */}
+      <div className="absolute right-0 top-0 w-1/2 h-full bg-gray-100 flex flex-col">
+        <div className="p-4 border-b border-gray-300">
+          <h3 className="text-xl font-bold">Healthcare Systems</h3>
+        </div>
+        
+        <div className="relative flex-grow">
+          {/* Sender server */}
+          <div
+            className="absolute rounded-lg bg-blue-200 border-2 border-blue-400 flex flex-col items-center justify-center pixelated"
+            style={{
+              left: servers.sender.x,
+              top: servers.sender.y,
+              width: SERVER_SIZE,
+              height: SERVER_SIZE,
+              transform: 'translateX(-50%) translateY(-50%)'
+            }}
+          >
+            <div className="w-4 h-4 bg-green-500 rounded-full mb-1 blink"></div>
+            <span className="font-bold text-gray-800 text-sm">PAS</span>
+            <span className="text-xs text-gray-600">Sender</span>
+          </div>
+          
+          {/* Receiver server */}
+          <div
+            className="absolute rounded-lg bg-purple-200 border-2 border-purple-400 flex flex-col items-center justify-center pixelated"
+            style={{
+              left: servers.receiver.x,
+              top: servers.receiver.y,
+              width: SERVER_SIZE,
+              height: SERVER_SIZE,
+              transform: 'translateX(-50%) translateY(-50%)'
+            }}
+          >
+            <div className="w-4 h-4 bg-green-500 rounded-full mb-1 blink"></div>
+            <span className="font-bold text-gray-800 text-sm">EHR</span>
+            <span className="text-xs text-gray-600">Receiver</span>
+          </div>
+          
+          {/* Connection line between servers */}
+          <div
+            className="absolute bg-gray-300"
+            style={{
+              left: servers.sender.x,
+              top: servers.sender.y,
+              width: servers.receiver.x - servers.sender.x,
+              height: 4,
+              transform: 'translateY(-50%)'
+            }}
+          ></div>
+          
+          {/* HL7 Message */}
+          {message && message.visible && (
+            <div
+              className={`absolute rounded-md flex items-center justify-center font-bold text-white pixelated ${
+                message.active ? 'z-20' : 'z-10'
+              }`}
+              style={{
+                left: message.position.x,
+                top: message.position.y,
+                width: MESSAGE_SIZE * 2,
+                height: MESSAGE_SIZE,
+                transform: 'translateX(-50%) translateY(-50%)',
+                transition: message.active ? 'none' : 'all 0.5s ease-out',
+                backgroundColor: 
+                  message.type === 'A01' ? '#3b82f6' : 
+                  message.type === 'A02' ? '#8b5cf6' : 
+                  '#f59e0b'
+              }}
+            >
+              {message.type}
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Game instructions overlay */}
+      {showInstructions && (
+        <div className="absolute right-4 top-16 z-50 w-56">
+          <Card>
+            <CardHeader className="p-4">
+              <CardTitle className="text-sm">Game Instructions</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <ul className="text-xs space-y-2">
+                <li className="flex items-start">
+                  <Badge variant="outline" className="mr-1 bg-blue-100 text-xs">1</Badge>
+                  <span>Drag patient to a hospital bed (A01)</span>
+                </li>
+                <li className="flex items-start">
+                  <Badge variant="outline" className="mr-1 bg-purple-100 text-xs">2</Badge>
+                  <span>Move between beds (A02)</span>
+                </li>
+                <li className="flex items-start">
+                  <Badge variant="outline" className="mr-1 bg-amber-100 text-xs">3</Badge>
+                  <span>Drag to exit when done (A03)</span>
+                </li>
+              </ul>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-3 w-full text-xs" 
+                onClick={() => setShowInstructions(false)}
+              >
+                Hide
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+      
+      {/* Progress tracker */}
+      <div className="absolute left-4 top-16 z-50">
+        <Card className="w-56">
+          <CardHeader className="p-4">
+            <CardTitle className="text-sm">Progress</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <ul className="space-y-2">
+              <li className="flex items-center">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                  completedSteps.has('admission') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                }`}>
+                  {completedSteps.has('admission') ? '✓' : ''}
+                </div>
+                <span className="ml-2 text-xs">Admission (A01)</span>
+              </li>
+              <li className="flex items-center">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                  completedSteps.has('transfer') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                }`}>
+                  {completedSteps.has('transfer') ? '✓' : ''}
+                </div>
+                <span className="ml-2 text-xs">Transfer (A02)</span>
+              </li>
+              <li className="flex items-center">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                  completedSteps.has('discharge') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                }`}>
+                  {completedSteps.has('discharge') ? '✓' : ''}
+                </div>
+                <span className="ml-2 text-xs">Discharge (A03)</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Back button */}
+      <div className="absolute left-4 top-4 z-50">
+        <Link href="/resources">
+          <Button variant="outline" size="sm">
+            <span className="material-icons text-sm mr-1">arrow_back</span>
+            Back
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
+
+  // Render main game based on the current stage
+  return (
+    <div className="min-h-[calc(100vh-4rem)] bg-white">
+      <div className="container mx-auto h-[calc(100vh-4rem)]">
+        {gameStage === GameStage.INTRO && renderIntro()}
+        {gameStage === GameStage.PLAYING && renderGame()}
+        {gameStage === GameStage.COMPLETE && renderCompletion()}
+      </div>
+      
+      {/* CSS for 8-bit pixelated style */}
+      <style jsx global>{`
+        .pixelated {
+          image-rendering: pixelated;
+          font-family: 'Courier New', monospace;
+        }
+        
+        .blink {
+          animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+          0% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+}
