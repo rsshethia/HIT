@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 const HOSPITAL_BED_HEIGHT = 80;
 const HOSPITAL_BED_WIDTH = 160;
 const BED_SPACING = 40;
-const PATIENT_SIZE = 50;
+const PATIENT_SIZE = 70;  // Increased patient size for better visibility
 const SERVER_SIZE = 100;
 const MESSAGE_SIZE = 30;
 
@@ -76,8 +76,12 @@ export default function HL7FlowGamePage() {
 
   // Initialize patient at entry position
   useEffect(() => {
-    if (gameStage === GameStage.PLAYING && !patientPosition) {
-      setPatientPosition({ ...hospital.beds.entry });
+    if (gameStage === GameStage.PLAYING) {
+      // Set with a slight offset so it's clearly visible over the entry position
+      setPatientPosition({ 
+        x: hospital.beds.entry.x + 50, 
+        y: hospital.beds.entry.y 
+      });
       setCurrentBed('entry');
     }
   }, [gameStage]);
@@ -238,7 +242,10 @@ export default function HL7FlowGamePage() {
   // Restart the game
   const restartGame = () => {
     setGameStage(GameStage.PLAYING);
-    setPatientPosition({ ...hospital.beds.entry });
+    setPatientPosition({ 
+      x: hospital.beds.entry.x + 50, 
+      y: hospital.beds.entry.y 
+    });
     setCurrentBed('entry');
     setMessage(null);
     setCompletedSteps(new Set());
@@ -432,7 +439,7 @@ export default function HL7FlowGamePage() {
             <div 
               ref={patientRef}
               className={`absolute cursor-move flex items-center justify-center ${
-                dragActive ? 'z-50' : 'z-10'
+                dragActive ? 'z-50' : 'z-50'
               }`}
               style={{
                 left: patientPosition.x,
@@ -440,11 +447,14 @@ export default function HL7FlowGamePage() {
                 width: PATIENT_SIZE,
                 height: PATIENT_SIZE,
                 transform: 'translateX(-50%) translateY(-50%)',
-                transition: dragActive ? 'none' : 'all 0.3s ease-out'
+                transition: dragActive ? 'none' : 'all 0.3s ease-out',
+                boxShadow: '0 0 10px 3px rgba(0,0,0,0.2)',
+                userSelect: 'none',
+                touchAction: 'none'
               }}
               onMouseDown={handlePatientDragStart}
             >
-              <div className="w-full h-full bg-red-500 rounded-full flex items-center justify-center text-white font-bold pixelated">
+              <div className="w-full h-full bg-red-500 border-2 border-red-700 rounded-full flex items-center justify-center text-white font-bold pixelated animate-pulse">
                 P
               </div>
             </div>
@@ -622,22 +632,24 @@ export default function HL7FlowGamePage() {
       </div>
       
       {/* CSS for 8-bit pixelated style */}
-      <style jsx global>{`
-        .pixelated {
-          image-rendering: pixelated;
-          font-family: 'Courier New', monospace;
-        }
-        
-        .blink {
-          animation: blink 2s infinite;
-        }
-        
-        @keyframes blink {
-          0% { opacity: 1; }
-          50% { opacity: 0.5; }
-          100% { opacity: 1; }
-        }
-      `}</style>
+      <style>
+        {`
+          .pixelated {
+            image-rendering: pixelated;
+            font-family: 'Courier New', monospace;
+          }
+          
+          .blink {
+            animation: blink 2s infinite;
+          }
+          
+          @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+          }
+        `}
+      </style>
     </div>
   );
 }
