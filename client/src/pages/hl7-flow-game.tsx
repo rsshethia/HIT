@@ -23,7 +23,6 @@ interface Hospital {
     entry: Position;
     bed1: Position;
     bed2: Position;
-    bed3: Position;
     exit: Position;
   };
 }
@@ -62,16 +61,15 @@ export default function HL7FlowGamePage() {
   const hospital: Hospital = {
     beds: {
       entry: { x: 40, y: 150 },
-      bed1: { x: 40, y: 250 },
-      bed2: { x: 40, y: 350 },
-      bed3: { x: 40, y: 450 },
-      exit: { x: 40, y: 550 }
+      bed1: { x: 180, y: 150 },
+      bed2: { x: 180, y: 300 },
+      exit: { x: 40, y: 300 }
     }
   };
 
   const servers: Servers = {
-    sender: { x: 400, y: 250 },
-    receiver: { x: 400, y: 450 }
+    sender: { x: 350, y: 180 },
+    receiver: { x: 350, y: 300 }
   };
 
   // Initialize patient at entry position
@@ -119,12 +117,12 @@ export default function HL7FlowGamePage() {
     let messageType: 'A01' | 'A02' | 'A03';
     
     // Determine message type based on the patient's movement
-    if (fromBed === 'entry' && ['bed1', 'bed2', 'bed3'].includes(toBed)) {
+    if (fromBed === 'entry' && ['bed1', 'bed2'].includes(toBed)) {
       messageType = 'A01'; // Admission
-    } else if (['bed1', 'bed2', 'bed3'].includes(fromBed || '') && 
-               ['bed1', 'bed2', 'bed3'].includes(toBed)) {
+    } else if (['bed1', 'bed2'].includes(fromBed || '') && 
+               ['bed1', 'bed2'].includes(toBed)) {
       messageType = 'A02'; // Transfer
-    } else if (['bed1', 'bed2', 'bed3'].includes(fromBed || '') && toBed === 'exit') {
+    } else if (['bed1', 'bed2'].includes(fromBed || '') && toBed === 'exit') {
       messageType = 'A03'; // Discharge
     } else {
       return; // No message for other movements
@@ -288,10 +286,47 @@ export default function HL7FlowGamePage() {
 
   // Render game play area
   const renderGame = () => (
-    <div className="relative h-full" ref={gameContainerRef}>
+    <div className="relative mx-auto max-w-4xl h-[500px] shadow-lg border rounded-lg mt-10" ref={gameContainerRef}>
+      {/* Progress tracker - centered at top */}
+      <div className="absolute left-1/2 transform -translate-x-1/2 top-4 z-50">
+        <Card className="w-72 shadow-md">
+          <CardHeader className="p-3">
+            <CardTitle className="text-sm text-center">Progress</CardTitle>
+          </CardHeader>
+          <CardContent className="p-3">
+            <div className="flex justify-between gap-2">
+              <div className="flex items-center">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                  completedSteps.has('admission') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                }`}>
+                  {completedSteps.has('admission') ? '✓' : ''}
+                </div>
+                <span className="ml-1 text-xs">Admission (A01)</span>
+              </div>
+              <div className="flex items-center">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                  completedSteps.has('transfer') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                }`}>
+                  {completedSteps.has('transfer') ? '✓' : ''}
+                </div>
+                <span className="ml-1 text-xs">Transfer (A02)</span>
+              </div>
+              <div className="flex items-center">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                  completedSteps.has('discharge') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                }`}>
+                  {completedSteps.has('discharge') ? '✓' : ''}
+                </div>
+                <span className="ml-1 text-xs">Discharge (A03)</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    
       {/* Split screen layout */}
       <div className="absolute left-0 top-0 w-1/2 h-full bg-blue-50 border-r border-gray-300 flex flex-col">
-        <div className="p-4 border-b border-gray-300">
+        <div className="p-4 border-b border-gray-300 mt-16">
           <h3 className="text-xl font-bold">Hospital</h3>
         </div>
         
@@ -356,28 +391,6 @@ export default function HL7FlowGamePage() {
             </div>
           </div>
           
-          {/* Bed 3 */}
-          <div 
-            className={`absolute border-2 border-purple-500 bg-purple-50 rounded-lg flex items-center justify-center cursor-pointer hover:bg-purple-100 hover:shadow-md transition-all ${currentBed === 'bed3' ? 'ring-2 ring-offset-2 ring-purple-500' : ''}`}
-            style={{
-              left: hospital.beds.bed3.x,
-              top: hospital.beds.bed3.y,
-              width: HOSPITAL_BED_WIDTH,
-              height: HOSPITAL_BED_HEIGHT,
-              transform: 'translateX(-50%) translateY(-50%)'
-            }}
-            onClick={() => handleBedClick('bed3')}
-          >
-            <div className="relative w-full h-full">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-bold text-purple-700">BED 3</span>
-              </div>
-              <div className="absolute -top-6 left-0 right-0 flex justify-center">
-                <Badge variant="outline" className="bg-purple-100">Ward</Badge>
-              </div>
-            </div>
-          </div>
-          
           {/* Exit */}
           <div 
             className={`absolute border-2 border-gray-400 bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 hover:shadow-md transition-all ${currentBed === 'exit' ? 'ring-2 ring-offset-2 ring-gray-400' : ''}`}
@@ -422,7 +435,7 @@ export default function HL7FlowGamePage() {
       
       {/* Server side */}
       <div className="absolute right-0 top-0 w-1/2 h-full bg-gray-100 flex flex-col">
-        <div className="p-4 border-b border-gray-300">
+        <div className="p-4 border-b border-gray-300 mt-16">
           <h3 className="text-xl font-bold">Healthcare Systems</h3>
         </div>
         
@@ -498,7 +511,7 @@ export default function HL7FlowGamePage() {
       
       {/* Game instructions overlay */}
       {showInstructions && (
-        <div className="absolute right-4 top-16 z-50 w-56">
+        <div className="absolute right-4 top-20 z-50 w-56">
           <Card>
             <CardHeader className="p-4">
               <CardTitle className="text-sm">Game Instructions</CardTitle>
@@ -530,43 +543,6 @@ export default function HL7FlowGamePage() {
           </Card>
         </div>
       )}
-      
-      {/* Progress tracker */}
-      <div className="absolute left-4 top-16 z-50">
-        <Card className="w-56">
-          <CardHeader className="p-4">
-            <CardTitle className="text-sm">Progress</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4">
-            <ul className="space-y-2">
-              <li className="flex items-center">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                  completedSteps.has('admission') ? 'bg-green-500 text-white' : 'bg-gray-200'
-                }`}>
-                  {completedSteps.has('admission') ? '✓' : ''}
-                </div>
-                <span className="ml-2 text-xs">Admission (A01)</span>
-              </li>
-              <li className="flex items-center">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                  completedSteps.has('transfer') ? 'bg-green-500 text-white' : 'bg-gray-200'
-                }`}>
-                  {completedSteps.has('transfer') ? '✓' : ''}
-                </div>
-                <span className="ml-2 text-xs">Transfer (A02)</span>
-              </li>
-              <li className="flex items-center">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                  completedSteps.has('discharge') ? 'bg-green-500 text-white' : 'bg-gray-200'
-                }`}>
-                  {completedSteps.has('discharge') ? '✓' : ''}
-                </div>
-                <span className="ml-2 text-xs">Discharge (A03)</span>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Back button */}
       <div className="absolute left-4 top-4 z-50">
