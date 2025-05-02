@@ -86,78 +86,32 @@ export default function HL7FlowGamePage() {
     }
   }, [gameStage]);
 
-  // Handle patient dragging
-  const handlePatientDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Handle bed click - patient will move to the clicked bed
+  const handleBedClick = (bedName: string) => {
     if (gameStage !== GameStage.PLAYING) return;
     
+    // Don't do anything if clicking the current bed
+    if (bedName === currentBed) return;
+    
+    // Animate the patient moving to the new bed
     setDragActive(true);
     
-    const patientElement = patientRef.current;
-    const gameContainer = gameContainerRef.current;
+    // Get destination position
+    const destinationPos = hospital.beds[bedName as keyof typeof hospital.beds];
     
-    if (!patientElement || !gameContainer) return;
+    // Move patient to new bed
+    setPatientPosition(destinationPos);
     
-    // Calculate the initial offset
-    const rect = patientElement.getBoundingClientRect();
-    const gameRect = gameContainer.getBoundingClientRect();
-    
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-    
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      if (!dragActive) return;
-      
-      // Calculate the new position
-      const x = moveEvent.clientX - gameRect.left - offsetX;
-      const y = moveEvent.clientY - gameRect.top - offsetY;
-      
-      setPatientPosition({ x, y });
-    };
-    
-    const handleMouseUp = () => {
+    // Process the bed change after a short delay to allow animation
+    setTimeout(() => {
       setDragActive(false);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
       
-      // Check if patient is dropped on a bed
-      checkBedPlacement();
-    };
-    
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
-  
-  // Check if patient is placed on a bed
-  const checkBedPlacement = () => {
-    if (!patientPosition) return;
-    
-    const bedEntries = Object.entries(hospital.beds);
-    
-    // Find the closest bed
-    let closestBed: string | null = null;
-    let closestDistance = Infinity;
-    
-    for (const [bedName, bedPos] of bedEntries) {
-      const distance = Math.sqrt(
-        Math.pow(patientPosition.x - bedPos.x, 2) + 
-        Math.pow(patientPosition.y - bedPos.y, 2)
-      );
-      
-      if (distance < closestDistance && distance < HOSPITAL_BED_HEIGHT) {
-        closestBed = bedName;
-        closestDistance = distance;
+      // If bed is different from current, trigger the message
+      if (bedName !== currentBed) {
+        handleBedChange(currentBed, bedName);
+        setCurrentBed(bedName);
       }
-    }
-    
-    if (closestBed) {
-      // Snap patient to the closest bed
-      setPatientPosition({ ...hospital.beds[closestBed as keyof typeof hospital.beds] });
-      
-      if (closestBed !== currentBed) {
-        handleBedChange(currentBed, closestBed);
-        setCurrentBed(closestBed);
-      }
-    }
+    }, 300);
   };
   
   // Handle patient movement between beds and generate appropriate HL7 messages
@@ -265,9 +219,9 @@ export default function HL7FlowGamePage() {
           <div className="p-4 bg-blue-50 rounded-md border border-blue-200">
             <h3 className="text-xl font-semibold mb-2">How to Play:</h3>
             <ol className="list-decimal pl-5 space-y-2">
-              <li>Drag the patient to one of the hospital beds (Triggers an A01 Admission message)</li>
-              <li>Move the patient between beds (Triggers an A02 Transfer message)</li>
-              <li>Finally, drag the patient to the exit (Triggers an A03 Discharge message)</li>
+              <li>Click on a hospital bed to move the patient there (Triggers an A01 Admission message)</li>
+              <li>Click different beds to move the patient between them (Triggers an A02 Transfer message)</li>
+              <li>Finally, click the exit to discharge the patient (Triggers an A03 Discharge message)</li>
             </ol>
             <p className="mt-4 font-medium">Watch the HL7 messages flow between servers as you move the patient!</p>
           </div>
@@ -345,7 +299,7 @@ export default function HL7FlowGamePage() {
         <div className="relative flex-grow">
           {/* Entry */}
           <div 
-            className="absolute border-2 border-gray-400 bg-gray-100 rounded-lg flex items-center justify-center"
+            className={`absolute border-2 border-gray-400 bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 hover:shadow-md transition-all ${currentBed === 'entry' ? 'ring-2 ring-offset-2 ring-gray-400' : ''}`}
             style={{
               left: hospital.beds.entry.x,
               top: hospital.beds.entry.y,
@@ -353,13 +307,14 @@ export default function HL7FlowGamePage() {
               height: HOSPITAL_BED_HEIGHT,
               transform: 'translateX(-50%) translateY(-50%)'
             }}
+            onClick={() => handleBedClick('entry')}
           >
             <span className="font-bold text-gray-700">ENTRY</span>
           </div>
           
           {/* Bed 1 */}
           <div 
-            className="absolute border-2 border-blue-500 bg-blue-50 rounded-lg flex items-center justify-center"
+            className={`absolute border-2 border-blue-500 bg-blue-50 rounded-lg flex items-center justify-center cursor-pointer hover:bg-blue-100 hover:shadow-md transition-all ${currentBed === 'bed1' ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
             style={{
               left: hospital.beds.bed1.x,
               top: hospital.beds.bed1.y,
@@ -367,6 +322,7 @@ export default function HL7FlowGamePage() {
               height: HOSPITAL_BED_HEIGHT,
               transform: 'translateX(-50%) translateY(-50%)'
             }}
+            onClick={() => handleBedClick('bed1')}
           >
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
@@ -380,7 +336,7 @@ export default function HL7FlowGamePage() {
           
           {/* Bed 2 */}
           <div 
-            className="absolute border-2 border-green-500 bg-green-50 rounded-lg flex items-center justify-center"
+            className={`absolute border-2 border-green-500 bg-green-50 rounded-lg flex items-center justify-center cursor-pointer hover:bg-green-100 hover:shadow-md transition-all ${currentBed === 'bed2' ? 'ring-2 ring-offset-2 ring-green-500' : ''}`}
             style={{
               left: hospital.beds.bed2.x,
               top: hospital.beds.bed2.y,
@@ -388,6 +344,7 @@ export default function HL7FlowGamePage() {
               height: HOSPITAL_BED_HEIGHT,
               transform: 'translateX(-50%) translateY(-50%)'
             }}
+            onClick={() => handleBedClick('bed2')}
           >
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
@@ -401,7 +358,7 @@ export default function HL7FlowGamePage() {
           
           {/* Bed 3 */}
           <div 
-            className="absolute border-2 border-purple-500 bg-purple-50 rounded-lg flex items-center justify-center"
+            className={`absolute border-2 border-purple-500 bg-purple-50 rounded-lg flex items-center justify-center cursor-pointer hover:bg-purple-100 hover:shadow-md transition-all ${currentBed === 'bed3' ? 'ring-2 ring-offset-2 ring-purple-500' : ''}`}
             style={{
               left: hospital.beds.bed3.x,
               top: hospital.beds.bed3.y,
@@ -409,6 +366,7 @@ export default function HL7FlowGamePage() {
               height: HOSPITAL_BED_HEIGHT,
               transform: 'translateX(-50%) translateY(-50%)'
             }}
+            onClick={() => handleBedClick('bed3')}
           >
             <div className="relative w-full h-full">
               <div className="absolute inset-0 flex items-center justify-center">
@@ -422,7 +380,7 @@ export default function HL7FlowGamePage() {
           
           {/* Exit */}
           <div 
-            className="absolute border-2 border-gray-400 bg-gray-100 rounded-lg flex items-center justify-center"
+            className={`absolute border-2 border-gray-400 bg-gray-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-200 hover:shadow-md transition-all ${currentBed === 'exit' ? 'ring-2 ring-offset-2 ring-gray-400' : ''}`}
             style={{
               left: hospital.beds.exit.x,
               top: hospital.beds.exit.y,
@@ -430,6 +388,7 @@ export default function HL7FlowGamePage() {
               height: HOSPITAL_BED_HEIGHT,
               transform: 'translateX(-50%) translateY(-50%)'
             }}
+            onClick={() => handleBedClick('exit')}
           >
             <span className="font-bold text-gray-700">EXIT</span>
           </div>
@@ -438,7 +397,7 @@ export default function HL7FlowGamePage() {
           {patientPosition && (
             <div 
               ref={patientRef}
-              className={`absolute cursor-move flex items-center justify-center ${
+              className={`absolute flex items-center justify-center ${
                 dragActive ? 'z-50' : 'z-50'
               }`}
               style={{
@@ -452,7 +411,6 @@ export default function HL7FlowGamePage() {
                 userSelect: 'none',
                 touchAction: 'none'
               }}
-              onMouseDown={handlePatientDragStart}
             >
               <div className="w-full h-full bg-red-500 border-2 border-red-700 rounded-full flex items-center justify-center text-white font-bold pixelated animate-pulse">
                 P
@@ -549,15 +507,15 @@ export default function HL7FlowGamePage() {
               <ul className="text-xs space-y-2">
                 <li className="flex items-start">
                   <Badge variant="outline" className="mr-1 bg-blue-100 text-xs">1</Badge>
-                  <span>Drag patient to a hospital bed (A01)</span>
+                  <span>Click on a hospital bed (A01)</span>
                 </li>
                 <li className="flex items-start">
                   <Badge variant="outline" className="mr-1 bg-purple-100 text-xs">2</Badge>
-                  <span>Move between beds (A02)</span>
+                  <span>Click different beds (A02)</span>
                 </li>
                 <li className="flex items-start">
                   <Badge variant="outline" className="mr-1 bg-amber-100 text-xs">3</Badge>
-                  <span>Drag to exit when done (A03)</span>
+                  <span>Click exit when done (A03)</span>
                 </li>
               </ul>
               <Button 
