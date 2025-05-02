@@ -6,11 +6,11 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 
 // Game elements and styles
-const HOSPITAL_BED_HEIGHT = 80;
-const HOSPITAL_BED_WIDTH = 160;
+const HOSPITAL_BED_HEIGHT = 60;
+const HOSPITAL_BED_WIDTH = 100;
 const BED_SPACING = 40;
-const PATIENT_SIZE = 70;  // Increased patient size for better visibility
-const SERVER_SIZE = 100;
+const PATIENT_SIZE = 50;  // Increased patient size for better visibility
+const SERVER_SIZE = 80;
 const MESSAGE_SIZE = 30;
 
 interface Position {
@@ -60,16 +60,16 @@ export default function HL7FlowGamePage() {
   // Hospital and server layout configuration
   const hospital: Hospital = {
     beds: {
-      entry: { x: 40, y: 150 },
-      bed1: { x: 180, y: 150 },
-      bed2: { x: 180, y: 300 },
-      exit: { x: 40, y: 300 }
+      entry: { x: 90, y: 80 },
+      bed1: { x: 200, y: 150 },
+      bed2: { x: 200, y: 260 },
+      exit: { x: 90, y: 300 }
     }
   };
 
   const servers: Servers = {
-    sender: { x: 350, y: 180 },
-    receiver: { x: 350, y: 300 }
+    sender: { x: 180, y: 80 },
+    receiver: { x: 180, y: 300 }
   };
 
   // Initialize patient at entry position
@@ -77,7 +77,7 @@ export default function HL7FlowGamePage() {
     if (gameStage === GameStage.PLAYING) {
       // Set with a slight offset so it's clearly visible over the entry position
       setPatientPosition({ 
-        x: hospital.beds.entry.x + 50, 
+        x: hospital.beds.entry.x + 80, 
         y: hospital.beds.entry.y 
       });
       setCurrentBed('entry');
@@ -287,37 +287,53 @@ export default function HL7FlowGamePage() {
   // Render game play area
   const renderGame = () => (
     <div className="relative mx-auto max-w-4xl h-[500px] shadow-lg border rounded-lg mt-10" ref={gameContainerRef}>
-      {/* Progress tracker - centered at top */}
-      <div className="absolute left-1/2 transform -translate-x-1/2 top-4 z-50">
-        <Card className="w-72 shadow-md">
-          <CardHeader className="p-3">
+      {/* Progress tracker - centered in the middle */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+        <Card className="w-56 shadow-md">
+          <CardHeader className="p-3 pb-0">
             <CardTitle className="text-sm text-center">Progress</CardTitle>
           </CardHeader>
           <CardContent className="p-3">
-            <div className="flex justify-between gap-2">
+            <div className="flex flex-col space-y-3">
               <div className="flex items-center">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
                   completedSteps.has('admission') ? 'bg-green-500 text-white' : 'bg-gray-200'
                 }`}>
-                  {completedSteps.has('admission') ? '✓' : ''}
+                  {completedSteps.has('admission') ? '✓' : '1'}
                 </div>
-                <span className="ml-1 text-xs">Admission (A01)</span>
+                <span className="ml-2 text-sm">Admission (A01)</span>
               </div>
+              
+              {/* Vertical connector line */}
               <div className="flex items-center">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                <div className="w-6 flex justify-center">
+                  <div className="h-3 w-0.5 bg-gray-300"></div>
+                </div>
+              </div>
+              
+              <div className="flex items-center">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
                   completedSteps.has('transfer') ? 'bg-green-500 text-white' : 'bg-gray-200'
                 }`}>
-                  {completedSteps.has('transfer') ? '✓' : ''}
+                  {completedSteps.has('transfer') ? '✓' : '2'}
                 </div>
-                <span className="ml-1 text-xs">Transfer (A02)</span>
+                <span className="ml-2 text-sm">Transfer (A02)</span>
               </div>
+              
+              {/* Vertical connector line */}
               <div className="flex items-center">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                <div className="w-6 flex justify-center">
+                  <div className="h-3 w-0.5 bg-gray-300"></div>
+                </div>
+              </div>
+              
+              <div className="flex items-center">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
                   completedSteps.has('discharge') ? 'bg-green-500 text-white' : 'bg-gray-200'
                 }`}>
-                  {completedSteps.has('discharge') ? '✓' : ''}
+                  {completedSteps.has('discharge') ? '✓' : '3'}
                 </div>
-                <span className="ml-1 text-xs">Discharge (A03)</span>
+                <span className="ml-2 text-sm">Discharge (A03)</span>
               </div>
             </div>
           </CardContent>
