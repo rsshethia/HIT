@@ -165,10 +165,10 @@ export default function HL7FlowGamePage() {
       return; // Can only order tests if patient is in a bed
     }
     
-    // Create and animate the ORM message from sender to lab
+    // Create and animate the ORM message from EMR (receiver) to lab
     const newMessage: Message = {
       type: 'ORM',
-      position: { ...servers.sender },
+      position: { ...servers.receiver },
       visible: true,
       active: true,
       destination: 'lab'
@@ -543,7 +543,7 @@ export default function HL7FlowGamePage() {
             }}
           >
             <div className="w-4 h-4 bg-green-500 rounded-full mb-1 blink"></div>
-            <span className="font-bold text-gray-800 text-sm">EHR</span>
+            <span className="font-bold text-gray-800 text-sm">EMR</span>
             <span className="text-xs text-gray-600">Receiver</span>
           </div>
           
@@ -575,13 +575,13 @@ export default function HL7FlowGamePage() {
             }}
           ></div>
           
-          {/* Connection line between sender and lab */}
+          {/* Connection line between EMR and lab */}
           <svg 
             className="absolute top-0 left-0 w-full h-full pointer-events-none"
             style={{ zIndex: 5 }}
           >
             <path
-              d={`M ${servers.sender.x} ${servers.sender.y} Q ${(servers.sender.x + servers.lab.x) / 2} ${(servers.sender.y + servers.lab.y) / 2} ${servers.lab.x} ${servers.lab.y}`}
+              d={`M ${servers.receiver.x} ${servers.receiver.y} Q ${(servers.receiver.x + servers.lab.x) / 2} ${(servers.receiver.y + servers.lab.y) / 2} ${servers.lab.x} ${servers.lab.y}`}
               stroke="#d1d5db"
               strokeWidth="4"
               fill="none"
