@@ -257,9 +257,10 @@ export default function HL7FlowGamePage() {
             <ol className="list-decimal pl-5 space-y-2">
               <li>Click on a hospital bed to move the patient there (Triggers an A01 Admission message)</li>
               <li>Click different beds to move the patient between them (Triggers an A02 Transfer message)</li>
+              <li>Click the "Order Blood Test" button when patient is in a bed (Sends ORM message to Lab)</li>
               <li>Finally, click the exit to discharge the patient (Triggers an A03 Discharge message)</li>
             </ol>
-            <p className="mt-4 font-medium">Watch the HL7 messages flow between servers as you move the patient!</p>
+            <p className="mt-4 font-medium">Watch the HL7 messages flow between healthcare systems as you move the patient and order tests!</p>
           </div>
           <div className="flex justify-center">
             <Button size="lg" onClick={startGame}>Start Game</Button>
@@ -284,7 +285,7 @@ export default function HL7FlowGamePage() {
             
             <div className="space-y-4">
               <div>
-                <h4 className="font-semibold">You learned about these HL7 ADT messages:</h4>
+                <h4 className="font-semibold">You learned about these HL7 message types:</h4>
                 <ul className="mt-2 space-y-2">
                   <li className="flex items-center">
                     <Badge variant="outline" className="mr-2 bg-blue-100">A01</Badge>
@@ -293,6 +294,10 @@ export default function HL7FlowGamePage() {
                   <li className="flex items-center">
                     <Badge variant="outline" className="mr-2 bg-purple-100">A02</Badge>
                     <span>Transfer a Patient - Sent when a patient is transferred between locations</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Badge variant="outline" className="mr-2 bg-green-100">ORM</Badge>
+                    <span>Order Message - Sent when ordering lab tests or other clinical services</span>
                   </li>
                   <li className="flex items-center">
                     <Badge variant="outline" className="mr-2 bg-amber-100">A03</Badge>
@@ -305,8 +310,8 @@ export default function HL7FlowGamePage() {
               
               <p className="text-gray-700">
                 These messages are part of the <strong>HL7 v2.x standard</strong> and are foundational 
-                for healthcare integrations, ensuring that patient information flows smoothly between 
-                different healthcare systems.
+                for healthcare integrations. ADT messages handle patient movements, while ORM messages 
+                manage clinical orders between systems like EMR and Laboratory Information Systems (LIS).
               </p>
             </div>
           </div>
@@ -571,16 +576,18 @@ export default function HL7FlowGamePage() {
           ></div>
           
           {/* Connection line between sender and lab */}
-          <div
-            className="absolute bg-gray-300"
-            style={{
-              left: servers.sender.x,
-              top: servers.sender.y,
-              width: Math.abs(servers.lab.x - servers.sender.x),
-              height: 4,
-              transform: 'rotate(90deg) translateY(-2px) translateX(50px)'
-            }}
-          ></div>
+          <svg 
+            className="absolute top-0 left-0 w-full h-full pointer-events-none"
+            style={{ zIndex: 5 }}
+          >
+            <path
+              d={`M ${servers.sender.x} ${servers.sender.y} Q ${(servers.sender.x + servers.lab.x) / 2} ${(servers.sender.y + servers.lab.y) / 2} ${servers.lab.x} ${servers.lab.y}`}
+              stroke="#d1d5db"
+              strokeWidth="4"
+              fill="none"
+              strokeDasharray="5,5"
+            />
+          </svg>
           
           {/* HL7 Message */}
           {message && message.visible && (
@@ -598,10 +605,26 @@ export default function HL7FlowGamePage() {
                 backgroundColor: 
                   message.type === 'A01' ? '#3b82f6' : 
                   message.type === 'A02' ? '#8b5cf6' : 
+                  message.type === 'ORM' ? '#10b981' :
                   '#f59e0b'
               }}
             >
               {message.type}
+            </div>
+          )}
+          
+          {/* Blood Test Button - Only show when patient is in bed */}
+          {currentBed && ['bed1', 'bed2'].includes(currentBed) && (
+            <div 
+              className="absolute left-1/2 bottom-4 transform -translate-x-1/2 z-50"
+            >
+              <Button 
+                onClick={handleBloodTest}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold"
+                disabled={completedSteps.has('lab-order')}
+              >
+                {completedSteps.has('lab-order') ? 'Blood Test Ordered ✓' : 'Order Blood Test (ORM)'}
+              </Button>
             </div>
           )}
         </div>
@@ -625,7 +648,11 @@ export default function HL7FlowGamePage() {
                   <span>Click different beds (A02)</span>
                 </li>
                 <li className="flex items-start">
-                  <Badge variant="outline" className="mr-1 bg-amber-100 text-xs">3</Badge>
+                  <Badge variant="outline" className="mr-1 bg-green-100 text-xs">3</Badge>
+                  <span>Order a blood test (ORM)</span>
+                </li>
+                <li className="flex items-start">
+                  <Badge variant="outline" className="mr-1 bg-amber-100 text-xs">4</Badge>
                   <span>Click exit when done (A03)</span>
                 </li>
               </ul>
