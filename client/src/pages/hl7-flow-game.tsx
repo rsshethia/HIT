@@ -30,13 +30,15 @@ interface Hospital {
 interface Servers {
   sender: Position;
   receiver: Position;
+  lab: Position; // Laboratory Information System (LIS)
 }
 
 interface Message {
-  type: 'A01' | 'A02' | 'A03';
+  type: 'A01' | 'A02' | 'A03' | 'ORM';
   position: Position;
   visible: boolean;
   active: boolean;
+  destination?: 'ehr' | 'lab'; // Message destination for routing
 }
 
 enum GameStage {
@@ -68,8 +70,9 @@ export default function HL7FlowGamePage() {
   };
 
   const servers: Servers = {
-    sender: { x: 180, y: 80 },
-    receiver: { x: 180, y: 300 }
+    sender: { x: 180, y: 80 },  // PAS/EMR sender
+    receiver: { x: 180, y: 300 }, // EHR receiver
+    lab: { x: 300, y: 180 }  // Lab Information System (LIS)
   };
 
   // Initialize patient at entry position
@@ -133,7 +136,8 @@ export default function HL7FlowGamePage() {
       type: messageType,
       position: { ...servers.sender },
       visible: true,
-      active: true
+      active: true,
+      destination: 'ehr'
     };
     
     setMessage(newMessage);
@@ -152,6 +156,37 @@ export default function HL7FlowGamePage() {
     setCompletedSteps(newCompletedSteps);
     
     // Animate message movement
+    animateMessage(newMessage, newCompletedSteps);
+  };
+  
+  // Handle blood test order
+  const handleBloodTest = () => {
+    if (gameStage !== GameStage.PLAYING || !currentBed || !['bed1', 'bed2'].includes(currentBed)) {
+      return; // Can only order tests if patient is in a bed
+    }
+    
+    // Create and animate the ORM message from sender to lab
+    const newMessage: Message = {
+      type: 'ORM',
+      position: { ...servers.sender },
+      visible: true,
+      active: true,
+      destination: 'lab'
+    };
+    
+    setMessage(newMessage);
+    
+    // Mark step as completed
+    const newCompletedSteps = new Set(completedSteps);
+    newCompletedSteps.add('lab-order');
+    setCompletedSteps(newCompletedSteps);
+    
+    // Animate message movement
+    animateMessage(newMessage, newCompletedSteps);
+  };
+  
+  // Animate a message between systems
+  const animateMessage = (messageObj: Message, newCompletedSteps: Set<string>) => {
     let step = 0;
     const totalSteps = 50; // For smooth animation
     
@@ -159,8 +194,8 @@ export default function HL7FlowGamePage() {
       if (step >= totalSteps) {
         setMessage(prev => prev ? { ...prev, active: false } : null);
         
-        // Check if all steps are completed
-        if (newCompletedSteps.size >= 3) {
+        // Check if all steps are completed (including new lab order)
+        if (newCompletedSteps.size >= 4) {
           setTimeout(() => {
             setGameStage(GameStage.COMPLETE);
           }, 1000);
@@ -170,8 +205,11 @@ export default function HL7FlowGamePage() {
       }
       
       const progress = step / totalSteps;
-      const newX = servers.sender.x + (servers.receiver.x - servers.sender.x) * progress;
-      const newY = servers.sender.y + (servers.receiver.y - servers.sender.y) * progress;
+      
+      // Determine target based on message destination
+      const targetSystem = messageObj.destination === 'lab' ? servers.lab : servers.receiver;
+      const newX = messageObj.position.x + (targetSystem.x - messageObj.position.x) * progress;
+      const newY = messageObj.position.y + (targetSystem.y - messageObj.position.y) * progress;
       
       setMessage(prev => prev ? { 
         ...prev, 
@@ -329,9 +367,25 @@ export default function HL7FlowGamePage() {
               
               <div className="flex items-center">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                  completedSteps.has('lab-order') ? 'bg-green-500 text-white' : 'bg-gray-200'
+                }`}>
+                  {completedSteps.has('lab-order') ? '✓' : '3'}
+                </div>
+                <span className="ml-2 text-sm">Lab Order (ORM)</span>
+              </div>
+              
+              {/* Vertical connector line */}
+              <div className="flex items-center">
+                <div className="w-6 flex justify-center">
+                  <div className="h-3 w-0.5 bg-gray-300"></div>
+                </div>
+              </div>
+              
+              <div className="flex items-center">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
                   completedSteps.has('discharge') ? 'bg-green-500 text-white' : 'bg-gray-200'
                 }`}>
-                  {completedSteps.has('discharge') ? '✓' : '3'}
+                  {completedSteps.has('discharge') ? '✓' : '4'}
                 </div>
                 <span className="ml-2 text-sm">Discharge (A03)</span>
               </div>
@@ -488,7 +542,23 @@ export default function HL7FlowGamePage() {
             <span className="text-xs text-gray-600">Receiver</span>
           </div>
           
-          {/* Connection line between servers */}
+          {/* Lab server */}
+          <div
+            className="absolute rounded-lg bg-green-200 border-2 border-green-400 flex flex-col items-center justify-center pixelated"
+            style={{
+              left: servers.lab.x,
+              top: servers.lab.y,
+              width: SERVER_SIZE,
+              height: SERVER_SIZE,
+              transform: 'translateX(-50%) translateY(-50%)'
+            }}
+          >
+            <div className="w-4 h-4 bg-green-500 rounded-full mb-1 blink"></div>
+            <span className="font-bold text-gray-800 text-sm">LIS</span>
+            <span className="text-xs text-gray-600">Lab System</span>
+          </div>
+          
+          {/* Connection line between sender and receiver */}
           <div
             className="absolute bg-gray-300"
             style={{
@@ -497,6 +567,18 @@ export default function HL7FlowGamePage() {
               width: servers.receiver.x - servers.sender.x,
               height: 4,
               transform: 'translateY(-50%)'
+            }}
+          ></div>
+          
+          {/* Connection line between sender and lab */}
+          <div
+            className="absolute bg-gray-300"
+            style={{
+              left: servers.sender.x,
+              top: servers.sender.y,
+              width: Math.abs(servers.lab.x - servers.sender.x),
+              height: 4,
+              transform: 'rotate(90deg) translateY(-2px) translateX(50px)'
             }}
           ></div>
           
