@@ -47,42 +47,42 @@ const HL7SegmentMapper: React.FC = () => {
   // Define common HL7 message types
   const messageTypes: MessageType[] = [
     {
-      id: 'adt',
+      id: 'ADT',
       name: 'ADT (Admission, Discharge, Transfer)',
       segments: ['MSH', 'EVN', 'PID', 'PD1', 'NK1', 'PV1', 'PV2', 'DB1', 'OBX', 'AL1', 'DG1', 'PR1', 'GT1', 'IN1', 'IN2', 'ROL', 'ACC', 'UB1', 'UB2']
     },
     {
-      id: 'oru',
+      id: 'ORU',
       name: 'ORU (Observation Result)',
       segments: ['MSH', 'PID', 'PD1', 'NK1', 'NTE', 'PV1', 'PV2', 'ORC', 'OBR', 'NTE', 'OBX', 'CTI', 'SPM', 'FT1']
     },
     {
-      id: 'orm',
+      id: 'ORM',
       name: 'ORM (Order Message)',
       segments: ['MSH', 'PID', 'PD1', 'PV1', 'PV2', 'IN1', 'IN2', 'GT1', 'AL1', 'ORC', 'OBR', 'RQD', 'RQ1', 'RXO', 'ODS', 'ODT', 'NTE', 'CTD', 'DG1', 'OBX']
     },
     {
-      id: 'siu',
+      id: 'SIU',
       name: 'SIU (Scheduling Information Unsolicited)',
       segments: ['MSH', 'SCH', 'NTE', 'PID', 'PD1', 'PV1', 'PV2', 'OBX', 'DG1', 'RGS', 'AIS', 'AIG', 'AIL', 'AIP', 'APR']
     },
     {
-      id: 'mdm',
+      id: 'MDM',
       name: 'MDM (Medical Document Management)',
       segments: ['MSH', 'EVN', 'PID', 'PV1', 'TXA', 'OBX']
     },
     {
-      id: 'bar',
+      id: 'BAR',
       name: 'BAR (Billing Account Record)',
       segments: ['MSH', 'EVN', 'PID', 'PV1', 'DG1', 'PR1', 'GT1', 'IN1', 'IN2', 'ACC', 'UB1', 'UB2']
     },
     {
-      id: 'dft',
+      id: 'DFT',
       name: 'DFT (Detailed Financial Transaction)',
       segments: ['MSH', 'EVN', 'PID', 'PV1', 'PV2', 'DB1', 'OBX', 'FT1', 'DG1', 'PR1', 'GT1', 'IN1', 'IN2', 'ROL']
     },
     {
-      id: 'rde',
+      id: 'RDE',
       name: 'RDE (Pharmacy Encoded Order)',
       segments: ['MSH', 'PID', 'PD1', 'NTE', 'PV1', 'PV2', 'IN1', 'IN2', 'GT1', 'AL1', 'ORC', 'RXE', 'RXR', 'RXC', 'OBX', 'NTE', 'CTI']
     }
