@@ -92,6 +92,13 @@ export default function ResourcesPage() {
       link: "/hl7-flow-game",
       category: "Games",
       isInternalLink: true
+    },
+    {
+      title: "HL7 Segment Mapper",
+      description: "An interactive force-directed graph visualization showing the relationships between HL7 segments and message types like ADT, ORU, ORM, and SIU.",
+      link: "/hl7-segment-mapper",
+      category: "Education",
+      isInternalLink: true
     }
   ];
 

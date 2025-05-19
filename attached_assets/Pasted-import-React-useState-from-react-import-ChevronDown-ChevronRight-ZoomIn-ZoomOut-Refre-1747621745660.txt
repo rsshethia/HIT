@@ -1,0 +1,333 @@
+import React, { useState } from 'react';
+import { ChevronDown, ChevronRight, ZoomIn, ZoomOut, RefreshCw } from 'lucide-react';
+
+const HL7SegmentMapper = () => {
+  // Scale state for zoom functionality
+  const [scale, setScale] = useState(1);
+  
+  // Define common HL7 message types
+  const messageTypes = [
+    {
+      id: 'adt',
+      name: 'ADT (Admission, Discharge, Transfer)',
+      expanded: true,
+      segments: ['MSH', 'EVN', 'PID', 'PD1', 'NK1', 'PV1', 'PV2', 'DB1', 'OBX', 'AL1', 'DG1', 'PR1', 'GT1', 'IN1', 'IN2', 'ROL', 'ACC', 'UB1', 'UB2']
+    },
+    {
+      id: 'oru',
+      name: 'ORU (Observation Result)',
+      expanded: false,
+      segments: ['MSH', 'PID', 'PD1', 'NK1', 'NTE', 'PV1', 'PV2', 'ORC', 'OBR', 'NTE', 'OBX', 'CTI', 'SPM', 'FT1']
+    },
+    {
+      id: 'orm',
+      name: 'ORM (Order Message)',
+      expanded: false,
+      segments: ['MSH', 'PID', 'PD1', 'PV1', 'PV2', 'IN1', 'IN2', 'GT1', 'AL1', 'ORC', 'OBR', 'RQD', 'RQ1', 'RXO', 'ODS', 'ODT', 'NTE', 'CTD', 'DG1', 'OBX']
+    },
+    {
+      id: 'siu',
+      name: 'SIU (Scheduling Information Unsolicited)',
+      expanded: false,
+      segments: ['MSH', 'SCH', 'NTE', 'PID', 'PD1', 'PV1', 'PV2', 'OBX', 'DG1', 'RGS', 'AIS', 'AIG', 'AIL', 'AIP', 'APR']
+    },
+    {
+      id: 'mdm',
+      name: 'MDM (Medical Document Management)',
+      expanded: false,
+      segments: ['MSH', 'EVN', 'PID', 'PV1', 'TXA', 'OBX']
+    },
+    {
+      id: 'bar',
+      name: 'BAR (Billing Account Record)',
+      expanded: false,
+      segments: ['MSH', 'EVN', 'PID', 'PV1', 'DG1', 'PR1', 'GT1', 'IN1', 'IN2', 'ACC', 'UB1', 'UB2']
+    },
+    {
+      id: 'dft',
+      name: 'DFT (Detailed Financial Transaction)',
+      expanded: false,
+      segments: ['MSH', 'EVN', 'PID', 'PV1', 'PV2', 'DB1', 'OBX', 'FT1', 'DG1', 'PR1', 'GT1', 'IN1', 'IN2', 'ROL']
+    },
+    {
+      id: 'rde',
+      name: 'RDE (Pharmacy Encoded Order)',
+      expanded: false,
+      segments: ['MSH', 'PID', 'PD1', 'NTE', 'PV1', 'PV2', 'IN1', 'IN2', 'GT1', 'AL1', 'ORC', 'RXE', 'RXR', 'RXC', 'OBX', 'NTE', 'CTI']
+    }
+  ];
+
+  // Define all common HL7 segments
+  const allSegments = [
+    { id: 'MSH', name: 'Message Header', description: 'Contains information about the message itself' },
+    { id: 'PID', name: 'Patient Identification', description: 'Contains patient demographic information' },
+    { id: 'PV1', name: 'Patient Visit', description: 'Contains information about the patient visit' },
+    { id: 'ORC', name: 'Common Order', description: 'Contains common order information' },
+    { id: 'OBR', name: 'Observation Request', description: 'Contains information about an observation request' },
+    { id: 'OBX', name: 'Observation Result', description: 'Contains observation result information' },
+    { id: 'EVN', name: 'Event Type', description: 'Contains event type information' },
+    { id: 'NTE', name: 'Notes and Comments', description: 'Contains notes and comments' },
+    { id: 'AL1', name: 'Patient Allergy Information', description: 'Contains patient allergy information' },
+    { id: 'DG1', name: 'Diagnosis', description: 'Contains diagnosis information' },
+    { id: 'PD1', name: 'Patient Additional Demographic', description: 'Contains additional demographic info' },
+    { id: 'NK1', name: 'Next of Kin', description: 'Contains information about patient\'s next of kin' },
+    { id: 'PV2', name: 'Patient Visit - Additional Info', description: 'Contains additional visit information' },
+    { id: 'IN1', name: 'Insurance', description: 'Contains insurance information' },
+    { id: 'IN2', name: 'Insurance Additional Info', description: 'Contains additional insurance information' },
+    { id: 'GT1', name: 'Guarantor', description: 'Contains guarantor information' },
+    { id: 'PR1', name: 'Procedures', description: 'Contains procedure information' },
+    { id: 'ROL', name: 'Role', description: 'Contains information about a person\'s role' },
+    { id: 'FT1', name: 'Financial Transaction', description: 'Contains financial transaction information' },
+    { id: 'SCH', name: 'Scheduling Activity', description: 'Contains scheduling information' },
+    { id: 'RGS', name: 'Resource Group', description: 'Contains resource group information' },
+    { id: 'AIS', name: 'Appointment Information - Service', description: 'Contains appointment service information' },
+    { id: 'AIG', name: 'Appointment Information - General Resource', description: 'Contains general resource information' },
+    { id: 'AIL', name: 'Appointment Information - Location Resource', description: 'Contains location resource information' },
+    { id: 'AIP', name: 'Appointment Information - Personnel Resource', description: 'Contains personnel resource information' },
+    { id: 'APR', name: 'Appointment Preferences', description: 'Contains appointment preferences' },
+    { id: 'TXA', name: 'Document Notification', description: 'Contains document notification information' },
+    { id: 'RXE', name: 'Pharmacy Encoded Order', description: 'Contains pharmacy encoded order information' },
+    { id: 'RXR', name: 'Pharmacy Route', description: 'Contains pharmacy route information' },
+    { id: 'RXC', name: 'Pharmacy Component Order', description: 'Contains pharmacy component order information' },
+    { id: 'CTI', name: 'Clinical Trial Identification', description: 'Contains clinical trial identification' },
+    { id: 'SPM', name: 'Specimen', description: 'Contains specimen information' },
+    { id: 'DB1', name: 'Disability', description: 'Contains disability information' },
+    { id: 'ACC', name: 'Accident', description: 'Contains accident information' },
+    { id: 'UB1', name: 'UB82 Data', description: 'Contains UB82 data' },
+    { id: 'UB2', name: 'UB92 Data', description: 'Contains UB92 data' },
+    { id: 'RQD', name: 'Requisition Detail', description: 'Contains requisition detail' },
+    { id: 'RQ1', name: 'Requisition Detail-1', description: 'Contains requisition detail 1' },
+    { id: 'RXO', name: 'Pharmacy/Treatment Order', description: 'Contains pharmacy/treatment order' },
+    { id: 'ODS', name: 'Dietary Orders, Supplements, and Preferences', description: 'Contains dietary orders' },
+    { id: 'ODT', name: 'Diet Tray Instructions', description: 'Contains diet tray instructions' },
+    { id: 'CTD', name: 'Contact Data', description: 'Contains contact data' }
+  ];
+
+  // State for expanded message types
+  const [expandedTypes, setExpandedTypes] = useState(
+    messageTypes.reduce((acc, type) => ({ ...acc, [type.id]: type.expanded }), {})
+  );
+
+  // State for focused segment
+  const [focusedSegment, setFocusedSegment] = useState(null);
+
+  // Function to toggle expansion of a message type
+  const toggleExpand = (typeId) => {
+    setExpandedTypes({
+      ...expandedTypes,
+      [typeId]: !expandedTypes[typeId]
+    });
+  };
+
+  // Function to calculate which message types contain a segment
+  const getMessageTypesForSegment = (segmentId) => {
+    return messageTypes.filter(type => type.segments.includes(segmentId));
+  };
+
+  // Function to zoom in
+  const zoomIn = () => {
+    if (scale < 1.5) setScale(scale + 0.1);
+  };
+
+  // Function to zoom out
+  const zoomOut = () => {
+    if (scale > 0.6) setScale(scale - 0.1);
+  };
+
+  // Function to reset zoom
+  const resetZoom = () => {
+    setScale(1);
+  };
+
+  // Function to handle segment focus
+  const handleSegmentFocus = (segmentId) => {
+    setFocusedSegment(focusedSegment === segmentId ? null : segmentId);
+  };
+
+  // Function to get segment usage statistics
+  const getSegmentUsageStats = (segmentId) => {
+    const usedIn = getMessageTypesForSegment(segmentId);
+    return {
+      count: usedIn.length,
+      percentage: Math.round((usedIn.length / messageTypes.length) * 100)
+    };
+  };
+
+  // Function to get highlight color based on segment usage
+  const getHighlightColor = (segmentId) => {
+    const { percentage } = getSegmentUsageStats(segmentId);
+    if (percentage > 80) return 'bg-green-100 border-green-300';
+    if (percentage > 50) return 'bg-blue-100 border-blue-300';
+    if (percentage > 30) return 'bg-yellow-100 border-yellow-300';
+    return 'bg-gray-100 border-gray-300';
+  };
+
+  return (
+    <div className="font-sans">
+      <div className="mb-6 bg-gray-50 p-4 rounded-lg">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">HL7 Segment to Message Type Mapper</h1>
+        <p className="text-gray-600">
+          This interactive tool helps visualize which HL7 segments are included in different HL7 message types.
+          Click on a segment to see which message types use it, or expand a message type to see all its segments.
+        </p>
+      </div>
+      
+      <div className="flex justify-between mb-4">
+        <div className="flex space-x-2">
+          <button 
+            className="flex items-center px-3 py-2 bg-indigo-50 hover:bg-indigo-100 rounded-md text-indigo-700"
+            onClick={() => setFocusedSegment(null)}
+          >
+            <RefreshCw size={16} className="mr-1" /> Reset Focus
+          </button>
+        </div>
+        <div className="flex space-x-2">
+          <button 
+            className="flex items-center px-3 py-2 bg-indigo-50 hover:bg-indigo-100 rounded-md text-indigo-700"
+            onClick={zoomOut}
+          >
+            <ZoomOut size={16} className="mr-1" /> Zoom Out
+          </button>
+          <div className="flex items-center px-3 py-2 bg-gray-100 rounded-md">
+            {Math.round(scale * 100)}%
+          </div>
+          <button 
+            className="flex items-center px-3 py-2 bg-indigo-50 hover:bg-indigo-100 rounded-md text-indigo-700"
+            onClick={zoomIn}
+          >
+            <ZoomIn size={16} className="mr-1" /> Zoom In
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-6" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+        {/* Left side: Message Types */}
+        <div className="w-full lg:w-1/2 bg-white p-4 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">HL7 Message Types</h2>
+          <div className="space-y-2">
+            {messageTypes.map((type) => (
+              <div key={type.id} className="border rounded-md overflow-hidden">
+                <div 
+                  className={`flex items-center justify-between p-3 cursor-pointer ${
+                    focusedSegment 
+                      ? getMessageTypesForSegment(focusedSegment).some(t => t.id === type.id)
+                        ? 'bg-indigo-50 border-l-4 border-indigo-500'
+                        : 'bg-gray-50'
+                      : 'bg-gray-50'
+                  }`}
+                  onClick={() => toggleExpand(type.id)}
+                >
+                  <div className="flex items-center">
+                    {expandedTypes[type.id] ? 
+                      <ChevronDown size={18} className="text-gray-500 mr-2" /> : 
+                      <ChevronRight size={18} className="text-gray-500 mr-2" />
+                    }
+                    <span className="font-medium">{type.name}</span>
+                  </div>
+                  <span className="text-sm text-gray-500">{type.segments.length} segments</span>
+                </div>
+                
+                {expandedTypes[type.id] && (
+                  <div className="p-3 bg-white border-t border-gray-100">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {type.segments.map((segmentId) => {
+                        const segment = allSegments.find(s => s.id === segmentId);
+                        return segment ? (
+                          <div 
+                            key={`${type.id}-${segmentId}`}
+                            className={`
+                              px-3 py-2 rounded border text-sm cursor-pointer
+                              ${focusedSegment === segmentId ? 'bg-indigo-100 border-indigo-300' : 'hover:bg-gray-50'}
+                            `}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSegmentFocus(segmentId);
+                            }}
+                          >
+                            <div className="font-medium">{segment.id}</div>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Right side: Segments */}
+        <div className="w-full lg:w-1/2 bg-white p-4 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">HL7 Segments</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {allSegments.map((segment) => {
+              const { count, percentage } = getSegmentUsageStats(segment.id);
+              const highlightClass = getHighlightColor(segment.id);
+              
+              return (
+                <div 
+                  key={segment.id}
+                  className={`
+                    p-3 rounded border cursor-pointer
+                    ${focusedSegment === segment.id ? 'ring-2 ring-indigo-500' : ''}
+                    ${focusedSegment && focusedSegment !== segment.id ? 'opacity-50' : ''}
+                    ${highlightClass}
+                  `}
+                  onClick={() => handleSegmentFocus(segment.id)}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-gray-800">{segment.id}</h3>
+                      <p className="text-sm text-gray-600">{segment.name}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-block px-2 py-1 bg-white rounded text-xs font-medium">
+                        {count}/{messageTypes.length} ({percentage}%)
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {focusedSegment === segment.id && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <p className="text-xs text-gray-500 mb-2">{segment.description}</p>
+                      <p className="text-xs font-medium mb-1">Used in:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {getMessageTypesForSegment(segment.id).map((type) => (
+                          <span 
+                            key={`usage-${segment.id}-${type.id}`}
+                            className="inline-block px-2 py-1 bg-indigo-50 text-indigo-700 rounded-md text-xs"
+                          >
+                            {type.id.toUpperCase()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      
+      <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="flex items-center space-x-2 text-sm text-gray-500">
+          <span className="inline-block w-3 h-3 bg-green-100 border border-green-300 rounded-sm"></span>
+          <span>Used in &gt;80% of message types</span>
+          
+          <span className="inline-block w-3 h-3 bg-blue-100 border border-blue-300 rounded-sm ml-4"></span>
+          <span>Used in 50-80% of message types</span>
+          
+          <span className="inline-block w-3 h-3 bg-yellow-100 border border-yellow-300 rounded-sm ml-4"></span>
+          <span>Used in 30-50% of message types</span>
+          
+          <span className="inline-block w-3 h-3 bg-gray-100 border border-gray-300 rounded-sm ml-4"></span>
+          <span>Used in &lt;30% of message types</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HL7SegmentMapper;
