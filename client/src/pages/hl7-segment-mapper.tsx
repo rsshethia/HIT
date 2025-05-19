@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +26,7 @@ interface MessageType {
   segments: string[];
 }
 
+// Need to extend SimulationNodeDatum to work with D3 force simulation
 interface GraphNode extends d3.SimulationNodeDatum {
   id: string;
   name: string;
@@ -35,13 +35,9 @@ interface GraphNode extends d3.SimulationNodeDatum {
   segments?: string[];
   group: number;
   value: number;
-  x?: number;
-  y?: number;
-  fx?: number | null;
-  fy?: number | null;
 }
 
-interface GraphLink extends d3.SimulationLinkDatum<GraphNode> {
+interface GraphLink {
   source: string | GraphNode;
   target: string | GraphNode;
   value: number;
@@ -141,7 +137,10 @@ const HL7SegmentMapper: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [filterValue, setFilterValue] = useState<number>(0); // 0 means no filter
-  const [graphData, setGraphData] = useState<{nodes: GraphNode[], links: GraphLink[]}>({nodes: [], links: []});
+  const [graphData, setGraphData] = useState<{
+    nodes: GraphNode[], 
+    links: GraphLink[]
+  }>({nodes: [], links: []});
   const [currentZoom, setCurrentZoom] = useState(1);
   
   // Function to calculate which message types contain a segment
@@ -149,7 +148,7 @@ const HL7SegmentMapper: React.FC = () => {
     return messageTypes.filter(type => type.segments.includes(segmentId));
   };
   
-  // Prep data for force-directed graph
+  // Prepare data for force-directed graph
   useEffect(() => {
     // Create nodes for segments and message types
     const segmentNodes: GraphNode[] = allSegments.map(segment => {
@@ -194,7 +193,7 @@ const HL7SegmentMapper: React.FC = () => {
     });
   }, []);
 
-  // Create force-directed graph with D3
+  // Render force-directed graph with D3
   useEffect(() => {
     if (!svgRef.current || graphData.nodes.length === 0) return;
     
@@ -213,13 +212,16 @@ const HL7SegmentMapper: React.FC = () => {
       );
       const filteredSegmentIds = filteredSegmentNodes.map(node => node.id);
       
-      const filteredLinks = graphData.links.filter(
-        link => filteredSegmentIds.includes(link.source as string)
-      );
+      const filteredLinks = graphData.links.filter(link => {
+        const sourceId = typeof link.source === 'string' ? link.source : link.source.id;
+        return filteredSegmentIds.includes(sourceId);
+      });
       
-      const messageIdsInFilteredLinks = new Set(
-        filteredLinks.map(link => link.target)
-      );
+      const messageIdsInFilteredLinks = new Set<string>();
+      filteredLinks.forEach(link => {
+        const targetId = typeof link.target === 'string' ? link.target : link.target.id;
+        messageIdsInFilteredLinks.add(targetId);
+      });
       
       const filteredMessageNodes = graphData.nodes.filter(
         node => node.type === 'message' && messageIdsInFilteredLinks.has(node.id)
@@ -245,10 +247,16 @@ const HL7SegmentMapper: React.FC = () => {
     // Apply zoom behavior to SVG
     svg.call(zoom);
     
+    // Define the simulation types more specifically
+    type SimNode = d3.SimulationNodeDatum & GraphNode;
+    type SimLink = d3.SimulationLinkDatum<SimNode> & GraphLink;
+    
     // Create a simulation for the force-directed graph
-    const simulation = d3.forceSimulation<Node, Link>(filteredData.nodes as Node[])
-      .force("link", d3.forceLink<Node, Link>(filteredData.links)
+    const simulation = d3.forceSimulation<SimNode>()
+      .nodes(filteredData.nodes as SimNode[])
+      .force("link", d3.forceLink<SimNode, SimLink>()
         .id(d => d.id)
+        .links(filteredData.links as SimLink[])
         .distance(100))
       .force("charge", d3.forceManyBody().strength(-400))
       .force("center", d3.forceCenter(width / 2, height / 2))
@@ -259,7 +267,7 @@ const HL7SegmentMapper: React.FC = () => {
     const link = container.append("g")
       .attr("class", "links")
       .selectAll("line")
-      .data(filteredData.links)
+      .data(filteredData.links as SimLink[])
       .enter().append("line")
       .attr("stroke", "#999")
       .attr("stroke-opacity", 0.6)
@@ -268,11 +276,11 @@ const HL7SegmentMapper: React.FC = () => {
     // Create nodes
     const node = container.append("g")
       .attr("class", "nodes")
-      .selectAll("circle")
-      .data(filteredData.nodes)
+      .selectAll("g")
+      .data(filteredData.nodes as SimNode[])
       .enter().append("g")
       .attr("class", "node")
-      .call(d3.drag<any, Node>()
+      .call(d3.drag<SVGGElement, SimNode>()
         .on("start", dragstarted)
         .on("drag", dragged)
         .on("end", dragended))
@@ -303,32 +311,44 @@ const HL7SegmentMapper: React.FC = () => {
     // Update positions on each tick of the simulation
     simulation.on("tick", () => {
       link
-        .attr("x1", d => (d.source as Node).x!)
-        .attr("y1", d => (d.source as Node).y!)
-        .attr("x2", d => (d.target as Node).x!)
-        .attr("y2", d => (d.target as Node).y!);
+        .attr("x1", d => {
+          const source = d.source as SimNode;
+          return source.x || 0;
+        })
+        .attr("y1", d => {
+          const source = d.source as SimNode;
+          return source.y || 0;
+        })
+        .attr("x2", d => {
+          const target = d.target as SimNode;
+          return target.x || 0;
+        })
+        .attr("y2", d => {
+          const target = d.target as SimNode;
+          return target.y || 0;
+        });
       
-      node.attr("transform", d => `translate(${d.x}, ${d.y})`);
+      node.attr("transform", d => `translate(${d.x || 0}, ${d.y || 0})`);
     });
     
-    function dragstarted(event: any, d: Node) {
+    function dragstarted(event: d3.D3DragEvent<SVGGElement, SimNode, SimNode>, d: SimNode) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
     }
     
-    function dragged(event: any, d: Node) {
+    function dragged(event: d3.D3DragEvent<SVGGElement, SimNode, SimNode>, d: SimNode) {
       d.fx = event.x;
       d.fy = event.y;
     }
     
-    function dragended(event: any, d: Node) {
+    function dragended(event: d3.D3DragEvent<SVGGElement, SimNode, SimNode>, d: SimNode) {
       if (!event.active) simulation.alphaTarget(0);
       d.fx = null;
       d.fy = null;
     }
     
-    function highlightConnections(d: Node) {
+    function highlightConnections(d: SimNode) {
       // Reset all links and nodes to default opacity
       link.attr("stroke-opacity", 0.6);
       node.selectAll("circle").attr("opacity", 1);
@@ -353,15 +373,21 @@ const HL7SegmentMapper: React.FC = () => {
         if (d.type === 'segment') {
           // For segments, get all message types that include it
           filteredData.links.forEach(link => {
-            if (link.source === d.id || (link.source as Node).id === d.id) {
-              connectedNodeIds.add(typeof link.target === 'string' ? link.target : link.target.id);
+            const sourceId = typeof link.source === 'string' ? link.source : link.source.id;
+            const targetId = typeof link.target === 'string' ? link.target : link.target.id;
+            
+            if (sourceId === d.id) {
+              connectedNodeIds.add(targetId);
             }
           });
         } else {
           // For message types, get all segments they contain
           filteredData.links.forEach(link => {
-            if (link.target === d.id || (link.target as Node).id === d.id) {
-              connectedNodeIds.add(typeof link.source === 'string' ? link.source : link.source.id);
+            const sourceId = typeof link.source === 'string' ? link.source : link.source.id;
+            const targetId = typeof link.target === 'string' ? link.target : link.target.id;
+            
+            if (targetId === d.id) {
+              connectedNodeIds.add(sourceId);
             }
           });
         }
@@ -388,25 +414,55 @@ const HL7SegmentMapper: React.FC = () => {
     };
   }, [graphData, filterValue]);
   
-  // Helper functions for UI
+  // Helper functions for UI controls
   const handleZoomIn = () => {
+    if (!svgRef.current) return;
+    
     const svg = d3.select(svgRef.current);
-    const zoom = d3.zoom<SVGSVGElement, unknown>().scaleExtent([0.2, 3]);
-    svg.transition().call(zoom.scaleBy, 1.2);
+    const currentTransform = d3.zoomTransform(svg.node() as Element);
+    const newTransform = currentTransform.scale(1.2);
+    
+    svg.transition()
+      .duration(300)
+      .call(
+        d3.zoom<SVGSVGElement, unknown>().transform as any, 
+        newTransform
+      );
+    
+    setCurrentZoom(newTransform.k);
   };
   
   const handleZoomOut = () => {
+    if (!svgRef.current) return;
+    
     const svg = d3.select(svgRef.current);
-    const zoom = d3.zoom<SVGSVGElement, unknown>().scaleExtent([0.2, 3]);
-    svg.transition().call(zoom.scaleBy, 0.8);
+    const currentTransform = d3.zoomTransform(svg.node() as Element);
+    const newTransform = currentTransform.scale(0.8);
+    
+    svg.transition()
+      .duration(300)
+      .call(
+        d3.zoom<SVGSVGElement, unknown>().transform as any, 
+        newTransform
+      );
+    
+    setCurrentZoom(newTransform.k);
   };
   
   const handleReset = () => {
+    if (!svgRef.current) return;
+    
     const svg = d3.select(svgRef.current);
-    const zoom = d3.zoom<SVGSVGElement, unknown>().scaleExtent([0.2, 3]);
-    svg.transition().call(zoom.transform, d3.zoomIdentity);
+    svg.transition()
+      .duration(500)
+      .call(
+        d3.zoom<SVGSVGElement, unknown>().transform as any, 
+        d3.zoomIdentity
+      );
+    
     setSelectedNode(null);
     setFilterValue(0);
+    setCurrentZoom(1);
   };
   
   return (
@@ -495,12 +551,12 @@ const HL7SegmentMapper: React.FC = () => {
                         </div>
                       )}
                       
-                      {selectedNode.type === 'message' && (
+                      {selectedNode.type === 'message' && selectedNode.segments && (
                         <div>
                           <h4 className="text-sm font-medium mb-2">Contains these segments:</h4>
                           <div className="max-h-[300px] overflow-y-auto">
                             <div className="flex flex-wrap gap-1">
-                              {selectedNode.segments?.map(segId => {
+                              {selectedNode.segments.map((segId: string) => {
                                 const seg = allSegments.find(s => s.id === segId);
                                 return (
                                   <Badge key={segId} variant="outline" className="text-xs">
