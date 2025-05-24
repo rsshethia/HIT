@@ -188,30 +188,73 @@ const ClinicalIntegrationPlay = () => {
   };
 
   const downloadScorecard = () => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    canvas.width = 800;
-    canvas.height = 600;
-    
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(0, 0, 800, 600);
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 32px Arial';
-    ctx.fillText('HL7 Integration Training', 50, 80);
-    
-    ctx.font = '24px Arial';
-    ctx.fillText(`Score: ${score.toLocaleString()}`, 50, 150);
-    ctx.fillText(`Proficiency: ${gameStats.proficiencyLevel}`, 50, 200);
-    const accuracy = gameStats.totalAttempts > 0 ? Math.round((gameStats.correctSequences / gameStats.totalAttempts) * 100) : 0;
-    ctx.fillText(`Accuracy: ${accuracy}%`, 50, 250);
-    
-    const link = document.createElement('a');
-    link.download = 'hl7-training-scorecard.png';
-    link.href = canvas.toDataURL();
-    link.click();
+    // Import jsPDF
+    import('jspdf').then(({ default: jsPDF }) => {
+      import('html2canvas').then(({ default: html2canvas }) => {
+        // Create PDF
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const width = pdf.internal.pageSize.getWidth();
+        const height = pdf.internal.pageSize.getHeight();
+        
+        // Set background
+        pdf.setFillColor(30, 41, 59); // #1e293b
+        pdf.rect(0, 0, width, height, 'F');
+        
+        // Title
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(24);
+        pdf.text('Health Integration Tools (HIT)', width/2, 30, { align: 'center' });
+        
+        // Subtitle
+        pdf.setFontSize(18);
+        pdf.text('HL7 Integration Training Certificate', width/2, 40, { align: 'center' });
+        
+        // Content
+        pdf.setFontSize(16);
+        pdf.text(`Score: ${score.toLocaleString()}`, 20, 70);
+        pdf.text(`Proficiency Level: ${gameStats.proficiencyLevel}`, 20, 80);
+        
+        const accuracy = gameStats.totalAttempts > 0 ? 
+          Math.round((gameStats.correctSequences / gameStats.totalAttempts) * 100) : 0;
+        pdf.text(`Accuracy: ${accuracy}%`, 20, 90);
+        pdf.text(`Average Time: ${Math.round(gameStats.averageTime)} seconds`, 20, 100);
+        
+        // Date section
+        const today = new Date();
+        const formattedDate = today.toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+        pdf.text(`Date Completed: ${formattedDate}`, 20, 120);
+        
+        // Draw a horizontal line
+        pdf.setDrawColor(79, 70, 229); // indigo color
+        pdf.setLineWidth(0.5);
+        pdf.line(20, 135, width-20, 135);
+        
+        // Message
+        pdf.setFontSize(12);
+        pdf.text('This certifies the successful completion of HL7 message sequencing training', width/2, 150, { align: 'center' });
+        pdf.text('focused on clinical integration workflow in healthcare environments.', width/2, 158, { align: 'center' });
+        
+        // Add logo placeholder (this would ideally be a real logo)
+        pdf.setFillColor(79, 70, 229); // indigo color for logo placeholder
+        pdf.circle(width/2, 180, 15, 'F');
+        
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(10);
+        pdf.text('HIT', width/2, 183, { align: 'center' });
+        
+        // Footer
+        pdf.setFontSize(8);
+        pdf.text('Health Integration Tools (HIT) - Clinical Integration Training', width/2, height-15, { align: 'center' });
+        pdf.text('Developed in Bendigo, Victoria - Australia', width/2, height-10, { align: 'center' });
+        
+        // Save PDF
+        pdf.save('hl7-training-scorecard.pdf');
+      });
+    });
   };
 
   const getMessageColor = (messageId: string, index: number) => {
