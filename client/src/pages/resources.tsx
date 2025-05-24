@@ -94,6 +94,13 @@ export default function ResourcesPage() {
       isInternalLink: true
     },
     {
+      title: "Clinical Integration Play",
+      description: "An engaging educational game that teaches HL7 message sequencing through realistic patient journey scenarios. Learn the proper flow of clinical data integration.",
+      link: "/clinical-integration-play",
+      category: "Games",
+      isInternalLink: true
+    },
+    {
       title: "HL7 Segment Mapper",
       description: "An interactive force-directed graph visualization showing the relationships between HL7 segments and message types like ADT, ORU, ORM, and SIU.",
       link: "/hl7-segment-mapper",

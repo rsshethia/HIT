@@ -1,0 +1,41 @@
+I'll create an engaging educational game that teaches HL7 message sequencing through a patient journey scenario. This will help healthcare professionals understand the flow of clinical data integration.
+
+I've created an engaging HL7 Message Sequencing Game that combines education with gamification! Here are the key features:
+
+## Game Features:
+
+🎯 **Patient Journey Scenarios**: Two realistic hospital scenarios:
+- Emergency Department admission with chest pain
+- Surgical procedure workflow
+
+⏰ **60-Second Timer**: Creates urgency and engagement
+
+🧩 **Drag-and-Drop Style Interface**: Players select HL7 messages from a "cabinet" and place them in correct sequence
+
+🏆 **Scoring System**: Points for correct sequences plus time bonuses
+
+## Educational Value:
+
+- **Real HL7 Messages**: Uses actual HL7 message types (ADT^A04 for registration, ORM^O01 for orders, etc.)
+- **Clinical Context**: Each message includes descriptions of what it does in clinical workflow
+- **Progressive Learning**: Multiple scenarios with increasing complexity
+
+## Game Mechanics:
+
+1. **Start**: Player clicks "Start Game" to begin 60-second timer
+2. **Select**: Click HL7 messages from the cabinet to place in sequence
+3. **Arrange**: Messages appear in numbered slots (1, 2, 3, 4)
+4. **Remove**: Click placed messages to remove and rearrange
+5. **Submit**: "Check Sequence" button appears when all slots filled
+6. **Results**: Immediate feedback with correct/incorrect highlighting
+
+## Design Elements:
+
+- **Clean Interface**: Follows the HIT design system from your documentation
+- **Visual Feedback**: Color-coded results (green for correct, red for incorrect)
+- **Responsive Design**: Works on desktop and mobile
+- **Accessibility**: Clear typography and high contrast colors
+
+The game effectively teaches the critical concept that **order matters** in clinical data integration - just like in real patient care workflows, HL7 messages must flow in the correct sequence for proper system integration!
+
+Would you like me to add more scenarios, different difficulty levels, or modify any specific aspects of the game?

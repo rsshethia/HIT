@@ -1,0 +1,566 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Clock, Play, RotateCcw, CheckCircle, XCircle, Trophy, Activity, Heart, Monitor, Share2, Download, Award } from 'lucide-react';
+
+const HL7SequencingGame = () => {
+  const [gameState, setGameState] = useState('waiting');
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [selectedMessages, setSelectedMessages] = useState([]);
+  const [score, setScore] = useState(0);
+  const [currentScenario, setCurrentScenario] = useState(0);
+  const [gameStats, setGameStats] = useState({
+    totalTime: 0,
+    correctSequences: 0,
+    totalAttempts: 0,
+    averageTime: 0,
+    proficiencyLevel: 'Beginner'
+  });
+  const timerRef = useRef(null);
+
+  const scenarios = [
+    {
+      title: "Emergency Department Admission",
+      patientJourney: [
+        "Patient arrives at ED with chest pain via ambulance",
+        "Triaged, registered, and admitted for cardiac monitoring",
+        "Lab tests ordered, results received, and patient discharged home"
+      ],
+      correctSequence: ['ADT^A04', 'ORM^O01', 'ORU^R01', 'ADT^A03'],
+      availableMessages: [
+        { id: 'ADT^A04', label: 'ADT^A04 - Patient Registration', description: 'Registers new patient in system', icon: '🏥' },
+        { id: 'ORM^O01', label: 'ORM^O01 - Order Message', description: 'Places lab/diagnostic orders', icon: '📋' },
+        { id: 'ORU^R01', label: 'ORU^R01 - Result Message', description: 'Delivers test results', icon: '🧪' },
+        { id: 'ADT^A03', label: 'ADT^A03 - Discharge', description: 'Patient discharge notification', icon: '🚪' },
+        { id: 'ADT^A08', label: 'ADT^A08 - Update Info', description: 'Updates patient information', icon: '✏️' },
+        { id: 'DFT^P03', label: 'DFT^P03 - Billing', description: 'Financial transaction', icon: '💳' }
+      ]
+    },
+    {
+      title: "Surgical Procedure",
+      patientJourney: [
+        "Patient scheduled for elective surgery arrives for pre-op",
+        "Surgery completed successfully with anesthesia monitoring",
+        "Post-op recovery completed, patient transferred to ward"
+      ],
+      correctSequence: ['ADT^A01', 'ORM^O01', 'ADT^A02', 'ADT^A02'],
+      availableMessages: [
+        { id: 'ADT^A01', label: 'ADT^A01 - Admit Patient', description: 'Admits patient to hospital', icon: '🏥' },
+        { id: 'ORM^O01', label: 'ORM^O01 - Surgery Order', description: 'Orders surgical procedure', icon: '🔪' },
+        { id: 'ADT^A02', label: 'ADT^A02 - Transfer', description: 'Transfers patient between units', icon: '🛏️' },
+        { id: 'ORU^R01', label: 'ORU^R01 - Lab Results', description: 'Laboratory test results', icon: '🧪' },
+        { id: 'ADT^A03', label: 'ADT^A03 - Discharge', description: 'Patient discharge', icon: '🚪' },
+        { id: 'SIU^S12', label: 'SIU^S12 - Schedule', description: 'Appointment scheduling', icon: '📅' }
+      ]
+    }
+  ];
+
+  useEffect(() => {
+    if (gameState === 'playing' && timeLeft > 0) {
+      timerRef.current = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && gameState === 'playing') {
+      setGameState('failed');
+    }
+    return () => clearTimeout(timerRef.current);
+  }, [timeLeft, gameState]);
+
+  const startGame = () => {
+    setGameState('playing');
+    setTimeLeft(60);
+    setSelectedMessages([]);
+    setScore(0);
+  };
+
+  const resetGame = () => {
+    setGameState('waiting');
+    setTimeLeft(60);
+    setSelectedMessages([]);
+    setScore(0);
+    setCurrentScenario(0);
+  };
+
+  const nextScenario = () => {
+    if (currentScenario < scenarios.length - 1) {
+      setCurrentScenario(currentScenario + 1);
+      setGameState('waiting');
+      setTimeLeft(60);
+      setSelectedMessages([]);
+    } else {
+      resetGame();
+    }
+  };
+
+  const selectMessage = (message) => {
+    if (gameState !== 'playing' || selectedMessages.length >= scenarios[currentScenario].correctSequence.length) return;
+    setSelectedMessages([...selectedMessages, message]);
+  };
+
+  const removeMessage = (index) => {
+    if (gameState !== 'playing') return;
+    const newMessages = selectedMessages.filter((_, i) => i !== index);
+    setSelectedMessages(newMessages);
+  };
+
+  const checkSequence = () => {
+    const correct = scenarios[currentScenario].correctSequence;
+    const selected = selectedMessages.map(m => m.id);
+    
+    if (selected.length !== correct.length) return;
+    
+    const isCorrect = selected.every((msg, index) => msg === correct[index]);
+    const timeTaken = 60 - timeLeft;
+    
+    if (isCorrect) {
+      const timeBonus = Math.max(0, timeLeft * 10);
+      const newScore = score + 1000 + timeBonus;
+      setScore(newScore);
+      
+      const newStats = {
+        ...gameStats,
+        totalTime: gameStats.totalTime + timeTaken,
+        correctSequences: gameStats.correctSequences + 1,
+        totalAttempts: gameStats.totalAttempts + 1
+      };
+      newStats.averageTime = newStats.totalTime / newStats.totalAttempts;
+      newStats.proficiencyLevel = getProficiencyLevel(newStats.correctSequences, newStats.averageTime);
+      setGameStats(newStats);
+      
+      setGameState('completed');
+    } else {
+      setGameStats({
+        ...gameStats,
+        totalTime: gameStats.totalTime + timeTaken,
+        totalAttempts: gameStats.totalAttempts + 1
+      });
+      setGameState('failed');
+    }
+  };
+
+  const getProficiencyLevel = (correct, avgTime) => {
+    const accuracy = gameStats.totalAttempts > 0 ? (correct / gameStats.totalAttempts) * 100 : 0;
+    if (accuracy >= 90 && avgTime <= 30) return 'Expert';
+    if (accuracy >= 75 && avgTime <= 45) return 'Advanced';
+    if (accuracy >= 60 && avgTime <= 50) return 'Intermediate';
+    return 'Beginner';
+  };
+
+  const showScorecard = () => {
+    setGameState('scorecard');
+  };
+
+  const shareScorecard = async () => {
+    const accuracy = gameStats.totalAttempts > 0 ? Math.round((gameStats.correctSequences / gameStats.totalAttempts) * 100) : 0;
+    const text = `I just completed HL7 Message Sequencing training! Score: ${score.toLocaleString()} | Proficiency: ${gameStats.proficiencyLevel} | Accuracy: ${accuracy}%`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'HL7 Integration Training Results',
+          text: text,
+          url: window.location.href
+        });
+      } catch (err) {
+        console.log('Error sharing:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(text);
+      alert('Results copied to clipboard!');
+    }
+  };
+
+  const downloadScorecard = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 800;
+    canvas.height = 600;
+    
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 0, 800, 600);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 32px Arial';
+    ctx.fillText('HL7 Integration Training', 50, 80);
+    
+    ctx.font = '24px Arial';
+    ctx.fillText(`Score: ${score.toLocaleString()}`, 50, 150);
+    ctx.fillText(`Proficiency: ${gameStats.proficiencyLevel}`, 50, 200);
+    const accuracy = gameStats.totalAttempts > 0 ? Math.round((gameStats.correctSequences / gameStats.totalAttempts) * 100) : 0;
+    ctx.fillText(`Accuracy: ${accuracy}%`, 50, 250);
+    
+    const link = document.createElement('a');
+    link.download = 'hl7-training-scorecard.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  };
+
+  const getMessageColor = (messageId, index) => {
+    if (gameState === 'completed') return 'bg-green-50 border-green-400';
+    if (gameState === 'failed') {
+      const correctId = scenarios[currentScenario].correctSequence[index];
+      return messageId === correctId ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400';
+    }
+    return 'bg-blue-50 border-blue-300';
+  };
+
+  const scenario = scenarios[currentScenario];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-green-50 p-2 sm:p-4">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Hospital Header */}
+        <div className="text-center mb-4 bg-white rounded-lg shadow-lg border border-slate-200 p-3 sm:p-6">
+          <div className="w-full h-1 bg-gradient-to-r from-blue-500 via-green-500 to-blue-500 rounded-full mb-3"></div>
+          <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-2">
+            <div className="bg-blue-600 p-2 rounded-full">
+              <Activity className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-lg sm:text-2xl font-bold text-slate-800">Clinical Integration Training</h1>
+            <div className="bg-green-600 p-2 rounded-full">
+              <Heart className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <p className="text-sm text-slate-600">HL7 Message Sequencing Simulation</p>
+        </div>
+
+        {/* Status Bar */}
+        <div className="bg-slate-900 rounded-lg shadow-xl p-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-white">
+            <div className="bg-slate-800 rounded p-2 text-center">
+              <Clock className="w-4 h-4 mx-auto mb-1 text-blue-400" />
+              <div className={`text-lg font-mono font-bold ${timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-green-400'}`}>
+                {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:{String(timeLeft % 60).padStart(2, '0')}
+              </div>
+              <div className="text-xs text-slate-400">Time</div>
+            </div>
+            
+            <div className="bg-slate-800 rounded p-2 text-center">
+              <Trophy className="w-4 h-4 mx-auto mb-1 text-yellow-400" />
+              <div className="text-lg font-mono font-bold text-yellow-400">{score.toLocaleString()}</div>
+              <div className="text-xs text-slate-400">Score</div>
+            </div>
+            
+            <div className="bg-slate-800 rounded p-2 text-center">
+              <Activity className="w-4 h-4 mx-auto mb-1 text-purple-400" />
+              <div className="text-lg font-mono font-bold text-purple-400">{currentScenario + 1}/{scenarios.length}</div>
+              <div className="text-xs text-slate-400">Case</div>
+            </div>
+            
+            <div className="bg-slate-800 rounded p-2">
+              {gameState === 'waiting' && (
+                <button
+                  onClick={startGame}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-2 rounded font-semibold flex items-center justify-center space-x-1 text-sm"
+                >
+                  <Play className="w-3 h-3" />
+                  <span>Start</span>
+                </button>
+              )}
+              
+              {(gameState === 'completed' || gameState === 'failed') && (
+                <div className="space-y-1">
+                  {currentScenario < scenarios.length - 1 ? (
+                    <button onClick={nextScenario} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded text-xs">
+                      Next Case
+                    </button>
+                  ) : (
+                    <button onClick={resetGame} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-1 px-2 rounded text-xs">
+                      Restart
+                    </button>
+                  )}
+                  <button onClick={resetGame} className="w-full bg-slate-600 hover:bg-slate-700 text-white py-1 px-2 rounded text-xs flex items-center justify-center space-x-1">
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Reset</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          
+          {/* Patient Case */}
+          <div className="lg:col-span-2 space-y-3">
+            <div className="bg-white rounded-lg shadow-lg border overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-3 text-white">
+                <div className="flex items-center space-x-2">
+                  <Heart className="w-4 h-4" />
+                  <div>
+                    <h2 className="text-base font-bold">{scenario.title}</h2>
+                    <p className="text-xs text-blue-100">Clinical Case Study</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-3 bg-slate-50">
+                <h3 className="text-sm font-semibold text-slate-800 mb-2">Patient Journey</h3>
+                <div className="space-y-2">
+                  {scenario.patientJourney.map((step, index) => (
+                    <div key={index} className="flex items-start space-x-2 bg-white p-2 rounded border">
+                      <div className="bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                        {index + 1}
+                      </div>
+                      <p className="text-xs text-slate-700">{step}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Sequencing Area */}
+            <div className="bg-white rounded-lg shadow-lg border overflow-hidden">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 p-3 text-white">
+                <div className="flex items-center space-x-2">
+                  <Monitor className="w-4 h-4" />
+                  <div>
+                    <h3 className="text-base font-bold">EMR Integration Console</h3>
+                    <p className="text-xs text-green-100">HL7 Message Sequencing</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-3 bg-slate-50">
+                <div className="space-y-2 mb-3">
+                  {Array.from({ length: scenario.correctSequence.length }, (_, index) => (
+                    <div key={index}>
+                      {selectedMessages[index] ? (
+                        <div
+                          className={`p-2 rounded border-2 cursor-pointer transition-all ${getMessageColor(selectedMessages[index].id, index)}`}
+                          onClick={() => removeMessage(index)}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div className="text-lg">{selectedMessages[index].icon}</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-slate-900 text-xs truncate">{selectedMessages[index].label}</div>
+                              <div className="text-xs text-slate-600">{selectedMessages[index].description}</div>
+                            </div>
+                            <div className="bg-slate-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
+                              {index + 1}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-3 rounded border-2 border-dashed border-slate-300 bg-slate-100">
+                          <div className="text-center text-slate-500">
+                            <div className="bg-slate-200 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mx-auto mb-1">
+                              {index + 1}
+                            </div>
+                            <div className="text-xs">Click a message to place here</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {selectedMessages.length === scenario.correctSequence.length && gameState === 'playing' && (
+                  <button
+                    onClick={checkSequence}
+                    className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2 rounded font-bold text-sm"
+                  >
+                    Execute Message Sequence
+                  </button>
+                )}
+
+                {gameState === 'completed' && (
+                  <div className="space-y-2">
+                    <div className="bg-green-50 border-2 border-green-400 rounded p-3 flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <div>
+                        <div className="font-bold text-green-800 text-sm">✅ SEQUENCE VALIDATED</div>
+                        <div className="text-xs text-green-600">Time bonus: +{Math.max(0, timeLeft * 10)} points</div>
+                      </div>
+                    </div>
+                    {currentScenario === scenarios.length - 1 && (
+                      <button
+                        onClick={showScorecard}
+                        className="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-2 rounded font-bold flex items-center justify-center space-x-2 text-sm"
+                      >
+                        <Award className="w-4 h-4" />
+                        <span>View Final Scorecard</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {gameState === 'failed' && (
+                  <div className="bg-red-50 border-2 border-red-400 rounded p-3 flex items-center space-x-2">
+                    <XCircle className="w-4 h-4 text-red-600" />
+                    <div>
+                      <div className="font-bold text-red-800 text-sm">
+                        ⚠️ {timeLeft === 0 ? 'TIMEOUT' : 'SEQUENCE ERROR'}
+                      </div>
+                      <div className="text-xs text-red-600">Green indicators show correct sequence</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Message Cabinet */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-lg border overflow-hidden sticky top-4">
+              <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-3 text-white">
+                <div className="flex items-center space-x-2">
+                  <Activity className="w-4 h-4" />
+                  <div>
+                    <h3 className="text-sm font-bold">Message Repository</h3>
+                    <p className="text-xs text-purple-100">HL7 Components</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-2 bg-slate-50 max-h-64 overflow-y-auto">
+                <div className="space-y-1">
+                  {scenario.availableMessages.map((message) => (
+                    <div
+                      key={message.id}
+                      onClick={() => selectMessage(message)}
+                      className={`p-2 rounded border cursor-pointer transition-all ${
+                        gameState === 'playing' 
+                          ? 'bg-white border-slate-200 hover:border-blue-400 hover:bg-blue-50 active:scale-95' 
+                          : 'bg-slate-100 border-slate-200 cursor-not-allowed opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <div className="text-base">{message.icon}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-slate-900 text-xs truncate">{message.label}</div>
+                          <div className="text-xs text-slate-600">{message.description}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="p-2 bg-slate-100 border-t">
+                <div className="text-xs text-slate-600">
+                  <div className="font-semibold mb-1">Instructions:</div>
+                  <ul className="space-y-0.5 text-xs">
+                    <li>• Select messages in sequence</li>
+                    <li>• Complete within 60 seconds</li>
+                    <li>• Follow patient care workflow</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scorecard Modal */}
+        {gameState === 'scorecard' && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 z-50">
+            <div className="bg-white rounded-lg shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+              
+              <div className="bg-gradient-to-r from-blue-900 to-green-800 text-white p-4 text-center">
+                <div className="bg-white/20 p-2 rounded-full w-fit mx-auto mb-3">
+                  <Award className="w-6 h-6 text-white" />
+                </div>
+                <h1 className="text-lg font-bold mb-1">HL7 Integration Training</h1>
+                <p className="text-sm text-blue-100">Certification of Completion</p>
+              </div>
+
+              <div className="p-4">
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  <div className="text-center bg-blue-50 p-3 rounded border border-blue-200">
+                    <Trophy className="w-4 h-4 mx-auto mb-1 text-blue-600" />
+                    <div className="text-lg font-bold text-blue-900">{score.toLocaleString()}</div>
+                    <div className="text-xs text-blue-700">Score</div>
+                  </div>
+                  <div className="text-center bg-green-50 p-3 rounded border border-green-200">
+                    <div className="text-lg font-bold text-green-900">
+                      {gameStats.totalAttempts > 0 ? Math.round((gameStats.correctSequences / gameStats.totalAttempts) * 100) : 0}%
+                    </div>
+                    <div className="text-xs text-green-700">Accuracy</div>
+                  </div>
+                  <div className="text-center bg-purple-50 p-3 rounded border border-purple-200">
+                    <div className="text-lg font-bold text-purple-900">
+                      {gameStats.averageTime > 0 ? Math.round(gameStats.averageTime) : 0}s
+                    </div>
+                    <div className="text-xs text-purple-700">Avg Time</div>
+                  </div>
+                  <div className="text-center bg-orange-50 p-3 rounded border border-orange-200">
+                    <div className="text-sm font-bold text-orange-900">{gameStats.proficiencyLevel}</div>
+                    <div className="text-xs text-orange-700">Level</div>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Achievements</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {gameStats.correctSequences >= scenarios.length && (
+                      <div className="bg-yellow-50 border border-yellow-300 rounded p-2 text-center">
+                        <div className="text-lg">🏆</div>
+                        <div className="text-xs font-semibold text-yellow-800">Perfect</div>
+                      </div>
+                    )}
+                    {gameStats.averageTime <= 30 && (
+                      <div className="bg-blue-50 border border-blue-300 rounded p-2 text-center">
+                        <div className="text-lg">⚡</div>
+                        <div className="text-xs font-semibold text-blue-800">Speed</div>
+                      </div>
+                    )}
+                    {gameStats.proficiencyLevel === 'Expert' && (
+                      <div className="bg-purple-50 border border-purple-300 rounded p-2 text-center">
+                        <div className="text-lg">🎯</div>
+                        <div className="text-xs font-semibold text-purple-800">Expert</div>
+                      </div>
+                    )}
+                    <div className="bg-red-50 border border-red-300 rounded p-2 text-center">
+                      <div className="text-lg">🏥</div>
+                      <div className="text-xs font-semibold text-red-800">Healthcare</div>
+                    </div>
+                    <div className="bg-indigo-50 border border-indigo-300 rounded p-2 text-center">
+                      <div className="text-lg">📚</div>
+                      <div className="text-xs font-semibold text-indigo-800">Learner</div>
+                    </div>
+                    <div className="bg-green-50 border border-green-300 rounded p-2 text-center">
+                      <div className="text-lg">✅</div>
+                      <div className="text-xs font-semibold text-green-800">Complete</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center border-t pt-3 mb-4">
+                  <div className="text-xs text-gray-600 mb-2">
+                    Training completed on {new Date().toLocaleDateString()}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    HIT Clinical EMR Assessment Training Program
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <button
+                    onClick={shareScorecard}
+                    className="w-full bg-blue-600 text-white py-2 rounded font-semibold flex items-center justify-center space-x-2 text-sm"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>Share Results</span>
+                  </button>
+                  <button
+                    onClick={downloadScorecard}
+                    className="w-full bg-green-600 text-white py-2 rounded font-semibold flex items-center justify-center space-x-2 text-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download</span>
+                  </button>
+                  <button
+                    onClick={() => setGameState('waiting')}
+                    className="w-full bg-gray-600 text-white py-2 rounded font-semibold text-sm"
+                  >
+                    Continue Training
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default HL7SequencingGame;
