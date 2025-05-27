@@ -40,27 +40,38 @@ export default function FeedbackPage() {
 
   const submitFeedbackMutation = useMutation({
     mutationFn: async (data: FeedbackForm) => {
-      // Create a mailto link with the feedback content
-      const subject = `HIT Feedback: ${data.category.toUpperCase()} - ${data.subject}`;
-      const body = `Name: ${data.name}
-Email: ${data.email}
-Category: ${data.category}
+      // Check if EmailJS environment variables are available
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-Message:
-${data.message}
+      if (!serviceId || !templateId || !publicKey) {
+        throw new Error('EmailJS configuration not found. Please contact support.');
+      }
 
----
-Sent from Health Integration Tools (HIT)`;
+      // Dynamic import of EmailJS
+      const emailjs = await import('@emailjs/browser');
 
-      const mailtoLink = `mailto:rsshethia@gmail.com?cc=${encodeURIComponent(data.email)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      
-      // Open the user's default email client
-      window.location.href = mailtoLink;
-      
-      // Simulate success after a short delay
-      return new Promise((resolve) => {
-        setTimeout(() => resolve({ success: true }), 1000);
-      });
+      // Prepare template parameters
+      const templateParams = {
+        from_name: data.name,
+        from_email: data.email,
+        to_email: 'rsshethia@gmail.com',
+        subject: `HIT Feedback: ${data.category.toUpperCase()} - ${data.subject}`,
+        category: data.category,
+        message: data.message,
+        reply_to: data.email,
+      };
+
+      // Send email using EmailJS
+      const response = await emailjs.send(
+        serviceId,
+        templateId,
+        templateParams,
+        publicKey
+      );
+
+      return response;
     },
     onSuccess: () => {
       setIsSubmitted(true);
