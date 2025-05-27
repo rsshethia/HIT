@@ -39,6 +39,7 @@ function Router() {
       <Route path="/hl7-flow-game" component={HL7FlowGamePage} />
       <Route path="/hl7-segment-mapper" component={HL7SegmentMapper} />
       <Route path="/clinical-integration-play" component={ClinicalIntegrationPlay} />
+      <Route path="/feedback" component={FeedbackPage} />
       <Route component={NotFound} />
     </Switch>
   );

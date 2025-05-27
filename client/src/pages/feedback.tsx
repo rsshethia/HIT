@@ -40,25 +40,34 @@ export default function FeedbackPage() {
 
   const submitFeedbackMutation = useMutation({
     mutationFn: async (data: FeedbackForm) => {
-      const response = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      // Create a mailto link with the feedback content
+      const subject = `HIT Feedback: ${data.category.toUpperCase()} - ${data.subject}`;
+      const body = `Name: ${data.name}
+Email: ${data.email}
+Category: ${data.category}
+
+Message:
+${data.message}
+
+---
+Sent from Health Integration Tools (HIT)`;
+
+      const mailtoLink = `mailto:rushabh.shethia@outlook.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      
+      // Open the user's default email client
+      window.location.href = mailtoLink;
+      
+      // Simulate success after a short delay
+      return new Promise((resolve) => {
+        setTimeout(() => resolve({ success: true }), 1000);
       });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to send feedback');
-      }
-      
-      return response.json();
     },
     onSuccess: () => {
       setIsSubmitted(true);
       form.reset();
       toast({
-        title: "Feedback sent successfully!",
-        description: "Thank you for your feedback. We'll review it and get back to you if needed.",
+        title: "Email client opened!",
+        description: "Your feedback email has been prepared. Please send it from your email client.",
       });
     },
     onError: (error: any) => {
@@ -82,9 +91,10 @@ export default function FeedbackPage() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Email Ready!</h2>
             <p className="text-gray-600 mb-6">
-              Your feedback has been sent successfully. We appreciate you taking the time to help us improve.
+              Your feedback email has been prepared and should open in your default email client. 
+              Please review and send the email to complete your feedback submission.
             </p>
             <Button 
               onClick={() => setIsSubmitted(false)}
@@ -224,12 +234,53 @@ export default function FeedbackPage() {
           </CardContent>
         </Card>
 
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>
-            Experiencing technical issues? You can also reach us through the{' '}
-            <a href="/about" className="text-blue-600 hover:underline">About page</a>{' '}
-            for alternative contact methods.
-          </p>
+        <div className="mt-8 space-y-4">
+          <div className="bg-white rounded-lg border p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <MessageCircle className="w-5 h-5 text-blue-600" />
+              Alternative Contact Methods
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <span className="text-2xl">📧</span>
+                <div>
+                  <p className="font-medium text-gray-900">Direct Email</p>
+                  <p className="text-sm text-gray-600">
+                    Email us directly at:{' '}
+                    <a 
+                      href="mailto:rushabh.shethia@outlook.com" 
+                      className="text-blue-600 hover:underline font-medium"
+                    >
+                      rushabh.shethia@outlook.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <span className="text-2xl">💼</span>
+                <div>
+                  <p className="font-medium text-gray-900">LinkedIn</p>
+                  <p className="text-sm text-gray-600">
+                    Connect with us on{' '}
+                    <a 
+                      href="https://www.linkedin.com/in/rushabh-shethia/" 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline font-medium"
+                    >
+                      LinkedIn
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center text-sm text-gray-500">
+            <p>
+              We appreciate your feedback and will respond within 24-48 hours.
+            </p>
+          </div>
         </div>
       </div>
     </div>
