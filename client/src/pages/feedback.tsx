@@ -52,7 +52,7 @@ ${data.message}
 ---
 Sent from Health Integration Tools (HIT)`;
 
-      const mailtoLink = `mailto:rsshethia@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const mailtoLink = `mailto:rsshethia@gmail.com?cc=${encodeURIComponent(data.email)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       
       // Open the user's default email client
       window.location.href = mailtoLink;
@@ -241,12 +241,12 @@ Sent from Health Integration Tools (HIT)`;
               <h3 className="text-lg font-semibold text-gray-900">Professional Support</h3>
             </div>
             <p className="text-sm text-gray-600 mb-4">
-              Your feedback is sent directly to our development team at <strong>rsshethia@gmail.com</strong> using your default email client.
+              Your feedback is sent to our development team at <strong>rsshethia@gmail.com</strong> with a copy sent to your email for confirmation.
             </p>
             <div className="flex items-center justify-center gap-4 text-sm text-blue-800">
               <span>✓ Secure submission</span>
+              <span>✓ Confirmation copy to you</span>
               <span>✓ 24-48 hour response</span>
-              <span>✓ Privacy protected</span>
             </div>
           </div>
         </div>
