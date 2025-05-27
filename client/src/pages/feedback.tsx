@@ -52,7 +52,7 @@ ${data.message}
 ---
 Sent from Health Integration Tools (HIT)`;
 
-      const mailtoLink = `mailto:rushabh.shethia@outlook.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const mailtoLink = `mailto:rsshethia@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       
       // Open the user's default email client
       window.location.href = mailtoLink;
@@ -234,51 +234,20 @@ Sent from Health Integration Tools (HIT)`;
           </CardContent>
         </Card>
 
-        <div className="mt-8 space-y-4">
-          <div className="bg-white rounded-lg border p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="mt-8 text-center">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <div className="flex items-center justify-center gap-2 mb-3">
               <MessageCircle className="w-5 h-5 text-blue-600" />
-              Alternative Contact Methods
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <span className="text-2xl">📧</span>
-                <div>
-                  <p className="font-medium text-gray-900">Direct Email</p>
-                  <p className="text-sm text-gray-600">
-                    <button 
-                      onClick={() => window.location.href = 'mailto:' + ['rushabh.shethia', '@', 'outlook.com'].join('')}
-                      className="text-blue-600 hover:underline font-medium"
-                    >
-                      Click to email us directly
-                    </button>
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <span className="text-2xl">💼</span>
-                <div>
-                  <p className="font-medium text-gray-900">LinkedIn</p>
-                  <p className="text-sm text-gray-600">
-                    Connect with us on{' '}
-                    <a 
-                      href="https://www.linkedin.com/in/rushabh-shethia/" 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline font-medium"
-                    >
-                      LinkedIn
-                    </a>
-                  </p>
-                </div>
-              </div>
+              <h3 className="text-lg font-semibold text-gray-900">Professional Support</h3>
             </div>
-          </div>
-          
-          <div className="text-center text-sm text-gray-500">
-            <p>
-              We appreciate your feedback and will respond within 24-48 hours.
+            <p className="text-sm text-gray-600 mb-4">
+              Your feedback is sent directly to our development team at <strong>rsshethia@gmail.com</strong> using your default email client.
             </p>
+            <div className="flex items-center justify-center gap-4 text-sm text-blue-800">
+              <span>✓ Secure submission</span>
+              <span>✓ 24-48 hour response</span>
+              <span>✓ Privacy protected</span>
+            </div>
           </div>
         </div>
       </div>
