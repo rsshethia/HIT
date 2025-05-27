@@ -17,6 +17,7 @@ import GuidesPage from "@/pages/guides";
 import HL7FlowGamePage from "@/pages/hl7-flow-game";
 import HL7SegmentMapper from "@/pages/hl7-segment-mapper";
 import ClinicalIntegrationPlay from "@/pages/clinical-integration-play";
+import FeedbackPage from "@/pages/feedback";
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { DevHeader } from "@/components/dev-header";
