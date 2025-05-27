@@ -246,13 +246,12 @@ Sent from Health Integration Tools (HIT)`;
                 <div>
                   <p className="font-medium text-gray-900">Direct Email</p>
                   <p className="text-sm text-gray-600">
-                    Email us directly at:{' '}
-                    <a 
-                      href="mailto:rushabh.shethia@outlook.com" 
+                    <button 
+                      onClick={() => window.location.href = 'mailto:' + ['rushabh.shethia', '@', 'outlook.com'].join('')}
                       className="text-blue-600 hover:underline font-medium"
                     >
-                      rushabh.shethia@outlook.com
-                    </a>
+                      Click to email us directly
+                    </button>
                   </p>
                 </div>
               </div>
