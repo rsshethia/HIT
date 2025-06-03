@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL T-SQL Stored Procedure - Extract and Update PID Segment</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Roboto", sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            gap: 30px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #1e40af;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            z-index: 100;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin-top: 80px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+
+        .procedure-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #374151;
+            background-color: #f3f4f6;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            font-family: 'Courier New', monospace;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #6b7280;
+            margin-top: 15px;
+        }
+
+        .coming-soon {
+            text-align: center;
+            margin: 60px 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 10px;
+            border: 2px dashed #9ca3af;
+        }
+
+        .coming-soon-icon {
+            font-size: 64px;
+            color: #9ca3af;
+            margin-bottom: 20px;
+        }
+
+        .coming-soon-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .coming-soon-desc {
+            font-size: 16px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .placeholder-content {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+        }
+
+        .placeholder-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .placeholder-desc {
+            font-size: 14px;
+            color: #78350f;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #9ca3af;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" onclick="window.location.href='/#/reference-guides'; return false;" class="back-button">
+        <span>← Back to Reference Guides</span>
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <div class="title">SQL T-SQL Stored Procedure</div>
+            <div class="procedure-name">sp_ExtractUpdatePID</div>
+            <div class="subtitle">Extract and Insert/Update PID Segment</div>
+        </div>
+
+        <div class="coming-soon">
+            <div class="coming-soon-icon">🚧</div>
+            <div class="coming-soon-text">Coming Soon</div>
+            <div class="coming-soon-desc">
+                This comprehensive SQL T-SQL stored procedure guide is currently under development.<br>
+                The guide will include complete procedure code, PID segment parsing logic, and patient data management examples.
+            </div>
+        </div>
+
+        <div class="placeholder-content">
+            <div class="placeholder-title">Planned Content:</div>
+            <div class="placeholder-desc">
+                • Complete T-SQL stored procedure code for PID segment extraction<br>
+                • HL7 field parsing and validation functions<br>
+                • Patient demographics table insert/update logic<br>
+                • Data type conversion and error handling<br>
+                • PID segment field mapping documentation<br>
+                • Performance optimization and transaction management
+            </div>
+        </div>
+
+        <div class="footer">
+            R. Shethia 2025 - HIT Platform SQL Reference Guide
+        </div>
+    </div>
+</body>
+</html>
