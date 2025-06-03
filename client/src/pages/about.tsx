@@ -13,7 +13,7 @@ export default function AboutPage() {
             </p>
             <div className="mt-6 flex items-center text-sm text-gray-500">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
-                v 0.4.3
+                v 0.4.5
               </span>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                 Updated: June 03, 2025

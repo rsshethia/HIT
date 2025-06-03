@@ -303,6 +303,9 @@ export default function ReferenceGuidesPage() {
               </div>
             </div>
 
+            {/* Visual separator */}
+            <div className="my-8 border-t-2 border-gray-200"></div>
+
             <div className="mb-6">
               <h4 className="text-lg font-medium text-gray-800 mb-3">SQL T-SQL Stored Procedure Reference</h4>
               <div className="overflow-x-auto">
