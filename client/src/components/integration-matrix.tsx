@@ -45,10 +45,10 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
 
     // Increase margins for better spacing and readability
     const margin = { 
-      top: showExportLabels ? 160 : 140, 
-      right: 40, 
-      bottom: showExportLabels ? 80 : 60, 
-      left: 160 
+      top: showExportLabels ? 180 : 160, 
+      right: 80, 
+      bottom: showExportLabels ? 120 : 100, 
+      left: 200 
     };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
@@ -255,7 +255,7 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
           // Off-diagonal elements (different systems)
           const connection = getConnection(source.id, target.id);
           
-          // Create the cell
+          // Create the cell with enhanced styling
           const cell = svg
             .append('rect')
             .attr('x', x(source.id) || 0)
@@ -263,13 +263,29 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
             .attr('width', x.bandwidth())
             .attr('height', y.bandwidth())
             .attr('fill', getColor(connection?.quality))
-            .attr('stroke', '#d1d5db');
+            .attr('stroke', '#9ca3af')
+            .attr('stroke-width', 1)
+            .attr('rx', 2) // Rounded corners
+            .style('cursor', 'pointer')
+            .on('mouseover', function() {
+              d3.select(this)
+                .attr('stroke', '#374151')
+                .attr('stroke-width', 2);
+            })
+            .on('mouseout', function() {
+              d3.select(this)
+                .attr('stroke', '#9ca3af')
+                .attr('stroke-width', 1);
+            });
           
-          // Add tooltip
+          // Add enhanced tooltip with more information
           cell.append('title')
             .text(() => {
-              if (!connection) return 'No connection';
-              return `From: ${source.name}\nTo: ${target.name}\nType: ${connection.direction}\nQuality: ${connection.quality}`;
+              if (!connection) {
+                return `No connection between:\n${source.name} → ${target.name}\n\nConsider adding integration if needed.`;
+              }
+              const volumeText = connection.volume ? `\nVolume: ${connection.volume} msgs/day` : '';
+              return `Integration Details:\n\nFrom: ${source.name}\nTo: ${target.name}\nDirection: ${connection.direction === 'bidirectional' ? 'Two-way' : 'One-way'}\nQuality: ${connection.quality.charAt(0).toUpperCase() + connection.quality.slice(1)}${volumeText}\n\nClick for more details`;
             });
           
           // Add direction indicator
@@ -288,16 +304,17 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
       });
     });
 
-    // Add a combined legend with background
-    const legendBg = svg
+    // Add enhanced legend with improved visual design
+    const legendContainer = svg
       .append('g')
-      .attr('class', 'legend-container');
+      .attr('class', 'legend-container')
+      .attr('transform', `translate(0, ${innerHeight + 20})`);
       
     // Add background rectangle for the entire legend area
-    legendBg.append('rect')
-      .attr('x', -5)
-      .attr('y', innerHeight + 10)
-      .attr('width', innerWidth + 10)
+    legendContainer.append('rect')
+      .attr('x', -10)
+      .attr('y', -10)
+      .attr('width', innerWidth + 20)
       .attr('height', 60)
       .attr('fill', 'white')
       .attr('stroke', '#e5e7eb')
@@ -305,19 +322,19 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
       .attr('rx', 5);
     
     // Add "Legend:" label
-    legendBg.append('text')
+    legendContainer.append('text')
       .attr('x', 5)
-      .attr('y', innerHeight + 25)
+      .attr('y', 15)
       .text('Legend:')
       .attr('font-weight', 'bold')
-      .attr('font-size', '12px')
+      .attr('font-size', '14px')
       .attr('fill', '#1f2937');
 
     // Add connection quality legend
-    const legend = svg
+    const legend = legendContainer
       .append('g')
       .attr('class', 'legend')
-      .attr('transform', `translate(60, ${innerHeight + 25})`);
+      .attr('transform', `translate(60, 5)`);
 
     const qualities = [
       { quality: 'automated', label: 'Automated', color: '#10b981' },
@@ -356,10 +373,10 @@ const IntegrationMatrix: React.FC<IntegrationMatrixProps> = ({
       });
 
     // Add direction legend
-    const directionLegend = svg
+    const directionLegend = legendContainer
       .append('g')
       .attr('class', 'direction-legend')
-      .attr('transform', `translate(60, ${innerHeight + 50})`);
+      .attr('transform', `translate(60, 30)`);
 
     const directions = [
       { symbol: '→', label: 'One-way' },
