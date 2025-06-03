@@ -13,6 +13,19 @@ import {
   SelectValue 
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Download, 
+  FileImage, 
+  FileText, 
+  Printer, 
+  ZoomIn, 
+  ZoomOut, 
+  RotateCcw,
+  Filter,
+  Eye,
+  EyeOff
+} from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import NetworkDiagram from '@/components/network-diagram';
 import IntegrationMatrix from '@/components/integration-matrix';
@@ -48,6 +61,17 @@ export default function IntegrationMappingPage() {
   const [direction, setDirection] = useState<'one-way' | 'bidirectional'>('one-way');
   const [quality, setQuality] = useState<'automated' | 'semi-automated' | 'manual'>('automated');
   const [dataVolume, setDataVolume] = useState<number>(10);
+  
+  // Enhanced visualization controls
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [filters, setFilters] = useState({
+    automated: true,
+    semiAutomated: true,
+    manual: true,
+    oneWay: true,
+    bidirectional: true
+  });
+  const [showLegend, setShowLegend] = useState<boolean>(true);
 
   // Handle adding a new system
   const handleAddSystem = () => {
@@ -332,6 +356,112 @@ export default function IntegrationMappingPage() {
     }
   };
 
+  // Handle exporting as SVG
+  const handleGenerateSVG = async () => {
+    if (!vizRef.current) {
+      toast({
+        title: "Error",
+        description: "No visualization content found to export.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      toast({
+        title: "Generating SVG",
+        description: "Please wait...",
+      });
+
+      // Get the SVG element from the visualization
+      const svgElement = vizRef.current.querySelector('svg');
+      if (!svgElement) {
+        toast({
+          title: "Error",
+          description: "No SVG content found in the current visualization.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Clone the SVG to avoid modifying the original
+      const clonedSvg = svgElement.cloneNode(true) as SVGElement;
+      
+      // Add XML declaration and namespace
+      const serializer = new XMLSerializer();
+      let svgString = serializer.serializeToString(clonedSvg);
+      
+      // Add proper SVG header
+      svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgString;
+      
+      // Create blob and download
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.download = `healthcare-integration-${activeVisualization}.svg`;
+      link.href = url;
+      link.click();
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Success!",
+        description: "SVG has been generated and downloaded.",
+      });
+    } catch (error) {
+      console.error('Error generating SVG:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate SVG. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Filter connections based on current filters
+  const getFilteredConnections = () => {
+    return connections.filter(conn => {
+      // Filter by quality
+      if (conn.quality === 'automated' && !filters.automated) return false;
+      if (conn.quality === 'semi-automated' && !filters.semiAutomated) return false;
+      if (conn.quality === 'manual' && !filters.manual) return false;
+      
+      // Filter by direction
+      if (conn.direction === 'one-way' && !filters.oneWay) return false;
+      if (conn.direction === 'bidirectional' && !filters.bidirectional) return false;
+      
+      return true;
+    });
+  };
+
+  // Handle filter changes
+  const handleFilterChange = (filterKey: keyof typeof filters) => {
+    setFilters(prev => ({
+      ...prev,
+      [filterKey]: !prev[filterKey]
+    }));
+  };
+
+  // Handle zoom controls
+  const handleZoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.2, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.2, 0.5));
+  };
+
+  const handleResetZoom = () => {
+    setZoomLevel(1);
+  };
+
+  // Handle print
+  const handlePrint = () => {
+    window.print();
+  };
+
   // Example systems for demonstration purposes
   const populateExampleData = () => {
     const exampleSystems: System[] = [
@@ -535,12 +665,162 @@ export default function IntegrationMappingPage() {
         );
         
       case 3:
+        const filteredConnections = getFilteredConnections();
+        
         return (
           <div className="space-y-6">
+            {/* Enhanced Controls Bar */}
+            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+              <div className="flex flex-wrap items-center gap-4 justify-between">
+                {/* Zoom Controls */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">Zoom:</span>
+                  <Button variant="outline" size="sm" onClick={handleZoomOut} disabled={zoomLevel <= 0.5}>
+                    <ZoomOut className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-gray-600 min-w-[3rem] text-center">{Math.round(zoomLevel * 100)}%</span>
+                  <Button variant="outline" size="sm" onClick={handleZoomIn} disabled={zoomLevel >= 3}>
+                    <ZoomIn className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleResetZoom}>
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Filter Toggle */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowLegend(!showLegend)}
+                  >
+                    <Filter className="h-4 w-4 mr-1" />
+                    {showLegend ? 'Hide' : 'Show'} Legend
+                  </Button>
+                </div>
+
+                {/* Export Options */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">Export:</span>
+                  <Button variant="outline" size="sm" onClick={handleGeneratePNG}>
+                    <FileImage className="h-4 w-4 mr-1" />
+                    PNG
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleGenerateSVG}>
+                    <Download className="h-4 w-4 mr-1" />
+                    SVG
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleGeneratePDF}>
+                    <FileText className="h-4 w-4 mr-1" />
+                    PDF
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handlePrint}>
+                    <Printer className="h-4 w-4 mr-1" />
+                    Print
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Interactive Legend/Filter Panel */}
+            {showLegend && (
+              <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Connection Quality Filters */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900 mb-3">Connection Quality</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="filter-automated"
+                          checked={filters.automated}
+                          onChange={() => handleFilterChange('automated')}
+                          className="rounded border-gray-300"
+                        />
+                        <label htmlFor="filter-automated" className="flex items-center gap-2 text-sm">
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          Automated ({connections.filter(c => c.quality === 'automated').length})
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="filter-semi-automated"
+                          checked={filters.semiAutomated}
+                          onChange={() => handleFilterChange('semiAutomated')}
+                          className="rounded border-gray-300"
+                        />
+                        <label htmlFor="filter-semi-automated" className="flex items-center gap-2 text-sm">
+                          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                          Semi-automated ({connections.filter(c => c.quality === 'semi-automated').length})
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="filter-manual"
+                          checked={filters.manual}
+                          onChange={() => handleFilterChange('manual')}
+                          className="rounded border-gray-300"
+                        />
+                        <label htmlFor="filter-manual" className="flex items-center gap-2 text-sm">
+                          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                          Manual ({connections.filter(c => c.quality === 'manual').length})
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Connection Direction Filters */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900 mb-3">Connection Direction</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="filter-one-way"
+                          checked={filters.oneWay}
+                          onChange={() => handleFilterChange('oneWay')}
+                          className="rounded border-gray-300"
+                        />
+                        <label htmlFor="filter-one-way" className="flex items-center gap-2 text-sm">
+                          <span>→</span>
+                          One-way ({connections.filter(c => c.direction === 'one-way').length})
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="filter-bidirectional"
+                          checked={filters.bidirectional}
+                          onChange={() => handleFilterChange('bidirectional')}
+                          className="rounded border-gray-300"
+                        />
+                        <label htmlFor="filter-bidirectional" className="flex items-center gap-2 text-sm">
+                          <span>↔</span>
+                          Bidirectional ({connections.filter(c => c.direction === 'bidirectional').length})
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Summary Stats */}
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex gap-6 text-sm text-gray-600">
+                    <span>Total Systems: <strong>{systems.length}</strong></span>
+                    <span>Total Connections: <strong>{connections.length}</strong></span>
+                    <span>Filtered Connections: <strong>{filteredConnections.length}</strong></span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Visualization Selection</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Interactive Visualization</h3>
               <p className="text-gray-600 mb-4">
-                Select a visualization type to view and export your integration map.
+                Select a visualization type to view and export your integration map. Use the controls above to zoom, filter, and export.
               </p>
               
               <Tabs defaultValue="network" className="w-full mb-6" onValueChange={setActiveVisualization}>
@@ -561,17 +841,31 @@ export default function IntegrationMappingPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
-                      {systems.length > 0 && connections.length > 0 ? (
-                        <div ref={vizRef}>
+                      {systems.length > 0 && filteredConnections.length > 0 ? (
+                        <div 
+                          ref={vizRef}
+                          style={{ 
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'center',
+                            transition: 'transform 0.2s ease-in-out'
+                          }}
+                        >
                           <NetworkDiagram 
                             systems={systems} 
-                            connections={connections} 
+                            connections={filteredConnections} 
                             width={700} 
                             height={500}
                             title="System Network Diagram"
-                            subtitle={`${systems.length} Systems and ${connections.length} Connections`}
+                            subtitle={`${systems.length} Systems and ${filteredConnections.length} Connections (Filtered)`}
                             showExportLabels={activeVisualization === 'network'}
                           />
+                        </div>
+                      ) : filteredConnections.length === 0 && connections.length > 0 ? (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
+                          <p className="text-gray-500 text-center">
+                            No connections match the current filter settings.<br />
+                            Adjust the filters above to show connections.
+                          </p>
                         </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
@@ -596,14 +890,21 @@ export default function IntegrationMappingPage() {
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-auto">
                       {systems.length > 0 ? (
-                        <div ref={vizRef}>
+                        <div 
+                          ref={vizRef}
+                          style={{ 
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'center',
+                            transition: 'transform 0.2s ease-in-out'
+                          }}
+                        >
                           <IntegrationMatrix 
                             systems={systems} 
-                            connections={connections} 
+                            connections={filteredConnections} 
                             width={Math.max(700, systems.length * 100)} 
                             height={Math.max(500, systems.length * 100)}
                             title="System Integration Matrix"
-                            subtitle={`Connection Map for ${systems.length} Systems`}
+                            subtitle={`Connection Map for ${systems.length} Systems (${filteredConnections.length} Filtered Connections)`}
                             showExportLabels={activeVisualization === 'matrix'}
                           />
                         </div>
@@ -629,17 +930,31 @@ export default function IntegrationMappingPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
-                      {systems.length > 1 && connections.length > 0 ? (
-                        <div ref={vizRef}>
+                      {systems.length > 1 && filteredConnections.length > 0 ? (
+                        <div 
+                          ref={vizRef}
+                          style={{ 
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'center',
+                            transition: 'transform 0.2s ease-in-out'
+                          }}
+                        >
                           <SankeyDiagram 
                             systems={systems} 
-                            connections={connections} 
+                            connections={filteredConnections} 
                             width={700} 
                             height={500}
                             title="Data Flow Diagram"
-                            subtitle={`Integration Flow for ${systems.length} Systems`}
+                            subtitle={`Integration Flow for ${systems.length} Systems (${filteredConnections.length} Filtered Connections)`}
                             showExportLabels={activeVisualization === 'sankey'}
                           />
+                        </div>
+                      ) : filteredConnections.length === 0 && connections.length > 0 ? (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
+                          <p className="text-gray-500 text-center">
+                            No connections match the current filter settings.<br />
+                            Adjust the filters above to show connections.
+                          </p>
                         </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gray-100 border rounded-md">
@@ -663,11 +978,19 @@ export default function IntegrationMappingPage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="flex justify-center py-6 h-[600px] overflow-hidden">
-                      {systems.length > 0 && connections.length > 0 ? (
-                        <div ref={vizRef} className="w-full h-full">
+                      {systems.length > 0 && filteredConnections.length > 0 ? (
+                        <div 
+                          ref={vizRef} 
+                          className="w-full h-full"
+                          style={{ 
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'center',
+                            transition: 'transform 0.2s ease-in-out'
+                          }}
+                        >
                           <DependencyMapper 
                             systems={systems} 
-                            connections={connections} 
+                            connections={filteredConnections} 
                             title="System Dependency Map"
                             subtitle={`${systems.length} Systems and ${connections.length} Connections`}
                             showExportLabels={activeVisualization === 'reactflow'}
