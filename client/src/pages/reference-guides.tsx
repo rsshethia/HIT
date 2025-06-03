@@ -261,16 +261,37 @@ export default function ReferenceGuidesPage() {
                     <tr>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message Type</th>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purpose</th>
+                      <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Guide</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ORM^O01</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">General Order Message</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Place lab/radiology orders</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <a 
+                          href="/guides/orm-o01-guide.html" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary-700 flex items-center"
+                        >
+                          <span className="material-icons text-sm mr-1">picture_as_pdf</span>
+                          View Guide
+                        </a>
+                      </td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">ORU^R01</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Observation Result</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Return test results</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <span className="text-gray-400 flex items-center">
+                          <span className="material-icons text-sm mr-1">schedule</span>
+                          Coming soon
+                        </span>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
