@@ -992,7 +992,7 @@ export default function IntegrationMappingPage() {
                             systems={systems} 
                             connections={filteredConnections} 
                             title="System Dependency Map"
-                            subtitle={`${systems.length} Systems and ${connections.length} Connections`}
+                            subtitle={`${systems.length} Systems and ${filteredConnections.length} Connections`}
                             showExportLabels={activeVisualization === 'reactflow'}
                           />
                         </div>
