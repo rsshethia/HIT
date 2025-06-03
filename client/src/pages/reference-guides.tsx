@@ -190,24 +190,59 @@ export default function ReferenceGuidesPage() {
                     <tr>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</th>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purpose</th>
+                      <th scope="col" className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Guide</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">SIU^S12</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Notification of New Appointment</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Request New Appointment</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Schedule patient visits</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <a 
+                          href="/guides/siu-s12-guide.html" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary-700 flex items-center"
+                        >
+                          <span className="material-icons text-sm mr-1">picture_as_pdf</span>
+                          View Guide
+                        </a>
+                      </td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">SIU^S13</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Notification of Appointment Rescheduling</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Reschedule appointments</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <span className="text-gray-400 flex items-center">
+                          <span className="material-icons text-sm mr-1">schedule</span>
+                          Coming soon
+                        </span>
+                      </td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">SIU^S14</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Notification of Appointment Modification</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Modify appointment details</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <span className="text-gray-400 flex items-center">
+                          <span className="material-icons text-sm mr-1">schedule</span>
+                          Coming soon
+                        </span>
+                      </td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">SIU^S15</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Notification of Appointment Cancellation</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Cancel scheduled visits</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        <span className="text-gray-400 flex items-center">
+                          <span className="material-icons text-sm mr-1">schedule</span>
+                          Coming soon
+                        </span>
+                      </td>
                     </tr>
                     <tr>
                       <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">SIU^S17</td>
