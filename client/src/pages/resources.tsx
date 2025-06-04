@@ -101,13 +101,6 @@ export default function ResourcesPage() {
       isInternalLink: true
     },
     {
-      title: "DataMan",
-      description: "A comprehensive healthcare integration learning game inspired by Pacman. Navigate through 6 hospital departments, collecting healthcare data while learning about HL7, FHIR, DICOM standards, and cybersecurity threats.",
-      link: "/dataman-game",
-      category: "Games",
-      isInternalLink: true
-    },
-    {
       title: "HL7 Segment Mapper",
       description: "An interactive force-directed graph visualization showing the relationships between HL7 segments and message types like ADT, ORU, ORM, and SIU.",
       link: "/hl7-segment-mapper",
