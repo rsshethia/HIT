@@ -169,10 +169,15 @@ export default function ReferenceGuidesPage() {
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Add Person Information</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Add patient record</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                        <span className="text-gray-400 flex items-center">
-                          <span className="material-icons text-sm mr-1">schedule</span>
-                          Coming soon
-                        </span>
+                        <a 
+                          href="/guides/adt-a28-guide.html" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary-700 flex items-center"
+                        >
+                          <span className="material-icons text-sm mr-1">picture_as_pdf</span>
+                          View Guide
+                        </a>
                       </td>
                     </tr>
                     <tr>
@@ -196,10 +201,15 @@ export default function ReferenceGuidesPage() {
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Merge Patient - Patient ID</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Link patient records</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                        <span className="text-gray-400 flex items-center">
-                          <span className="material-icons text-sm mr-1">schedule</span>
-                          Coming soon
-                        </span>
+                        <a 
+                          href="/guides/adt-a40-guide.html" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary-700 flex items-center"
+                        >
+                          <span className="material-icons text-sm mr-1">picture_as_pdf</span>
+                          View Guide
+                        </a>
                       </td>
                     </tr>
                   </tbody>
