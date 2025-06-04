@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HL7 ADT^A05 Message Guide</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                font-family: "Roboto", sans-serif;
+                background-color: #f5f5f5;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px;
+                gap: 30px;
+            }
+
+            /* Card sizing presets */
+            .size-credit-card {
+                --panel-width: 86mm;
+                --panel-height: 54mm;
+            }
+
+            .size-postcard {
+                --panel-width: 105mm;
+                --panel-height: 70mm;
+            }
+
+            .size-a5 {
+                --panel-width: 148mm;
+                --panel-height: 105mm;
+            }
+
+            .size-a4 {
+                --panel-width: 210mm;
+                --panel-height: 148mm;
+            }
+
+            /* Default size if no class is applied */
+            :root {
+                --panel-width: 86mm;
+                --panel-height: 54mm;
+            }
+
+            .panel-page {
+                width: var(--panel-width);
+                height: var(--panel-height);
+                background-color: white;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                page-break-after: always;
+                position: relative;
+                margin-bottom: 20px;
+                overflow: hidden;
+                border: 1px solid #ccc;
+            }
+
+            .panel-content {
+                width: 100%;
+                height: 100%;
+                padding: calc(var(--panel-width) * 0.05);
+                position: relative;
+            }
+
+            /* Panel 1 - Cover */
+            .panel-1 {
+                background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+                color: white;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+            }
+
+            .title {
+                font-size: calc(var(--panel-width) * 0.03);
+                font-weight: 700;
+                margin-bottom: calc(var(--panel-width) * 0.02);
+            }
+
+            .code-badge {
+                display: inline-block;
+                background-color: rgba(255, 255, 255, 0.2);
+                padding: calc(var(--panel-width) * 0.02)
+                    calc(var(--panel-width) * 0.05);
+                border-radius: calc(var(--panel-width) * 0.05);
+                font-size: calc(var(--panel-width) * 0.08);
+                font-weight: 700;
+                margin: calc(var(--panel-width) * 0.03) 0;
+            }
+
+            .subtitle {
+                font-size: calc(var(--panel-width) * 0.02);
+                opacity: 0.9;
+                line-height: 1.2;
+            }
+
+            .heading-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+                border-bottom: 1px solid #eee;
+                padding-bottom: calc(var(--panel-width) * 0.01);
+                margin-bottom: calc(var(--panel-width) * 0.02);
+            }
+
+            .heading {
+                font-size: calc(var(--panel-width) * 0.02);
+                font-weight: 600;
+                color: #0891b2;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .heading-reference {
+                font-size: calc(var(--panel-width) * 0.018);
+                font-weight: 600;
+                color: #0891b2;
+                opacity: 0.8;
+            }
+
+            .content {
+                font-size: calc(var(--panel-width) * 0.018);
+                line-height: 1.3;
+                color: #444;
+            }
+
+            .flow-diagram {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin: calc(var(--panel-width) * 0.03) 0;
+            }
+
+            .system-boxes {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                margin-bottom: calc(var(--panel-width) * 0.03);
+            }
+
+            /* System box with border */
+            .system-box {
+                background-color: #f8f9fa;
+                border: 1px solid #0891b2;
+                border-radius: calc(var(--panel-width) * 0.015);
+                padding: calc(var(--panel-width) * 0.015);
+                width: 45%;
+                text-align: center;
+                font-size: calc(var(--panel-width) * 0.018);
+            }
+
+            .system-name {
+                font-weight: 600;
+            }
+
+            .system-desc {
+                font-size: calc(var(--panel-width) * 0.015);
+                color: #666;
+            }
+
+            .arrow-container {
+                position: relative;
+                width: 100%;
+                height: calc(var(--panel-width) * 0.06);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .arrow {
+                position: relative;
+                width: 50%;
+                height: 1px;
+                background-color: #0891b2;
+            }
+
+            .arrow::after {
+                content: "";
+                position: absolute;
+                right: 0;
+                top: -2px;
+                border-left: 3px solid #0891b2;
+                border-top: 2px solid transparent;
+                border-bottom: 2px solid transparent;
+            }
+
+            .msg-label {
+                position: absolute;
+                top: -7px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #0891b2;
+                color: white;
+                padding: calc(var(--panel-width) * 0.008)
+                    calc(var(--panel-width) * 0.02);
+                border-radius: calc(var(--panel-width) * 0.02);
+                font-size: calc(var(--panel-width) * 0.015);
+                white-space: nowrap;
+            }
+
+            .data-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: calc(var(--panel-width) * 0.02);
+                margin-top: calc(var(--panel-width) * 0.02);
+            }
+
+            .data-item {
+                font-size: calc(var(--panel-width) * 0.016);
+                color: #444;
+                line-height: 1.3;
+            }
+
+            .data-label {
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+            .impact-list {
+                list-style-type: none;
+            }
+
+            .two-column-layout {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+                margin-top: calc(var(--panel-width) * 0.02);
+            }
+
+            .column {
+                width: 48%;
+            }
+
+            .impact-item {
+                display: flex;
+                gap: calc(var(--panel-width) * 0.015);
+                margin-bottom: calc(var(--panel-width) * 0.015);
+                font-size: calc(var(--panel-width) * 0.016);
+                line-height: 1.2;
+                align-items: flex-start;
+            }
+
+            .impact-num {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: #0891b2;
+                color: white;
+                width: calc(var(--panel-width) * 0.03);
+                height: calc(var(--panel-width) * 0.03);
+                border-radius: 50%;
+                font-size: calc(var(--panel-width) * 0.015);
+                flex-shrink: 0;
+            }
+
+            .footer {
+                position: absolute;
+                bottom: calc(var(--panel-width) * 0.02);
+                width: calc(100% - (var(--panel-width) * 0.04));
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 calc(var(--panel-width) * 0.02);
+                left: 0;
+                right: 0;
+            }
+
+            .page-indicator {
+                font-size: calc(var(--panel-width) * 0.015);
+                color: #aaa;
+                background-color: rgba(255, 255, 255, 0.8);
+                padding: calc(var(--panel-width) * 0.005)
+                    calc(var(--panel-width) * 0.01);
+                border-radius: calc(var(--panel-width) * 0.01);
+            }
+
+            .watermark {
+                font-size: calc(var(--panel-width) * 0.015);
+                opacity: 0.5;
+                color: #aaa;
+                text-align: center;
+            }
+
+            .watermark-cover {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            @media print {
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background: none;
+                    display: block;
+                    gap: 0;
+                }
+
+                .panel-container {
+                    margin: 0;
+                    padding: 0;
+                    display: block;
+                    gap: 0;
+                }
+
+                .panel-page {
+                    margin: 0 auto;
+                    box-shadow: none;
+                    page-break-after: always;
+                    page-break-inside: avoid;
+                    break-inside: avoid;
+                    display: block;
+                }
+
+                .panel-page:last-child {
+                    page-break-after: avoid;
+                }
+
+                .controls-container,
+                .back-button {
+                    display: none !important;
+                }
+
+                body > *:not(.panel-container) {
+                    display: none !important;
+                }
+
+                @page {
+                    margin: 0;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+            }
+
+            .controls-container {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background-color: white;
+                padding: 15px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                z-index: 100;
+                width: 220px;
+            }
+
+            .controls-title {
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 10px;
+                color: #2c3e50;
+            }
+
+            .size-options {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .size-option {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .size-option label {
+                font-size: 14px;
+                cursor: pointer;
+            }
+
+            .print-btn {
+                width: 100%;
+                background-color: #0891b2;
+                color: white;
+                border: none;
+                padding: 8px;
+                border-radius: 5px;
+                font-weight: 500;
+                cursor: pointer;
+                margin-top: 12px;
+            }
+
+            .print-btn:hover {
+                background-color: #0e7490;
+            }
+
+            .back-button {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background-color: #0891b2;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 5px;
+                font-weight: 500;
+                cursor: pointer;
+                z-index: 100;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .back-button:hover {
+                background-color: #0e7490;
+            }
+
+            .panel-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
+                margin-top: 80px;
+            }
+
+            @media (max-width: 768px) {
+                .panel-container {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .controls-container {
+                    position: relative;
+                    top: 0;
+                    right: 0;
+                    width: 100%;
+                    max-width: 400px;
+                    margin-bottom: 20px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <a href="/" onclick="window.location.href='/#/reference-guides'; return false;" class="back-button">
+            <span>← Back to Reference Guides</span>
+        </a>
+
+        <!-- Print size controls - Only visible on screen -->
+        <div class="controls-container">
+            <div class="controls-title">Print Size Options</div>
+            <div class="size-options">
+                <div class="size-option">
+                    <input
+                        type="radio"
+                        id="creditCard"
+                        name="size"
+                        value="credit-card"
+                        checked
+                    />
+                    <label for="creditCard">Credit Card (86 × 54mm)</label>
+                </div>
+                <div class="size-option">
+                    <input
+                        type="radio"
+                        id="postcard"
+                        name="size"
+                        value="postcard"
+                    />
+                    <label for="postcard">Postcard (105 × 70mm)</label>
+                </div>
+                <div class="size-option">
+                    <input type="radio" id="a5" name="size" value="a5" />
+                    <label for="a5">A5 Size (148 × 105mm)</label>
+                </div>
+                <div class="size-option">
+                    <input type="radio" id="a4" name="size" value="a4" />
+                    <label for="a4">A4 Size (210 × 148mm)</label>
+                </div>
+            </div>
+            <button class="print-btn" id="printBtn">Print Guide</button>
+        </div>
+
+        <div class="panel-container size-credit-card">
+            <!-- Panel 1: Cover -->
+            <div class="panel-page">
+                <div class="panel-content panel-1">
+                    <div class="title">HL7 ADT Message</div>
+                    <div class="code-badge">A05</div>
+                    <div class="subtitle">
+                        Pre-admit a Patient<br />Mini Reference Guide
+                    </div>
+                    <div class="footer">
+                        <div class="watermark watermark-cover">
+                            R. Shethia 2025
+                        </div>
+                        <div class="page-indicator">1/4</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 2: Message Purpose & Details -->
+            <div class="panel-page">
+                <div class="panel-content">
+                    <div class="heading-container">
+                        <div class="heading">Message Purpose</div>
+                        <div class="heading-reference">ADT^A05</div>
+                    </div>
+                    <div class="content">
+                        Pre-admits a patient into the healthcare facility before their
+                        scheduled arrival. Used for planned admissions to prepare
+                        systems, allocate resources, and streamline the admission
+                        process when the patient arrives.
+                    </div>
+
+                    <div class="flow-diagram">
+                        <div class="system-boxes">
+                            <div class="system-box">
+                                <div class="system-name">Pre-Admission</div>
+                                <div class="system-desc">Source System</div>
+                            </div>
+                            <div class="system-box">
+                                <div class="system-name">HIS/EMR</div>
+                                <div class="system-desc">Target System</div>
+                            </div>
+                        </div>
+                        <div class="arrow-container">
+                            <div class="arrow"></div>
+                            <div class="msg-label">ADT^A05</div>
+                        </div>
+                    </div>
+
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <span class="data-label">Event:</span><br />
+                            Pre-admission Setup
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Timing:</span><br />
+                            Before arrival
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Direction:</span><br />
+                            Pre-admit → Systems
+                        </div>
+                        <div class="data-item">
+                            <span class="data-label">Frequency:</span><br />
+                            Per scheduled admission
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        <div class="watermark">R. Shethia 2025</div>
+                        <div class="page-indicator">2/4</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 3: Required Segments -->
+            <div class="panel-page">
+                <div class="panel-content">
+                    <div class="heading-container">
+                        <div class="heading">Required Segments</div>
+                        <div class="heading-reference">ADT^A05</div>
+                    </div>
+                    <div class="content">
+                        Core HL7 segments required for pre-admission messages:
+                    </div>
+
+                    <div class="two-column-layout">
+                        <div class="column">
+                            <ul class="impact-list">
+                                <li class="impact-item">
+                                    <div class="impact-num">M</div>
+                                    <div>
+                                        <strong>MSH</strong> - Message Header<br />
+                                        Pre-admission message info
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">M</div>
+                                    <div>
+                                        <strong>EVN</strong> - Event Type<br />
+                                        Pre-admission event details
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">M</div>
+                                    <div>
+                                        <strong>PID</strong> - Patient ID<br />
+                                        Patient demographics
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">O</div>
+                                    <div>
+                                        <strong>PD1</strong> - Patient Additional<br />
+                                        Additional patient data
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="column">
+                            <ul class="impact-list">
+                                <li class="impact-item">
+                                    <div class="impact-num">O</div>
+                                    <div>
+                                        <strong>ROL</strong> - Role<br />
+                                        Person roles/relationships
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">O</div>
+                                    <div>
+                                        <strong>NK1</strong> - Next of Kin<br />
+                                        Emergency contacts
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">M</div>
+                                    <div>
+                                        <strong>PV1</strong> - Patient Visit<br />
+                                        Planned visit information
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">O</div>
+                                    <div>
+                                        <strong>IN1</strong> - Insurance<br />
+                                        Insurance verification
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        <div class="watermark">R. Shethia 2025</div>
+                        <div class="page-indicator">3/4</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel 4: Integration Impact -->
+            <div class="panel-page">
+                <div class="panel-content">
+                    <div class="heading-container">
+                        <div class="heading">Integration Impact</div>
+                        <div class="heading-reference">ADT^A05</div>
+                    </div>
+                    <div class="content">
+                        Key impacts and considerations for pre-admission messages:
+                    </div>
+
+                    <div class="two-column-layout">
+                        <div class="column">
+                            <ul class="impact-list">
+                                <li class="impact-item">
+                                    <div class="impact-num">1</div>
+                                    <div>
+                                        Reserve bed/room
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">2</div>
+                                    <div>
+                                        Prepare clinical charts
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">3</div>
+                                    <div>
+                                        Verify insurance
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">4</div>
+                                    <div>
+                                        Schedule procedures
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="column">
+                            <ul class="impact-list">
+                                <li class="impact-item">
+                                    <div class="impact-num">5</div>
+                                    <div>
+                                        Allocate resources
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">6</div>
+                                    <div>
+                                        Notify departments
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">7</div>
+                                    <div>
+                                        Prep admission packet
+                                    </div>
+                                </li>
+                                <li class="impact-item">
+                                    <div class="impact-num">8</div>
+                                    <div>
+                                        Update census forecast
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        <div class="watermark">R. Shethia 2025</div>
+                        <div class="page-indicator">4/4</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Function to handle size changes
+            function changePanelSize(size) {
+                const container = document.querySelector(".panel-container");
+                // Remove all size classes
+                container.classList.remove(
+                    "size-credit-card",
+                    "size-postcard",
+                    "size-a5",
+                    "size-a4"
+                );
+                // Add the new size class
+                container.classList.add("size-" + size);
+            }
+
+            // Add event listeners to radio buttons
+            document.querySelectorAll('input[name="size"]').forEach((radio) => {
+                radio.addEventListener("change", function () {
+                    if (this.checked) {
+                        changePanelSize(this.value);
+                    }
+                });
+            });
+
+            // Print functionality
+            document.getElementById("printBtn").addEventListener("click", function () {
+                window.print();
+            });
+        </script>
+    </body>
+</html>
