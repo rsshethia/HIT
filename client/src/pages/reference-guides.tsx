@@ -251,10 +251,15 @@ export default function ReferenceGuidesPage() {
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Notification of Appointment Rescheduling</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Reschedule appointments</td>
                       <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                        <span className="text-gray-400 flex items-center">
-                          <span className="material-icons text-sm mr-1">schedule</span>
-                          Coming soon
-                        </span>
+                        <a 
+                          href="/guides/siu-s13-guide.html" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary-700 flex items-center"
+                        >
+                          <span className="material-icons text-sm mr-1">picture_as_pdf</span>
+                          View Guide
+                        </a>
                       </td>
                     </tr>
                     <tr>
