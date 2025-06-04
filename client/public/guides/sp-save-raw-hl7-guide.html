@@ -3,31 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL T-SQL Stored Procedure - Save RAW HL7 Message</title>
+    <title>HL7 Message Storage Solutions - sp_SaveRawHL7Message</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-
+        
         body {
-            font-family: "Roboto", sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            gap: 30px;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+            color: #1f2937;
+            line-height: 1.5;
         }
-
+        
         .back-button {
             position: fixed;
             top: 20px;
             left: 20px;
-            background-color: #1e40af;
+            background-color: #4f46e5;
             color: white;
             border: none;
             padding: 10px 15px;
@@ -42,106 +37,228 @@
         }
 
         .back-button:hover {
-            background-color: #1d4ed8;
+            background-color: #4338ca;
         }
-
+        
         .container {
-            max-width: 800px;
-            width: 100%;
-            margin-top: 80px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            margin-top: 60px;
         }
-
+        
         .header {
             text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 2.5rem;
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
         }
-
-        .title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1e40af;
-            margin-bottom: 10px;
+        
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.625rem;
+            line-height: 1.25;
         }
-
-        .procedure-name {
-            font-size: 24px;
-            font-weight: 600;
-            color: #374151;
-            background-color: #f3f4f6;
-            padding: 10px 20px;
-            border-radius: 8px;
-            display: inline-block;
-            font-family: 'Courier New', monospace;
-        }
-
-        .subtitle {
-            font-size: 18px;
-            color: #6b7280;
-            margin-top: 15px;
-        }
-
-        .coming-soon {
-            text-align: center;
-            margin: 60px 0;
-            padding: 40px;
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            border-radius: 10px;
-            border: 2px dashed #9ca3af;
-        }
-
-        .coming-soon-icon {
-            font-size: 64px;
-            color: #9ca3af;
-            margin-bottom: 20px;
-        }
-
-        .coming-soon-text {
-            font-size: 24px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 10px;
-        }
-
-        .coming-soon-desc {
-            font-size: 16px;
-            color: #6b7280;
-            line-height: 1.6;
-        }
-
-        .placeholder-content {
-            margin: 30px 0;
-            padding: 20px;
-            background-color: #fef3c7;
-            border: 1px solid #f59e0b;
-            border-radius: 8px;
-        }
-
-        .placeholder-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #92400e;
-            margin-bottom: 10px;
-        }
-
-        .placeholder-desc {
-            font-size: 14px;
-            color: #78350f;
+        
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
             line-height: 1.5;
         }
-
-        .footer {
+        
+        .solutions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .solution-card {
+            background: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid #f3f4f6;
+        }
+        
+        .solution-header {
+            padding: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-engineer {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+        
+        .data-scientist {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+        
+        .solution-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.25;
+        }
+        
+        .solution-content {
+            padding: 1.5rem;
+        }
+        
+        .diagram-container {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
             text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-            color: #9ca3af;
-            font-size: 14px;
+        }
+        
+        .diagram {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .diagram-title {
+            font-weight: 600;
+            margin-bottom: 0.9375rem;
+            color: #374151;
+        }
+        
+        .flow-item {
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .flow-item:hover {
+            border-color: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #6b7280;
+            margin: 0.5rem 0;
+        }
+        
+        .code-container {
+            background: #1e293b;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
+            overflow-x: auto;
+        }
+        
+        .code-header {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-bottom: 0.9375rem;
+            font-weight: 600;
+        }
+        
+        .code {
+            color: #e2e8f0;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .keyword { color: #60a5fa; }
+        .string { color: #34d399; }
+        .comment { color: #94a3b8; font-style: italic; }
+        .function { color: #fbbf24; }
+        .type { color: #a78bfa; }
+        
+        .features {
+            background: #f8fafc;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .features h4 {
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .features li {
+            padding: 0.25rem 0;
+            color: #6b7280;
+        }
+        
+        .features li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .comparison {
+            background: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .comparison h3 {
+            color: #1f2937;
+            margin-bottom: 1.25rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+        
+        .comparison-item {
+            padding: 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .engineer-focus { background: #ecfdf5; border-color: #10b981; }
+        .scientist-focus { background: #fef2f2; border-color: #ef4444; }
+        
+        @media (max-width: 768px) {
+            .solutions-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
@@ -152,34 +269,264 @@
 
     <div class="container">
         <div class="header">
-            <div class="title">SQL T-SQL Stored Procedure</div>
-            <div class="procedure-name">sp_SaveRawHL7Message</div>
-            <div class="subtitle">Save RAW HL7 Message</div>
+            <h1>🏥 HL7 Message Storage Solutions</h1>
+            <p>Comprehensive approaches for audit and real-time processing</p>
         </div>
-
-        <div class="coming-soon">
-            <div class="coming-soon-icon">🚧</div>
-            <div class="coming-soon-text">Coming Soon</div>
-            <div class="coming-soon-desc">
-                This comprehensive SQL T-SQL stored procedure guide is currently under development.<br>
-                The guide will include complete procedure code, parameter explanations, error handling, and implementation examples.
+        
+        <div class="solutions-grid">
+            <!-- Data Engineer Solution -->
+            <div class="solution-card">
+                <div class="solution-header data-engineer">
+                    <h2>🔧 Data Engineer Solution</h2>
+                    <p>Focus: Reliability, Performance, and Scalability</p>
+                </div>
+                
+                <div class="solution-content">
+                    <div class="diagram-container">
+                        <div class="diagram-title">System Architecture Flow</div>
+                        <div class="diagram">
+                            <div class="flow-item" style="background: #dbeafe; border-color: #3b82f6;">
+                                <strong>Integration Engine</strong><br>
+                                <small>Receives HL7 Messages</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #dcfce7; border-color: #22c55e;">
+                                <strong>Message Validator</strong><br>
+                                <small>Schema & Format Validation</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #fef3c7; border-color: #f59e0b;">
+                                <strong>Stored Procedure</strong><br>
+                                <small>sp_SaveRawHL7Message</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #e0e7ff; border-color: #6366f1;">
+                                <strong>SQL Database</strong><br>
+                                <small>Optimized Tables & Indexes</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #fce7f3; border-color: #ec4899;">
+                                <strong>MVC Web App</strong><br>
+                                <small>Real-time Dashboard</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="features">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>High-performance table design with proper indexing</li>
+                            <li>Atomic transactions with rollback capability</li>
+                            <li>Comprehensive error handling and logging</li>
+                            <li>Optimized for concurrent message processing</li>
+                            <li>Built-in data retention and archival strategy</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Scientist Solution -->
+            <div class="solution-card">
+                <div class="solution-header data-scientist">
+                    <h2>📊 Data Scientist Solution</h2>
+                    <p>Focus: Analytics, ML-Ready Data, and Insights</p>
+                </div>
+                
+                <div class="solution-content">
+                    <div class="diagram-container">
+                        <div class="diagram-title">Analytics-Driven Architecture</div>
+                        <div class="diagram">
+                            <div class="flow-item" style="background: #dbeafe; border-color: #3b82f6;">
+                                <strong>Integration Engine</strong><br>
+                                <small>Receives HL7 Messages</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #fef3c7; border-color: #f59e0b;">
+                                <strong>ML Enrichment Pipeline</strong><br>
+                                <small>Feature Extraction & Classification</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #dcfce7; border-color: #22c55e;">
+                                <strong>Analytics Stored Procedure</strong><br>
+                                <small>usp_StoreHL7MessageAnalytics</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #e0e7ff; border-color: #6366f1;">
+                                <strong>Analytical Database</strong><br>
+                                <small>Star Schema & Data Warehouse</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #fce7f3; border-color: #ec4899;">
+                                <strong>Analytics Dashboard</strong><br>
+                                <small>ML Insights & Predictions</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="features">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>Machine learning-ready data structures</li>
+                            <li>Real-time anomaly detection and alerting</li>
+                            <li>Automated pattern recognition and classification</li>
+                            <li>Predictive analytics for message volumes</li>
+                            <li>Data quality scoring and monitoring</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="placeholder-content">
-            <div class="placeholder-title">Planned Content:</div>
-            <div class="placeholder-desc">
-                • Complete T-SQL stored procedure code for saving raw HL7 messages<br>
-                • Parameter documentation and data types<br>
-                • Error handling and validation logic<br>
-                • Table schema requirements<br>
-                • Usage examples and integration patterns<br>
-                • Performance considerations and indexing recommendations
+        
+        <!-- Data Engineer SQL -->
+        <div class="solution-card">
+            <div class="solution-header data-engineer">
+                <h2>🔧 Data Engineer - T-SQL Implementation</h2>
             </div>
-        </div>
+            <div class="solution-content">
+                <div class="code-container">
+                    <div class="code-header">Table Structure & Stored Procedure</div>
+                    <div class="code"><span class="comment">-- Data Engineer Approach: Optimized for Performance and Reliability</span>
 
-        <div class="footer">
-            R. Shethia 2025 - HIT Platform SQL Reference Guide
+<span class="comment">-- Create main HL7 messages table with performance optimizations</span>
+<span class="keyword">CREATE TABLE</span> <span class="type">dbo.HL7_Messages</span> (
+    <span class="type">MessageID</span> <span class="keyword">BIGINT IDENTITY(1,1)</span> <span class="keyword">PRIMARY KEY</span>,
+    <span class="type">MessageControlID</span> <span class="keyword">VARCHAR(50)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">MessageType</span> <span class="keyword">VARCHAR(10)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">MessageEvent</span> <span class="keyword">VARCHAR(10)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">SendingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">SendingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">ReceivingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">ReceivingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">MessageTimestamp</span> <span class="keyword">DATETIME2(3)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">ProcessedTimestamp</span> <span class="keyword">DATETIME2(3)</span> <span class="keyword">DEFAULT GETUTCDATE()</span>,
+    <span class="type">RawMessage</span> <span class="keyword">NVARCHAR(MAX)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">MessageSize</span> <span class="keyword">INT</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">ProcessingStatus</span> <span class="keyword">VARCHAR(20)</span> <span class="keyword">DEFAULT</span> <span class="string">'RECEIVED'</span>,
+    <span class="type">ErrorMessage</span> <span class="keyword">NVARCHAR(500)</span>,
+    <span class="type">RetryCount</span> <span class="keyword">INT DEFAULT 0</span>,
+    <span class="type">PartitionDate</span> <span class="keyword">AS</span> <span class="function">CAST</span>(<span class="type">MessageTimestamp</span> <span class="keyword">AS DATE</span>) <span class="keyword">PERSISTED</span>,
+    <span class="type">MessageHash</span> <span class="keyword">VARBINARY(32)</span> <span class="comment">-- For duplicate detection</span>
+);
+
+<span class="comment">-- Performance indexes</span>
+<span class="keyword">CREATE NONCLUSTERED INDEX</span> <span class="type">IX_HL7_Messages_MessageType_Timestamp</span> 
+<span class="keyword">ON</span> <span class="type">dbo.HL7_Messages</span> (<span class="type">MessageType</span>, <span class="type">MessageTimestamp</span>);
+
+<span class="keyword">CREATE NONCLUSTERED INDEX</span> <span class="type">IX_HL7_Messages_ControlID</span> 
+<span class="keyword">ON</span> <span class="type">dbo.HL7_Messages</span> (<span class="type">MessageControlID</span>) 
+<span class="keyword">INCLUDE</span> (<span class="type">ProcessingStatus</span>, <span class="type">MessageTimestamp</span>);
+
+<span class="keyword">CREATE NONCLUSTERED INDEX</span> <span class="type">IX_HL7_Messages_ProcessingStatus</span> 
+<span class="keyword">ON</span> <span class="type">dbo.HL7_Messages</span> (<span class="type">ProcessingStatus</span>, <span class="type">ProcessedTimestamp</span>);
+
+<span class="comment">-- Audit table for tracking changes</span>
+<span class="keyword">CREATE TABLE</span> <span class="type">dbo.HL7_Message_Audit</span> (
+    <span class="type">AuditID</span> <span class="keyword">BIGINT IDENTITY(1,1)</span> <span class="keyword">PRIMARY KEY</span>,
+    <span class="type">MessageID</span> <span class="keyword">BIGINT</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">Action</span> <span class="keyword">VARCHAR(20)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">AuditTimestamp</span> <span class="keyword">DATETIME2(3)</span> <span class="keyword">DEFAULT GETUTCDATE()</span>,
+    <span class="type">UserContext</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">Details</span> <span class="keyword">NVARCHAR(500)</span>
+);
+
+<span class="comment">-- Main stored procedure for message storage</span>
+<span class="keyword">CREATE OR ALTER PROCEDURE</span> <span class="function">sp_SaveRawHL7Message</span>
+    <span class="type">@MessageControlID</span> <span class="keyword">VARCHAR(50)</span>,
+    <span class="type">@MessageType</span> <span class="keyword">VARCHAR(10)</span>,
+    <span class="type">@MessageEvent</span> <span class="keyword">VARCHAR(10)</span>,
+    <span class="type">@SendingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@SendingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@ReceivingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@ReceivingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@MessageTimestamp</span> <span class="keyword">DATETIME2(3)</span>,
+    <span class="type">@RawMessage</span> <span class="keyword">NVARCHAR(MAX)</span>,
+    <span class="type">@MessageID</span> <span class="keyword">BIGINT</span> <span class="keyword">OUTPUT</span>
+<span class="keyword">AS</span>
+<span class="keyword">BEGIN</span>
+    <span class="keyword">SET NOCOUNT ON</span>;
+    <span class="keyword">SET XACT_ABORT ON</span>;
+    
+    <span class="keyword">DECLARE</span> <span class="type">@ErrorMessage</span> <span class="keyword">NVARCHAR(500)</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@MessageSize</span> <span class="keyword">INT</span> = <span class="function">LEN</span>(<span class="type">@RawMessage</span>);
+    <span class="keyword">DECLARE</span> <span class="type">@MessageHash</span> <span class="keyword">VARBINARY(32)</span> = <span class="function">HASHBYTES</span>(<span class="string">'SHA2_256'</span>, <span class="type">@RawMessage</span>);
+    <span class="keyword">DECLARE</span> <span class="type">@DuplicateExists</span> <span class="keyword">BIT</span> = 0;
+    
+    <span class="keyword">BEGIN TRY</span>
+        <span class="keyword">BEGIN TRANSACTION</span>;
+        
+        <span class="comment">-- Check for duplicate messages</span>
+        <span class="keyword">IF EXISTS</span> (
+            <span class="keyword">SELECT</span> 1 <span class="keyword">FROM</span> <span class="type">dbo.HL7_Messages</span> 
+            <span class="keyword">WHERE</span> <span class="type">MessageControlID</span> = <span class="type">@MessageControlID</span> 
+               <span class="keyword">OR</span> <span class="type">MessageHash</span> = <span class="type">@MessageHash</span>
+        )
+        <span class="keyword">BEGIN</span>
+            <span class="keyword">SET</span> <span class="type">@DuplicateExists</span> = 1;
+            <span class="function">RAISERROR</span>(<span class="string">'Duplicate message detected'</span>, 16, 1);
+        <span class="keyword">END</span>;
+        
+        <span class="comment">-- Validate required fields</span>
+        <span class="keyword">IF</span> <span class="type">@MessageControlID</span> <span class="keyword">IS NULL OR</span> <span class="function">TRIM</span>(<span class="type">@MessageControlID</span>) = <span class="string">''</span>
+            <span class="function">RAISERROR</span>(<span class="string">'MessageControlID is required'</span>, 16, 1);
+            
+        <span class="keyword">IF</span> <span class="type">@RawMessage</span> <span class="keyword">IS NULL OR</span> <span class="function">LEN</span>(<span class="type">@RawMessage</span>) = 0
+            <span class="function">RAISERROR</span>(<span class="string">'RawMessage cannot be empty'</span>, 16, 1);
+        
+        <span class="comment">-- Insert the message</span>
+        <span class="keyword">INSERT INTO</span> <span class="type">dbo.HL7_Messages</span> (
+            <span class="type">MessageControlID</span>, <span class="type">MessageType</span>, <span class="type">MessageEvent</span>,
+            <span class="type">SendingApplication</span>, <span class="type">SendingFacility</span>,
+            <span class="type">ReceivingApplication</span>, <span class="type">ReceivingFacility</span>,
+            <span class="type">MessageTimestamp</span>, <span class="type">RawMessage</span>, <span class="type">MessageSize</span>,
+            <span class="type">MessageHash</span>, <span class="type">ProcessingStatus</span>
+        )
+        <span class="keyword">VALUES</span> (
+            <span class="type">@MessageControlID</span>, <span class="type">@MessageType</span>, <span class="type">@MessageEvent</span>,
+            <span class="type">@SendingApplication</span>, <span class="type">@SendingFacility</span>,
+            <span class="type">@ReceivingApplication</span>, <span class="type">@ReceivingFacility</span>,
+            <span class="type">@MessageTimestamp</span>, <span class="type">@RawMessage</span>, <span class="type">@MessageSize</span>,
+            <span class="type">@MessageHash</span>, <span class="string">'STORED'</span>
+        );
+        
+        <span class="keyword">SET</span> <span class="type">@MessageID</span> = <span class="function">SCOPE_IDENTITY()</span>;
+        
+        <span class="comment">-- Log audit entry</span>
+        <span class="keyword">INSERT INTO</span> <span class="type">dbo.HL7_Message_Audit</span> (<span class="type">MessageID</span>, <span class="type">Action</span>, <span class="type">Details</span>)
+        <span class="keyword">VALUES</span> (<span class="type">@MessageID</span>, <span class="string">'INSERT'</span>, <span class="function">CONCAT</span>(<span class="string">'Message stored successfully. Size: '</span>, <span class="type">@MessageSize</span>, <span class="string">' bytes'</span>));
+        
+        <span class="keyword">COMMIT TRANSACTION</span>;
+        
+        <span class="comment">-- Return success information</span>
+        <span class="keyword">SELECT</span> 
+            <span class="type">@MessageID</span> <span class="keyword">AS</span> <span class="type">MessageID</span>,
+            <span class="string">'SUCCESS'</span> <span class="keyword">AS</span> <span class="type">Status</span>,
+            <span class="string">'Message stored successfully'</span> <span class="keyword">AS</span> <span class="type">Message</span>;
+            
+    <span class="keyword">END TRY</span>
+    <span class="keyword">BEGIN CATCH</span>
+        <span class="keyword">IF</span> <span class="function">@@TRANCOUNT</span> > 0
+            <span class="keyword">ROLLBACK TRANSACTION</span>;
+            
+        <span class="keyword">SET</span> <span class="type">@ErrorMessage</span> = <span class="function">ERROR_MESSAGE()</span>;
+        
+        <span class="comment">-- Log error if not a duplicate</span>
+        <span class="keyword">IF</span> <span class="type">@DuplicateExists</span> = 0
+        <span class="keyword">BEGIN</span>
+            <span class="keyword">INSERT INTO</span> <span class="type">dbo.HL7_Message_Audit</span> (<span class="type">MessageID</span>, <span class="type">Action</span>, <span class="type">Details</span>)
+            <span class="keyword">VALUES</span> (0, <span class="string">'ERROR'</span>, <span class="function">CONCAT</span>(<span class="string">'Failed to store message: '</span>, <span class="type">@ErrorMessage</span>));
+        <span class="keyword">END</span>;
+        
+        <span class="comment">-- Return error information</span>
+        <span class="keyword">SELECT</span> 
+            -1 <span class="keyword">AS</span> <span class="type">MessageID</span>,
+            <span class="string">'ERROR'</span> <span class="keyword">AS</span> <span class="type">Status</span>,
+            <span class="type">@ErrorMessage</span> <span class="keyword">AS</span> <span class="type">Message</span>;
+            
+        <span class="function">RAISERROR</span>(<span class="type">@ErrorMessage</span>, 16, 1);
+    <span class="keyword">END CATCH</span>;
+<span class="keyword">END</span>;</div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

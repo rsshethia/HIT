@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HL7 Message Storage Solutions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+            color: #1f2937;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.625rem;
+            line-height: 1.25;
+        }
+        
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .solutions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .solution-card {
+            background: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid #f3f4f6;
+        }
+        
+        .solution-header {
+            padding: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .data-engineer {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+        
+        .data-scientist {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+        
+        .solution-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.25;
+        }
+        
+        .solution-content {
+            padding: 1.5rem;
+        }
+        
+        .diagram-container {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
+            text-align: center;
+        }
+        
+        .diagram {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .diagram-title {
+            font-weight: 600;
+            margin-bottom: 0.9375rem;
+            color: #374151;
+        }
+        
+        .flow-item {
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .flow-item:hover {
+            border-color: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .flow-arrow {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #6b7280;
+            margin: 0.5rem 0;
+        }
+        
+        .code-container {
+            background: #1e293b;
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin: 1.25rem 0;
+            overflow-x: auto;
+        }
+        
+        .code-header {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-bottom: 0.9375rem;
+            font-weight: 600;
+        }
+        
+        .code {
+            color: #e2e8f0;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .keyword { color: #60a5fa; }
+        .string { color: #34d399; }
+        .comment { color: #94a3b8; font-style: italic; }
+        .function { color: #fbbf24; }
+        .type { color: #a78bfa; }
+        
+        .features {
+            background: #f8fafc;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .features h4 {
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .features li {
+            padding: 0.25rem 0;
+            color: #6b7280;
+        }
+        
+        .features li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .comparison {
+            background: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .comparison h3 {
+            color: #1f2937;
+            margin-bottom: 1.25rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+        
+        .comparison-item {
+            padding: 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .engineer-focus { background: #ecfdf5; border-color: #10b981; }
+        .scientist-focus { background: #fef2f2; border-color: #ef4444; }
+        
+        @media (max-width: 768px) {
+            .solutions-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 HL7 Message Storage Solutions</h1>
+            <p>Comprehensive approaches for audit and real-time processing</p>
+        </div>
+        
+        <div class="solutions-grid">
+            <!-- Data Engineer Solution -->
+            <div class="solution-card">
+                <div class="solution-header data-engineer">
+                    <h2>🔧 Data Engineer Solution</h2>
+                    <p>Focus: Reliability, Performance, and Scalability</p>
+                </div>
+                
+                <div class="solution-content">
+                    <div class="diagram-container">
+                        <div class="diagram-title">System Architecture Flow</div>
+                        <div class="diagram">
+                            <div class="flow-item" style="background: #dbeafe; border-color: #3b82f6;">
+                                <strong>Integration Engine</strong><br>
+                                <small>Receives HL7 Messages</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #dcfce7; border-color: #22c55e;">
+                                <strong>Message Validator</strong><br>
+                                <small>Schema & Format Validation</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #fef3c7; border-color: #f59e0b;">
+                                <strong>Stored Procedure</strong><br>
+                                <small>sp_SaveRawHL7Message</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #e0e7ff; border-color: #6366f1;">
+                                <strong>SQL Database</strong><br>
+                                <small>Optimized Tables & Indexes</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #fce7f3; border-color: #ec4899;">
+                                <strong>MVC Web App</strong><br>
+                                <small>Real-time Dashboard</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="features">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>High-performance table design with proper indexing</li>
+                            <li>Atomic transactions with rollback capability</li>
+                            <li>Comprehensive error handling and logging</li>
+                            <li>Optimized for concurrent message processing</li>
+                            <li>Built-in data retention and archival strategy</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Scientist Solution -->
+            <div class="solution-card">
+                <div class="solution-header data-scientist">
+                    <h2>📊 Data Scientist Solution</h2>
+                    <p>Focus: Analytics, ML-Ready Data, and Insights</p>
+                </div>
+                
+                <div class="solution-content">
+                    <div class="diagram-container">
+                        <div class="diagram-title">Analytics-Driven Architecture</div>
+                        <div class="diagram">
+                            <div class="flow-item" style="background: #dbeafe; border-color: #3b82f6;">
+                                <strong>Integration Engine</strong><br>
+                                <small>Receives HL7 Messages</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #fef3c7; border-color: #f59e0b;">
+                                <strong>ML Enrichment Pipeline</strong><br>
+                                <small>Feature Extraction & Classification</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #dcfce7; border-color: #22c55e;">
+                                <strong>Analytics Stored Procedure</strong><br>
+                                <small>usp_StoreHL7MessageAnalytics</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #e0e7ff; border-color: #6366f1;">
+                                <strong>Analytical Database</strong><br>
+                                <small>Star Schema & Data Warehouse</small>
+                            </div>
+                            <div class="flow-arrow">⬇️</div>
+                            <div class="flow-item" style="background: #fce7f3; border-color: #ec4899;">
+                                <strong>Analytics Dashboard</strong><br>
+                                <small>ML Insights & Predictions</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="features">
+                        <h4>Key Features:</h4>
+                        <ul>
+                            <li>Machine learning-ready data structures</li>
+                            <li>Real-time anomaly detection and alerting</li>
+                            <li>Automated pattern recognition and classification</li>
+                            <li>Predictive analytics for message volumes</li>
+                            <li>Data quality scoring and monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Engineer SQL -->
+        <div class="solution-card">
+            <div class="solution-header data-engineer">
+                <h2>🔧 Data Engineer - T-SQL Implementation</h2>
+            </div>
+            <div class="solution-content">
+                <div class="code-container">
+                    <div class="code-header">Table Structure & Stored Procedure</div>
+                    <div class="code"><span class="comment">-- Data Engineer Approach: Optimized for Performance and Reliability</span>
+
+<span class="comment">-- Create main HL7 messages table with performance optimizations</span>
+<span class="keyword">CREATE TABLE</span> <span class="type">dbo.HL7_Messages</span> (
+    <span class="type">MessageID</span> <span class="keyword">BIGINT IDENTITY(1,1)</span> <span class="keyword">PRIMARY KEY</span>,
+    <span class="type">MessageControlID</span> <span class="keyword">VARCHAR(50)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">MessageType</span> <span class="keyword">VARCHAR(10)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">MessageEvent</span> <span class="keyword">VARCHAR(10)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">SendingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">SendingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">ReceivingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">ReceivingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">MessageTimestamp</span> <span class="keyword">DATETIME2(3)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">ProcessedTimestamp</span> <span class="keyword">DATETIME2(3)</span> <span class="keyword">DEFAULT GETUTCDATE()</span>,
+    <span class="type">RawMessage</span> <span class="keyword">NVARCHAR(MAX)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">MessageSize</span> <span class="keyword">INT</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">ProcessingStatus</span> <span class="keyword">VARCHAR(20)</span> <span class="keyword">DEFAULT</span> <span class="string">'RECEIVED'</span>,
+    <span class="type">ErrorMessage</span> <span class="keyword">NVARCHAR(500)</span>,
+    <span class="type">RetryCount</span> <span class="keyword">INT DEFAULT 0</span>,
+    <span class="type">PartitionDate</span> <span class="keyword">AS</span> <span class="function">CAST</span>(<span class="type">MessageTimestamp</span> <span class="keyword">AS DATE</span>) <span class="keyword">PERSISTED</span>,
+    <span class="type">MessageHash</span> <span class="keyword">VARBINARY(32)</span> <span class="comment">-- For duplicate detection</span>
+);
+
+<span class="comment">-- Performance indexes</span>
+<span class="keyword">CREATE NONCLUSTERED INDEX</span> <span class="type">IX_HL7_Messages_MessageType_Timestamp</span> 
+<span class="keyword">ON</span> <span class="type">dbo.HL7_Messages</span> (<span class="type">MessageType</span>, <span class="type">MessageTimestamp</span>);
+
+<span class="keyword">CREATE NONCLUSTERED INDEX</span> <span class="type">IX_HL7_Messages_ControlID</span> 
+<span class="keyword">ON</span> <span class="type">dbo.HL7_Messages</span> (<span class="type">MessageControlID</span>) 
+<span class="keyword">INCLUDE</span> (<span class="type">ProcessingStatus</span>, <span class="type">MessageTimestamp</span>);
+
+<span class="keyword">CREATE NONCLUSTERED INDEX</span> <span class="type">IX_HL7_Messages_ProcessingStatus</span> 
+<span class="keyword">ON</span> <span class="type">dbo.HL7_Messages</span> (<span class="type">ProcessingStatus</span>, <span class="type">ProcessedTimestamp</span>);
+
+<span class="comment">-- Audit table for tracking changes</span>
+<span class="keyword">CREATE TABLE</span> <span class="type">dbo.HL7_Message_Audit</span> (
+    <span class="type">AuditID</span> <span class="keyword">BIGINT IDENTITY(1,1)</span> <span class="keyword">PRIMARY KEY</span>,
+    <span class="type">MessageID</span> <span class="keyword">BIGINT</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">Action</span> <span class="keyword">VARCHAR(20)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">AuditTimestamp</span> <span class="keyword">DATETIME2(3)</span> <span class="keyword">DEFAULT GETUTCDATE()</span>,
+    <span class="type">UserContext</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">Details</span> <span class="keyword">NVARCHAR(500)</span>
+);
+
+<span class="comment">-- Main stored procedure for message storage</span>
+<span class="keyword">CREATE OR ALTER PROCEDURE</span> <span class="function">sp_SaveRawHL7Message</span>
+    <span class="type">@MessageControlID</span> <span class="keyword">VARCHAR(50)</span>,
+    <span class="type">@MessageType</span> <span class="keyword">VARCHAR(10)</span>,
+    <span class="type">@MessageEvent</span> <span class="keyword">VARCHAR(10)</span>,
+    <span class="type">@SendingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@SendingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@ReceivingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@ReceivingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@MessageTimestamp</span> <span class="keyword">DATETIME2(3)</span>,
+    <span class="type">@RawMessage</span> <span class="keyword">NVARCHAR(MAX)</span>,
+    <span class="type">@MessageID</span> <span class="keyword">BIGINT</span> <span class="keyword">OUTPUT</span>
+<span class="keyword">AS</span>
+<span class="keyword">BEGIN</span>
+    <span class="keyword">SET NOCOUNT ON</span>;
+    <span class="keyword">SET XACT_ABORT ON</span>;
+    
+    <span class="keyword">DECLARE</span> <span class="type">@ErrorMessage</span> <span class="keyword">NVARCHAR(500)</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@MessageSize</span> <span class="keyword">INT</span> = <span class="function">LEN</span>(<span class="type">@RawMessage</span>);
+    <span class="keyword">DECLARE</span> <span class="type">@MessageHash</span> <span class="keyword">VARBINARY(32)</span> = <span class="function">HASHBYTES</span>(<span class="string">'SHA2_256'</span>, <span class="type">@RawMessage</span>);
+    <span class="keyword">DECLARE</span> <span class="type">@DuplicateExists</span> <span class="keyword">BIT</span> = 0;
+    
+    <span class="keyword">BEGIN TRY</span>
+        <span class="keyword">BEGIN TRANSACTION</span>;
+        
+        <span class="comment">-- Check for duplicate messages</span>
+        <span class="keyword">IF EXISTS</span> (
+            <span class="keyword">SELECT</span> 1 <span class="keyword">FROM</span> <span class="type">dbo.HL7_Messages</span> 
+            <span class="keyword">WHERE</span> <span class="type">MessageControlID</span> = <span class="type">@MessageControlID</span> 
+               <span class="keyword">OR</span> <span class="type">MessageHash</span> = <span class="type">@MessageHash</span>
+        )
+        <span class="keyword">BEGIN</span>
+            <span class="keyword">SET</span> <span class="type">@DuplicateExists</span> = 1;
+            <span class="function">RAISERROR</span>(<span class="string">'Duplicate message detected'</span>, 16, 1);
+        <span class="keyword">END</span>;
+        
+        <span class="comment">-- Validate required fields</span>
+        <span class="keyword">IF</span> <span class="type">@MessageControlID</span> <span class="keyword">IS NULL OR</span> <span class="function">TRIM</span>(<span class="type">@MessageControlID</span>) = <span class="string">''</span>
+            <span class="function">RAISERROR</span>(<span class="string">'MessageControlID is required'</span>, 16, 1);
+            
+        <span class="keyword">IF</span> <span class="type">@RawMessage</span> <span class="keyword">IS NULL OR</span> <span class="function">LEN</span>(<span class="type">@RawMessage</span>) = 0
+            <span class="function">RAISERROR</span>(<span class="string">'RawMessage cannot be empty'</span>, 16, 1);
+        
+        <span class="comment">-- Insert the message</span>
+        <span class="keyword">INSERT INTO</span> <span class="type">dbo.HL7_Messages</span> (
+            <span class="type">MessageControlID</span>, <span class="type">MessageType</span>, <span class="type">MessageEvent</span>,
+            <span class="type">SendingApplication</span>, <span class="type">SendingFacility</span>,
+            <span class="type">ReceivingApplication</span>, <span class="type">ReceivingFacility</span>,
+            <span class="type">MessageTimestamp</span>, <span class="type">RawMessage</span>, <span class="type">MessageSize</span>,
+            <span class="type">MessageHash</span>, <span class="type">ProcessingStatus</span>
+        )
+        <span class="keyword">VALUES</span> (
+            <span class="type">@MessageControlID</span>, <span class="type">@MessageType</span>, <span class="type">@MessageEvent</span>,
+            <span class="type">@SendingApplication</span>, <span class="type">@SendingFacility</span>,
+            <span class="type">@ReceivingApplication</span>, <span class="type">@ReceivingFacility</span>,
+            <span class="type">@MessageTimestamp</span>, <span class="type">@RawMessage</span>, <span class="type">@MessageSize</span>,
+            <span class="type">@MessageHash</span>, <span class="string">'STORED'</span>
+        );
+        
+        <span class="keyword">SET</span> <span class="type">@MessageID</span> = <span class="function">SCOPE_IDENTITY()</span>;
+        
+        <span class="comment">-- Log audit entry</span>
+        <span class="keyword">INSERT INTO</span> <span class="type">dbo.HL7_Message_Audit</span> (<span class="type">MessageID</span>, <span class="type">Action</span>, <span class="type">Details</span>)
+        <span class="keyword">VALUES</span> (<span class="type">@MessageID</span>, <span class="string">'INSERT'</span>, <span class="function">CONCAT</span>(<span class="string">'Message stored successfully. Size: '</span>, <span class="type">@MessageSize</span>, <span class="string">' bytes'</span>));
+        
+        <span class="keyword">COMMIT TRANSACTION</span>;
+        
+        <span class="comment">-- Return success information</span>
+        <span class="keyword">SELECT</span> 
+            <span class="type">@MessageID</span> <span class="keyword">AS</span> <span class="type">MessageID</span>,
+            <span class="string">'SUCCESS'</span> <span class="keyword">AS</span> <span class="type">Status</span>,
+            <span class="string">'Message stored successfully'</span> <span class="keyword">AS</span> <span class="type">Message</span>;
+            
+    <span class="keyword">END TRY</span>
+    <span class="keyword">BEGIN CATCH</span>
+        <span class="keyword">IF</span> <span class="function">@@TRANCOUNT</span> > 0
+            <span class="keyword">ROLLBACK TRANSACTION</span>;
+            
+        <span class="keyword">SET</span> <span class="type">@ErrorMessage</span> = <span class="function">ERROR_MESSAGE()</span>;
+        
+        <span class="comment">-- Log error if not a duplicate</span>
+        <span class="keyword">IF</span> <span class="type">@DuplicateExists</span> = 0
+        <span class="keyword">BEGIN</span>
+            <span class="keyword">INSERT INTO</span> <span class="type">dbo.HL7_Message_Audit</span> (<span class="type">MessageID</span>, <span class="type">Action</span>, <span class="type">Details</span>)
+            <span class="keyword">VALUES</span> (0, <span class="string">'ERROR'</span>, <span class="function">CONCAT</span>(<span class="string">'Failed to store message: '</span>, <span class="type">@ErrorMessage</span>));
+        <span class="keyword">END</span>;
+        
+        <span class="comment">-- Return error information</span>
+        <span class="keyword">SELECT</span> 
+            -1 <span class="keyword">AS</span> <span class="type">MessageID</span>,
+            <span class="string">'ERROR'</span> <span class="keyword">AS</span> <span class="type">Status</span>,
+            <span class="type">@ErrorMessage</span> <span class="keyword">AS</span> <span class="type">Message</span>;
+            
+        <span class="function">RAISERROR</span>(<span class="type">@ErrorMessage</span>, 16, 1);
+    <span class="keyword">END CATCH</span>;
+<span class="keyword">END</span>;</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Data Scientist SQL -->
+        <div class="solution-card">
+            <div class="solution-header data-scientist">
+                <h2>📊 Data Scientist - T-SQL Implementation</h2>
+            </div>
+            <div class="solution-content">
+                <div class="code-container">
+                    <div class="code-header">Analytics-Focused Schema & Stored Procedure</div>
+                    <div class="code"><span class="comment">-- Data Scientist Approach: Analytics and ML-Ready Data Structure</span>
+
+<span class="comment">-- Main fact table for HL7 messages with analytics features</span>
+<span class="keyword">CREATE TABLE</span> <span class="type">dbo.HL7_Messages_Analytics</span> (
+    <span class="type">MessageID</span> <span class="keyword">BIGINT IDENTITY(1,1)</span> <span class="keyword">PRIMARY KEY</span>,
+    <span class="type">MessageControlID</span> <span class="keyword">VARCHAR(50)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">MessageType</span> <span class="keyword">VARCHAR(10)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">MessageEvent</span> <span class="keyword">VARCHAR(10)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">SendingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">SendingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">ReceivingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">ReceivingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">MessageTimestamp</span> <span class="keyword">DATETIME2(3)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">ProcessedTimestamp</span> <span class="keyword">DATETIME2(3)</span> <span class="keyword">DEFAULT GETUTCDATE()</span>,
+    <span class="type">RawMessage</span> <span class="keyword">NVARCHAR(MAX)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">MessageSize</span> <span class="keyword">INT</span> <span class="keyword">NOT NULL</span>,
+    
+    <span class="comment">-- Analytics-specific fields</span>
+    <span class="type">MessageComplexityScore</span> <span class="keyword">DECIMAL(5,2)</span>,
+    <span class="type">MessagePriority</span> <span class="keyword">VARCHAR(10)</span> <span class="keyword">DEFAULT</span> <span class="string">'NORMAL'</span>,
+    <span class="type">PatientID</span> <span class="keyword">VARCHAR(50)</span>,
+    <span class="type">EncounterID</span> <span class="keyword">VARCHAR(50)</span>,
+    <span class="type">MessageSizeCategory</span> <span class="keyword">AS</span> 
+        <span class="keyword">CASE</span> 
+            <span class="keyword">WHEN</span> <span class="type">MessageSize</span> < 1000 <span class="keyword">THEN</span> <span class="string">'Small'</span>
+            <span class="keyword">WHEN</span> <span class="type">MessageSize</span> < 5000 <span class="keyword">THEN</span> <span class="string">'Medium'</span>
+            <span class="keyword">WHEN</span> <span class="type">MessageSize</span> < 20000 <span class="keyword">THEN</span> <span class="string">'Large'</span>
+            <span class="keyword">ELSE</span> <span class="string">'XLarge'</span>
+        <span class="keyword">END</span> <span class="keyword">PERSISTED</span>,
+    <span class="type">TimeOfDayCategory</span> <span class="keyword">AS</span>
+        <span class="keyword">CASE</span>
+            <span class="keyword">WHEN</span> <span class="function">DATEPART</span>(<span class="type">HOUR</span>, <span class="type">MessageTimestamp</span>) <span class="keyword">BETWEEN</span> 6 <span class="keyword">AND</span> 14 <span class="keyword">THEN</span> <span class="string">'Day'</span>
+            <span class="keyword">WHEN</span> <span class="function">DATEPART</span>(<span class="type">HOUR</span>, <span class="type">MessageTimestamp</span>) <span class="keyword">BETWEEN</span> 15 <span class="keyword">AND</span> 22 <span class="keyword">THEN</span> <span class="string">'Evening'</span>
+            <span class="keyword">ELSE</span> <span class="string">'Night'</span>
+        <span class="keyword">END</span> <span class="keyword">PERSISTED</span>,
+    <span class="type">WeekdayFlag</span> <span class="keyword">AS</span> 
+        <span class="keyword">CASE</span> <span class="keyword">WHEN</span> <span class="function">DATEPART</span>(<span class="type">WEEKDAY</span>, <span class="type">MessageTimestamp</span>) <span class="keyword">IN</span> (1,7) <span class="keyword">THEN</span> 0 <span class="keyword">ELSE</span> 1 <span class="keyword">END</span> <span class="keyword">PERSISTED</span>,
+    
+    <span class="comment">-- ML features</span>
+    <span class="type">AnomalyScore</span> <span class="keyword">DECIMAL(5,4)</span> <span class="keyword">DEFAULT 0.0000</span>,
+    <span class="type">DataQualityScore</span> <span class="keyword">DECIMAL(5,2)</span> <span class="keyword">DEFAULT 100.00</span>,
+    <span class="type">ProcessingLatencyMs</span> <span class="keyword">INT</span>,
+    <span class="type">SegmentCount</span> <span class="keyword">INT</span>,
+    <span class="type">FieldCount</span> <span class="keyword">INT</span>,
+    <span class="type">ErrorFlags</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">MessageFingerprint</span> <span class="keyword">VARBINARY(32)</span>,
+    
+    <span class="comment">-- Audit and compliance</span>
+    <span class="type">ProcessingStatus</span> <span class="keyword">VARCHAR(20)</span> <span class="keyword">DEFAULT</span> <span class="string">'RECEIVED'</span>,
+    <span class="type">ComplianceFlags</span> <span class="keyword">VARCHAR(200)</span>,
+    <span class="type">RetentionCategory</span> <span class="keyword">VARCHAR(20)</span> <span class="keyword">DEFAULT</span> <span class="string">'STANDARD'</span>
+);
+
+<span class="comment">-- Analytics dimension tables</span>
+<span class="keyword">CREATE TABLE</span> <span class="type">dbo.HL7_MessageType_Dim</span> (
+    <span class="type">MessageTypeKey</span> <span class="keyword">INT IDENTITY(1,1)</span> <span class="keyword">PRIMARY KEY</span>,
+    <span class="type">MessageType</span> <span class="keyword">VARCHAR(10)</span> <span class="keyword">NOT NULL UNIQUE</span>,
+    <span class="type">MessageEvent</span> <span class="keyword">VARCHAR(10)</span> <span class="keyword">NOT NULL</span>,
+    <span class="type">Description</span> <span class="keyword">VARCHAR(200)</span>,
+    <span class="type">Category</span> <span class="keyword">VARCHAR(50)</span>,
+    <span class="type">CriticalityLevel</span> <span class="keyword">VARCHAR(20)</span>,
+    <span class="type">ExpectedVolumePerDay</span> <span class="keyword">INT</span>,
+    <span class="type">IsActive</span> <span class="keyword">BIT DEFAULT 1</span>
+);
+
+<span class="keyword">CREATE TABLE</span> <span class="type">dbo.HL7_Application_Dim</span> (
+    <span class="type">ApplicationKey</span> <span class="keyword">INT IDENTITY(1,1)</span> <span class="keyword">PRIMARY KEY</span>,
+    <span class="type">ApplicationName</span> <span class="keyword">VARCHAR(100)</span> <span class="keyword">NOT NULL UNIQUE</span>,
+    <span class="type">ApplicationType</span> <span class="keyword">VARCHAR(50)</span>,
+    <span class="type">Vendor</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">Department</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">CriticalityLevel</span> <span class="keyword">VARCHAR(20)</span>,
+    <span class="type">IsActive</span> <span class="keyword">BIT DEFAULT 1</span>
+);
+
+<span class="comment">-- Analytics indexes for ML workloads</span>
+<span class="keyword">CREATE NONCLUSTERED INDEX</span> <span class="type">IX_Analytics_TimePatterns</span> 
+<span class="keyword">ON</span> <span class="type">dbo.HL7_Messages_Analytics</span> (<span class="type">TimeOfDayCategory</span>, <span class="type">WeekdayFlag</span>, <span class="type">MessageTimestamp</span>)
+<span class="keyword">INCLUDE</span> (<span class="type">MessageType</span>, <span class="type">MessageSize</span>, <span class="type">AnomalyScore</span>);
+
+<span class="keyword">CREATE NONCLUSTERED INDEX</span> <span class="type">IX_Analytics_QualityMetrics</span> 
+<span class="keyword">ON</span> <span class="type">dbo.HL7_Messages_Analytics</span> (<span class="type">DataQualityScore</span>, <span class="type">AnomalyScore</span>)
+<span class="keyword">INCLUDE</span> (<span class="type">MessageType</span>, <span class="type">ProcessingLatencyMs</span>);
+
+<span class="comment">-- ML-ready stored procedure</span>
+<span class="keyword">CREATE OR ALTER PROCEDURE</span> <span class="function">dbo.usp_StoreHL7MessageAnalytics</span>
+    <span class="type">@MessageControlID</span> <span class="keyword">VARCHAR(50)</span>,
+    <span class="type">@MessageType</span> <span class="keyword">VARCHAR(10)</span>,
+    <span class="type">@MessageEvent</span> <span class="keyword">VARCHAR(10)</span>,
+    <span class="type">@SendingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@SendingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@ReceivingApplication</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@ReceivingFacility</span> <span class="keyword">VARCHAR(100)</span>,
+    <span class="type">@MessageTimestamp</span> <span class="keyword">DATETIME2(3)</span>,
+    <span class="type">@RawMessage</span> <span class="keyword">NVARCHAR(MAX)</span>,
+    <span class="type">@MessageID</span> <span class="keyword">BIGINT</span> <span class="keyword">OUTPUT</span>,
+    <span class="type">@PatientID</span> <span class="keyword">VARCHAR(50)</span> = <span class="keyword">NULL</span>,
+    <span class="type">@EncounterID</span> <span class="keyword">VARCHAR(50)</span> = <span class="keyword">NULL</span>
+<span class="keyword">AS</span>
+<span class="keyword">BEGIN</span>
+    <span class="keyword">SET NOCOUNT ON</span>;
+    <span class="keyword">SET XACT_ABORT ON</span>;
+    
+    <span class="keyword">DECLARE</span> <span class="type">@StartTime</span> <span class="keyword">DATETIME2(3)</span> = <span class="function">GETUTCDATE()</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@MessageSize</span> <span class="keyword">INT</span> = <span class="function">LEN</span>(<span class="type">@RawMessage</span>);
+    <span class="keyword">DECLARE</span> <span class="type">@MessageFingerprint</span> <span class="keyword">VARBINARY(32)</span> = <span class="function">HASHBYTES</span>(<span class="string">'SHA2_256'</span>, <span class="type">@RawMessage</span>);
+    <span class="keyword">DECLARE</span> <span class="type">@SegmentCount</span> <span class="keyword">INT</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@FieldCount</span> <span class="keyword">INT</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@DataQualityScore</span> <span class="keyword">DECIMAL(5,2)</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@AnomalyScore</span> <span class="keyword">DECIMAL(5,4)</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@MessagePriority</span> <span class="keyword">VARCHAR(10)</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@ComplexityScore</span> <span class="keyword">DECIMAL(5,2)</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@ErrorFlags</span> <span class="keyword">VARCHAR(100)</span> = <span class="string">''</span>;
+    <span class="keyword">DECLARE</span> <span class="type">@ComplianceFlags</span> <span class="keyword">VARCHAR(200)</span> = <span class="string">''</span>;
+    
+    <span class="keyword">BEGIN TRY</span>
+        <span class="keyword">BEGIN TRANSACTION</span>;
+        
+        <span class="comment">-- Calculate message analytics features</span>
+        <span class="keyword">SET</span> <span class="type">@SegmentCount</span> = (<span class="function">LEN</span>(<span class="type">@RawMessage</span>) - <span class="function">LEN</span>(<span class="function">REPLACE</span>(<span class="type">@RawMessage</span>, <span class="function">CHAR(13)</span>, <span class="string">''</span>)));
+        <span class="keyword">SET</span> <span class="type">@FieldCount</span> = (<span class="function">LEN</span>(<span class="type">@RawMessage</span>) - <span class="function">LEN</span>(<span class="function">REPLACE</span>(<span class="type">@RawMessage</span>, <span class="string">'|'</span>, <span class="string">''</span>)));
+        
+        <span class="comment">-- Calculate complexity score based on message structure</span>
+        <span class="keyword">SET</span> <span class="type">@ComplexityScore</span> = 
+            (<span class="type">@SegmentCount</span> * 0.3) + 
+            (<span class="type">@FieldCount</span> * 0.1) + 
+            (<span class="type">@MessageSize</span> / 100.0) +
+            (<span class="keyword">CASE</span> <span class="keyword">WHEN</span> <span class="type">@MessageType</span> <span class="keyword">IN</span> (<span class="string">'ORU'</span>, <span class="string">'ADT'</span>) <span class="keyword">THEN</span> 2.0 <span class="keyword">ELSE</span> 1.0 <span class="keyword">END</span>);
+        
+        <span class="comment">-- Calculate data quality score</span>
+        <span class="keyword">SET</span> <span class="type">@DataQualityScore</span> = 100.0;
+        
+        <span class="comment">-- Deduct points for quality issues</span>
+        <span class="keyword">IF</span> <span class="type">@PatientID</span> <span class="keyword">IS NULL OR</span> <span class="function">TRIM</span>(<span class="type">@PatientID</span>) = <span class="string">''</span>
+        <span class="keyword">BEGIN</span>
+            <span class="keyword">SET</span> <span class="type">@DataQualityScore</span> = <span class="type">@DataQualityScore</span> - 10.0;
+            <span class="keyword">SET</span> <span class="type">@ErrorFlags</span> = <span class="type">@ErrorFlags</span> + <span class="string">'MISSING_PATIENT_ID;'</span>;
+        <span class="keyword">END</span>;
+        
+        <span class="keyword">IF</span> <span class="type">@MessageSize</span> < 50 <span class="comment">-- Very small message might be incomplete</span>
+        <span class="keyword">BEGIN</span>
+            <span class="keyword">SET</span> <span class="type">@DataQualityScore</span> = <span class="type">@DataQualityScore</span> - 15.0;
+            <span class="keyword">SET</span> <span class="type">@ErrorFlags</span> = <span class="type">@ErrorFlags</span> + <span class="string">'SUSPICIOUS_SIZE;'</span>;
+        <span class="keyword">END</span>;
+        
+        <span class="comment">-- Calculate anomaly score using historical patterns</span>
+        <span class="keyword">WITH</span> <span class="type">MessageStats</span> <span class="keyword">AS</span> (
+            <span class="keyword">SELECT</span> 
+                <span class="function">AVG</span>(<span class="type">MessageSize</span>) <span class="keyword">AS</span> <span class="type">AvgSize</span>,
+                <span class="function">STDEV</span>(<span class="type">MessageSize</span>) <span class="keyword">AS</span> <span class="type">StdDevSize</span>,
+                <span class="function">COUNT</span>(*) <span class="keyword">AS</span> <span class="type">HistoricalCount</span>
+            <span class="keyword">FROM</span> <span class="type">dbo.HL7_Messages_Analytics</span>
+            <span class="keyword">WHERE</span> <span class="type">MessageType</span> = <span class="type">@MessageType</span>
+                <span class="keyword">AND</span> <span class="type">MessageTimestamp</span> >= <span class="function">DATEADD</span>(<span class="keyword">DAY</span>, -30, <span class="function">GETUTCDATE()</span>)
+        )
+        <span class="keyword">SELECT</span> <span class="type">@AnomalyScore</span> = 
+            <span class="keyword">CASE</span> 
+                <span class="keyword">WHEN</span> <span class="type">HistoricalCount</span> < 10 <span class="keyword">THEN</span> 0.0 <span class="comment">-- Not enough data</span>
+                <span class="keyword">WHEN</span> <span class="type">StdDevSize</span> = 0 <span class="keyword">THEN</span> 0.0 <span class="comment">-- No variation</span>
+                <span class="keyword">ELSE</span> <span class="function">ABS</span>(<span class="type">@MessageSize</span> - <span class="type">AvgSize</span>) / <span class="type">StdDevSize</span>
+            <span class="keyword">END</span>
+        <span class="keyword">FROM</span> <span class="type">MessageStats</span>;
+        
+        <span class="comment">-- Determine message priority based on type and anomaly score</span>
+        <span class="keyword">SET</span> <span class="type">@MessagePriority</span> = 
+            <span class="keyword">CASE</span>
+                <span class="keyword">WHEN</span> <span class="type">@MessageType</span> <span class="keyword">IN</span> (<span class="string">'ADT'</span>) <span class="keyword">AND</span> <span class="type">@MessageEvent</span> <span class="keyword">IN</span> (<span class="string">'A01'</span>, <span class="string">'A03'</span>) <span class="keyword">THEN</span> <span class="string">'HIGH'</span>
+                <span class="keyword">WHEN</span> <span class="type">@AnomalyScore</span> > 2.0 <span class="keyword">THEN</span> <span class="string">'HIGH'</span>
+                <span class="keyword">WHEN</span> <span class="type">@MessageType</span> = <span class="string">'ORU'</span> <span class="keyword">THEN</span> <span class="string">'MEDIUM'</span>
+                <span class="keyword">ELSE</span> <span class="string">'NORMAL'</span>
+            <span class="keyword">END</span>;
+        
+        <span class="comment">-- Check compliance requirements</span>
+        <span class="keyword">IF</span> <span class="type">@MessageType</span> <span class="keyword">IN</span> (<span class="string">'ORU'</span>, <span class="string">'ADT'</span>) <span class="keyword">AND</span> <span class="type">@EncounterID</span> <span class="keyword">IS NULL</span>
+            <span class="keyword">SET</span> <span class="type">@ComplianceFlags</span> = <span class="type">@ComplianceFlags</span> + <span class="string">'MISSING_ENCOUNTER;'</span>;
+            
+        <span class="comment">-- Insert the enriched message</span>
+        <span class="keyword">INSERT INTO</span> <span class="type">dbo.HL7_Messages_Analytics</span> (
+            <span class="type">MessageControlID</span>, <span class="type">MessageType</span>, <span class="type">MessageEvent</span>,
+            <span class="type">SendingApplication</span>, <span class="type">SendingFacility</span>,
+            <span class="type">ReceivingApplication</span>, <span class="type">ReceivingFacility</span>,
+            <span class="type">MessageTimestamp</span>, <span class="type">RawMessage</span>, <span class="type">MessageSize</span>,
+            <span class="type">PatientID</span>, <span class="type">EncounterID</span>, <span class="type">MessageComplexityScore</span>,
+            <span class="type">MessagePriority</span>, <span class="type">AnomalyScore</span>, <span class="type">DataQualityScore</span>,
+            <span class="type">SegmentCount</span>, <span class="type">FieldCount</span>, <span class="type">ErrorFlags</span>,
+            <span class="type">MessageFingerprint</span>, <span class="type">ComplianceFlags</span>,
+            <span class="type">ProcessingLatencyMs</span>, <span class="type">ProcessingStatus</span>
+        )
+        <span class="keyword">VALUES</span> (
+            <span class="type">@MessageControlID</span>, <span class="type">@MessageType</span>, <span class="type">@MessageEvent</span>,
+            <span class="type">@SendingApplication</span>, <span class="type">@SendingFacility</span>,
+            <span class="type">@ReceivingApplication</span>, <span class="type">@ReceivingFacility</span>,
+            <span class="type">@MessageTimestamp</span>, <span class="type">@RawMessage</span>, <span class="type">@MessageSize</span>,
+            <span class="type">@PatientID</span>, <span class="type">@EncounterID</span>, <span class="type">@ComplexityScore</span>,
+            <span class="type">@MessagePriority</span>, <span class="type">@AnomalyScore</span>, <span class="type">@DataQualityScore</span>,
+            <span class="type">@SegmentCount</span>, <span class="type">@FieldCount</span>, <span class="function">NULLIF</span>(<span class="type">@ErrorFlags</span>, <span class="string">''</span>),
+            <span class="type">@MessageFingerprint</span>, <span class="function">NULLIF</span>(<span class="type">@ComplianceFlags</span>, <span class="string">''</span>),
+            <span class="function">DATEDIFF</span>(<span class="keyword">MILLISECOND</span>, <span class="type">@StartTime</span>, <span class="function">GETUTCDATE()</span>), <span class="string">'PROCESSED'</span>
+        );
+        
+        <span class="keyword">SET</span> <span class="type">@MessageID</span> = <span class="function">SCOPE_IDENTITY()</span>;
+        
+        <span class="comment">-- Update dimension tables if needed</span>
+        <span class="keyword">IF NOT EXISTS</span> (<span class="keyword">SELECT</span> 1 <span class="keyword">FROM</span> <span class="type">dbo.HL7_MessageType_Dim</span> <span class="keyword">WHERE</span> <span class="type">MessageType</span> = <span class="type">@MessageType</span> <span class="keyword">AND</span> <span class="type">MessageEvent</span> = <span class="type">@MessageEvent</span>)
+        <span class="keyword">BEGIN</span>
+            <span class="keyword">INSERT INTO</span> <span class="type">dbo.HL7_MessageType_Dim</span> (<span class="type">MessageType</span>, <span class="type">MessageEvent</span>, <span class="type">Category</span>, <span class="type">CriticalityLevel</span>)
+            <span class="keyword">VALUES</span> (<span class="type">@MessageType</span>, <span class="type">@MessageEvent</span>, <span class="string">'Unknown'</span>, <span class="type">@MessagePriority</span>);
+        <span class="keyword">END</span>;
+        
+        <span class="keyword">IF NOT EXISTS</span> (<span class="keyword">SELECT</span> 1 <span class="keyword">FROM</span> <span class="type">dbo.HL7_Application_Dim</span> <span class="keyword">WHERE</span> <span class="type">ApplicationName</span> = <span class="type">@SendingApplication</span>)
+        <span class="keyword">BEGIN</span>
+            <span class="keyword">INSERT INTO</span> <span class="type">dbo.HL7_Application_Dim</span> (<span class="type">ApplicationName</span>, <span class="type">ApplicationType</span>)
+            <span class="keyword">VALUES</span> (<span class="type">@SendingApplication</span>, <span class="string">'Unknown'</span>);
+        <span class="keyword">END</span>;
+        
+        <span class="keyword">COMMIT TRANSACTION</span>;
+        
+        <span class="comment">-- Return enriched results for analytics</span>
+        <span class="keyword">SELECT</span> 
+            <span class="type">@MessageID</span> <span class="keyword">AS</span> <span class="type">MessageID</span>,
+            <span class="string">'SUCCESS'</span> <span class="keyword">AS</span> <span class="type">Status</span>,
+            <span class="string">'Message processed with analytics'</span> <span class="keyword">AS</span> <span class="type">Message</span>,
+            <span class="type">@ComplexityScore</span> <span class="keyword">AS</span> <span class="type">ComplexityScore</span>,
+            <span class="type">@AnomalyScore</span> <span class="keyword">AS</span> <span class="type">AnomalyScore</span>,
+            <span class="type">@DataQualityScore</span> <span class="keyword">AS</span> <span class="type">QualityScore</span>,
+            <span class="type">@MessagePriority</span> <span class="keyword">AS</span> <span class="type">Priority</span>,
+            <span class="function">DATEDIFF</span>(<span class="keyword">MILLISECOND</span>, <span class="type">@StartTime</span>, <span class="function">GETUTCDATE()</span>) <span class="keyword">AS</span> <span class="type">ProcessingTimeMs</span>;
+            
+    <span class="keyword">END TRY</span>
+    <span class="keyword">BEGIN CATCH</span>
+        <span class="keyword">IF</span> <span class="function">@@TRANCOUNT</span> > 0
+            <span class="keyword">ROLLBACK TRANSACTION</span>;
+            
+        <span class="keyword">SELECT</span> 
+            -1 <span class="keyword">AS</span> <span class="type">MessageID</span>,
+            <span class="string">'ERROR'</span> <span class="keyword">AS</span> <span class="type">Status</span>,
+            <span class="function">ERROR_MESSAGE()</span> <span class="keyword">AS</span> <span class="type">Message</span>,
+            0.0 <span class="keyword">AS</span> <span class="type">ComplexityScore</span>,
+            0.0 <span class="keyword">AS</span> <span class="type">AnomalyScore</span>,
+            0.0 <span class="keyword">AS</span> <span class="type">QualityScore</span>,
+            <span class="string">'ERROR'</span> <span class="keyword">AS</span> <span class="type">Priority</span>,
+            <span class="function">DATEDIFF</span>(<span class="keyword">MILLISECOND</span>, <span class="type">@StartTime</span>, <span class="function">GETUTCDATE()</span>) <span class="keyword">AS</span> <span class="type">ProcessingTimeMs</span>;
+            
+        <span class="function">RAISERROR</span>(<span class="function">ERROR_MESSAGE()</span>, 16, 1);
+    <span class="keyword">END CATCH</span>;
+<span class="keyword">END</span>;
+
+<span class="comment">-- Analytics helper views for ML and reporting</span>
+<span class="keyword">CREATE OR ALTER VIEW</span> <span class="function">dbo.vw_HL7_MessageAnalytics</span>
+<span class="keyword">AS</span>
+<span class="keyword">SELECT</span> 
+    m.<span class="type">MessageID</span>,
+    m.<span class="type">MessageType</span>,
+    m.<span class="type">MessageEvent</span>,
+    m.<span class="type">MessageTimestamp</span>,
+    m.<span class="type">MessageSize</span>,
+    m.<span class="type">MessageSizeCategory</span>,
+    m.<span class="type">TimeOfDayCategory</span>,
+    m.<span class="type">WeekdayFlag</span>,
+    m.<span class="type">MessageComplexityScore</span>,
+    m.<span class="type">AnomalyScore</span>,
+    m.<span class="type">DataQualityScore</span>,
+    m.<span class="type">MessagePriority</span>,
+    m.<span class="type">ProcessingLatencyMs</span>,
+    m.<span class="type">SegmentCount</span>,
+    m.<span class="type">FieldCount</span>,
+    mt.<span class="type">Category</span> <span class="keyword">AS</span> <span class="type">MessageCategory</span>,
+    mt.<span class="type">CriticalityLevel</span>,
+    sa.<span class="type">ApplicationType</span> <span class="keyword">AS</span> <span class="type">SendingAppType</span>,
+    sa.<span class="type">Department</span> <span class="keyword">AS</span> <span class="type">SendingDepartment</span>,
+    <span class="comment">-- Derived analytics features</span>
+    <span class="keyword">CASE</span> <span class="keyword">WHEN</span> m.<span class="type">AnomalyScore</span> > 2.0 <span class="keyword">THEN</span> 1 <span class="keyword">ELSE</span> 0 <span class="keyword">END</span> <span class="keyword">AS</span> <span class="type">IsAnomalous</span>,
+    <span class="keyword">CASE</span> <span class="keyword">WHEN</span> m.<span class="type">DataQualityScore</span> < 80.0 <span class="keyword">THEN</span> 1 <span class="keyword">ELSE</span> 0 <span class="keyword">END</span> <span class="keyword">AS</span> <span class="type">HasQualityIssues</span>,
+    <span class="function">DENSE_RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION BY</span> <span class="function">CAST</span>(m.<span class="type">MessageTimestamp</span> <span class="keyword">AS DATE</span>) <span class="keyword">ORDER BY</span> m.<span class="type">MessageTimestamp</span>) <span class="keyword">AS</span> <span class="type">DailySequence</span>,
+    <span class="function">LAG</span>(m.<span class="type">MessageTimestamp</span>) <span class="keyword">OVER</span> (<span class="keyword">PARTITION BY</span> m.<span class="type">SendingApplication</span> <span class="keyword">ORDER BY</span> m.<span class="type">MessageTimestamp</span>) <span class="keyword">AS</span> <span class="type">PreviousMessageTime</span>
+<span class="keyword">FROM</span> <span class="type">dbo.HL7_Messages_Analytics</span> m
+<span class="keyword">LEFT JOIN</span> <span class="type">dbo.HL7_MessageType_Dim</span> mt <span class="keyword">ON</span> m.<span class="type">MessageType</span> = mt.<span class="type">MessageType</span> <span class="keyword">AND</span> m.<span class="type">MessageEvent</span> = mt.<span class="type">MessageEvent</span>
+<span class="keyword">LEFT JOIN</span> <span class="type">dbo.HL7_Application_Dim</span> sa <span class="keyword">ON</span> m.<span class="type">SendingApplication</span> = sa.<span class="type">ApplicationName</span>;
+
+<span class="comment">-- Real-time analytics stored procedure for the MVC app</span>
+<span class="keyword">CREATE OR ALTER PROCEDURE</span> <span class="function">dbo.usp_GetRealtimeHL7Analytics</span>
+    <span class="type">@TimeRangeMinutes</span> <span class="keyword">INT</span> = 60,
+    <span class="type">@MessageType</span> <span class="keyword">VARCHAR(10)</span> = <span class="keyword">NULL</span>,
+    <span class="type">@ApplicationFilter</span> <span class="keyword">VARCHAR(100)</span> = <span class="keyword">NULL</span>
+<span class="keyword">AS</span>
+<span class="keyword">BEGIN</span>
+    <span class="keyword">SET NOCOUNT ON</span>;
+    
+    <span class="keyword">DECLARE</span> <span class="type">@StartTime</span> <span class="keyword">DATETIME2(3)</span> = <span class="function">DATEADD</span>(<span class="keyword">MINUTE</span>, -<span class="type">@TimeRangeMinutes</span>, <span class="function">GETUTCDATE()</span>);
+    
+    <span class="comment">-- Real-time message summary</span>
+    <span class="keyword">SELECT</span> 
+        <span class="string">'MessageSummary'</span> <span class="keyword">AS</span> <span class="type">DataType</span>,
+        <span class="function">COUNT</span>(*) <span class="keyword">AS</span> <span class="type">TotalMessages</span>,
+        <span class="function">COUNT</span>(<span class="keyword">CASE</span> <span class="keyword">WHEN</span> <span class="type">AnomalyScore</span> > 2.0 <span class="keyword">THEN</span> 1 <span class="keyword">END</span>) <span class="keyword">AS</span> <span class="type">AnomalousMessages</span>,
+        <span class="function">COUNT</span>(<span class="keyword">CASE</span> <span class="keyword">WHEN</span> <span class="type">DataQualityScore</span> < 80.0 <span class="keyword">THEN</span> 1 <span class="keyword">END</span>) <span class="keyword">AS</span> <span class="type">QualityIssues</span>,
+        <span class="function">AVG</span>(<span class="type">ProcessingLatencyMs</span>) <span class="keyword">AS</span> <span class="type">AvgProcessingTime</span>,
+        <span class="function">SUM</span>(<span class="type">MessageSize</span>) <span class="keyword">AS</span> <span class="type">TotalDataVolume</span>,
+        <span class="function">MAX</span>(<span class="type">MessageTimestamp</span>) <span class="keyword">AS</span> <span class="type">LastMessageTime</span>
+    <span class="keyword">FROM</span> <span class="type">dbo.HL7_Messages_Analytics</span>
+    <span class="keyword">WHERE</span> <span class="type">MessageTimestamp</span> >= <span class="type">@StartTime</span>
+        <span class="keyword">AND</span> (<span class="type">@MessageType</span> <span class="keyword">IS NULL OR</span> <span class="type">MessageType</span> = <span class="type">@MessageType</span>)
+        <span class="keyword">AND</span> (<span class="type">@ApplicationFilter</span> <span class="keyword">IS NULL OR</span> <span class="type">SendingApplication</span> = <span class="type">@ApplicationFilter</span>);
+    
+    <span class="comment">-- Message volume by time (for charts)</span>
+    <span class="keyword">SELECT</span> 
+        <span class="string">'VolumeByTime'</span> <span class="keyword">AS</span> <span class="type">DataType</span>,
+        <span class="function">DATEADD</span>(<span class="keyword">MINUTE</span>, <span class="function">DATEDIFF</span>(<span class="keyword">MINUTE</span>, 0, <span class="type">MessageTimestamp</span>) / 5 * 5, 0) <span class="keyword">AS</span> <span class="type">TimeWindow</span>,
+        <span class="function">COUNT</span>(*) <span class="keyword">AS</span> <span class="type">MessageCount</span>,
+        <span class="function">AVG</span>(<span class="type">MessageSize</span>) <span class="keyword">AS</span> <span class="type">AvgSize</span>,
+        <span class="function">AVG</span>(<span class="type">AnomalyScore</span>) <span class="keyword">AS</span> <span class="type">AvgAnomalyScore</span>
+    <span class="keyword">FROM</span> <span class="type">dbo.HL7_Messages_Analytics</span>
+    <span class="keyword">WHERE</span> <span class="type">MessageTimestamp</span> >= <span class="type">@StartTime</span>
+        <span class="keyword">AND</span> (<span class="type">@MessageType</span> <span class="keyword">IS NULL OR</span> <span class="type">MessageType</span> = <span class="type">@MessageType</span>)
+        <span class="keyword">AND</span> (<span class="type">@ApplicationFilter</span> <span class="keyword">IS NULL OR</span> <span class="type">SendingApplication</span> = <span class="type">@ApplicationFilter</span>)
+    <span class="keyword">GROUP BY</span> <span class="function">DATEADD</span>(<span class="keyword">MINUTE</span>, <span class="function">DATEDIFF</span>(<span class="keyword">MINUTE</span>, 0, <span class="type">MessageTimestamp</span>) / 5 * 5, 0)
+    <span class="keyword">ORDER BY</span> <span class="type">TimeWindow</span>;
+    
+    <span class="comment">-- Top applications by volume</span>
+    <span class="keyword">SELECT</span> <span class="keyword">TOP</span> 10
+        <span class="string">'TopApplications'</span> <span class="keyword">AS</span> <span class="type">DataType</span>,
+        <span class="type">SendingApplication</span>,
+        <span class="function">COUNT</span>(*) <span class="keyword">AS</span> <span class="type">MessageCount</span>,
+        <span class="function">AVG</span>(<span class="type">DataQualityScore</span>) <span class="keyword">AS</span> <span class="type">AvgQualityScore</span>,
+        <span class="function">MAX</span>(<span class="type">AnomalyScore</span>) <span class="keyword">AS</span> <span class="type">MaxAnomalyScore</span>
+    <span class="keyword">FROM</span> <span class="type">dbo.HL7_Messages_Analytics</span>
+    <span class="keyword">WHERE</span> <span class="type">MessageTimestamp</span> >= <span class="type">@StartTime</span>
+        <span class="keyword">AND</span> (<span class="type">@MessageType</span> <span class="keyword">IS NULL OR</span> <span class="type">MessageType</span> = <span class="type">@MessageType</span>)
+    <span class="keyword">GROUP BY</span> <span class="type">SendingApplication</span>
+    <span class="keyword">ORDER BY</span> <span class="function">COUNT</span>(*) <span class="keyword">DESC</span>;
+    
+    <span class="comment">-- Recent anomalies and quality issues</span>
+    <span class="keyword">SELECT</span> <span class="keyword">TOP</span> 20
+        <span class="string">'RecentIssues'</span> <span class="keyword">AS</span> <span class="type">DataType</span>,
+        <span class="type">MessageID</span>,
+        <span class="type">MessageType</span>,
+        <span class="type">MessageEvent</span>,
+        <span class="type">SendingApplication</span>,
+        <span class="type">MessageTimestamp</span>,
+        <span class="type">AnomalyScore</span>,
+        <span class="type">DataQualityScore</span>,
+        <span class="type">ErrorFlags</span>,
+        <span class="type">MessagePriority</span>
+    <span class="keyword">FROM</span> <span class="type">dbo.HL7_Messages_Analytics</span>
+    <span class="keyword">WHERE</span> <span class="type">MessageTimestamp</span> >= <span class="type">@StartTime</span>
+        <span class="keyword">AND</span> (<span class="type">AnomalyScore</span> > 1.5 <span class="keyword">OR</span> <span class="type">DataQualityScore</span> < 85.0)
+        <span class="keyword">AND</span> (<span class="type">@MessageType</span> <span class="keyword">IS NULL OR</span> <span class="type">MessageType</span> = <span class="type">@MessageType</span>)
+        <span class="keyword">AND</span> (<span class="type">@ApplicationFilter</span> <span class="keyword">IS NULL OR</span> <span class="type">SendingApplication</span> = <span class="type">@ApplicationFilter</span>)
+    <span class="keyword">ORDER BY</span> <span class="type">MessageTimestamp</span> <span class="keyword">DESC</span>;
+<span class="keyword">END</span>;</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comparison Section -->
+        <div class="comparison">
+            <h3>🔍 Solution Comparison & Implementation Guide</h3>
+            
+            <div class="comparison-grid">
+                <div class="comparison-item engineer-focus">
+                    <h4>🔧 Data Engineer Focus</h4>
+                    <p><strong>Best for:</strong> High-volume production environments where reliability, performance, and operational stability are critical.</p>
+                    
+                    <p><strong>Key Strengths:</strong></p>
+                    <ul style="padding-left: 20px; margin: 10px 0;">
+                        <li>Optimized for concurrent processing and high throughput</li>
+                        <li>Robust error handling and transaction management</li>
+                        <li>Efficient indexing strategy for fast queries</li>
+                        <li>Built-in duplicate detection and data integrity</li>
+                        <li>Comprehensive audit trail for compliance</li>
+                    </ul>
+                    
+                    <p><strong>Implementation Priority:</strong> Stability → Performance → Maintainability</p>
+                </div>
+                
+                <div class="comparison-item scientist-focus">
+                    <h4>📊 Data Scientist Focus</h4>
+                    <p><strong>Best for:</strong> Organizations wanting to leverage HL7 data for analytics, ML insights, and predictive healthcare intelligence.</p>
+                    
+                    <p><strong>Key Strengths:</strong></p>
+                    <ul style="padding-left: 20px; margin: 10px 0;">
+                        <li>Rich feature engineering for machine learning</li>
+                        <li>Real-time anomaly detection and quality scoring</li>
+                        <li>Analytics-ready dimensional model</li>
+                        <li>Pattern recognition and trend analysis</li>
+                        <li>Predictive insights for operational planning</li>
+                    </ul>
+                    
+                    <p><strong>Implementation Priority:</strong> Insights → Analytics → Scalability</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sample Data Section -->
+        <div class="solution-card" style="margin-top: 30px;">
+            <div class="solution-header" style="background: linear-gradient(135deg, #7c2d12, #ea580c);">
+                <h2>📊 Sample Data Implementation</h2>
+                <p>Example of how each solution handles real ADT messages</p>
+            </div>
+            <div class="solution-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Data Engineer Table View -->
+                    <div>
+                        <div class="code-header" style="background: #059669; color: white; padding: 0.5rem; border-radius: 0.25rem; margin-bottom: 0;">🔧 Data Engineer Solution - Table View</div>
+                        <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.375rem; overflow: hidden;">
+                            <div style="background: #f9fafb; padding: 0.5rem; border-bottom: 1px solid #e5e7eb; font-weight: 600; font-size: 0.875rem;">dbo.HL7_Messages Table</div>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; font-size: 0.75rem; border-collapse: collapse;">
+                                    <thead style="background: #f3f4f6;">
+                                        <tr>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">MessageID</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">ControlID</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">Type^Event</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">SendingApp</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">Timestamp</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">Size</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">1001</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">MSG001237</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">ADT^A04</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">Cerner EMR</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">2025-06-04 09:15:44</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">1089</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #059669;">STORED</span></td>
+                                        </tr>
+                                        <tr style="background: #f9fafb;">
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">1002</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">MSG001234</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">ADT^A01</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">Epic EMR</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">2025-06-04 14:30:25</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">1247</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #059669;">STORED</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">1003</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">MSG001235</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">ADT^A02</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">Epic EMR</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">2025-06-04 16:45:12</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">892</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #059669;">STORED</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Scientist Table View -->
+                    <div>
+                        <div class="code-header" style="background: #dc2626; color: white; padding: 0.5rem; border-radius: 0.25rem; margin-bottom: 0;">📊 Data Scientist Solution - Analytics View</div>
+                        <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 0.375rem; overflow: hidden;">
+                            <div style="background: #f9fafb; padding: 0.5rem; border-bottom: 1px solid #e5e7eb; font-weight: 600; font-size: 0.875rem;">dbo.HL7_Messages_Analytics Table</div>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; font-size: 0.75rem; border-collapse: collapse;">
+                                    <thead style="background: #f3f4f6;">
+                                        <tr>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">MessageID</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">Type^Event</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">Complexity</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">Anomaly</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">Quality</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">Priority</th>
+                                            <th style="padding: 0.375rem; border: 1px solid #e5e7eb; text-align: left;">TimeCategory</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">1001</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">ADT^A04</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">15.2</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #059669;">0.45</span></td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #059669;">95.0</span></td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #f59e0b;">HIGH</span></td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">Day</td>
+                                        </tr>
+                                        <tr style="background: #f9fafb;">
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">1002</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">ADT^A01</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">18.7</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #dc2626;">2.1</span></td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #059669;">88.5</span></td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #dc2626;">HIGH</span></td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">Evening</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">1003</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">ADT^A02</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">12.8</td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #059669;">0.32</span></td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #059669;">92.0</span></td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;"><span style="color: #6b7280;">NORMAL</span></td>
+                                            <td style="padding: 0.25rem; border: 1px solid #e5e7eb;">Evening</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">1002</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">MSG001234</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">ADT^A01</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">Epic EMR</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">2025-06-04 14:30:25</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">1247</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #059669;">STORED</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">1003</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">MSG001235</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">ADT^A02</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">Epic EMR</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">2025-06-04 16:45:12</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">892</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #059669;">STORED</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Scientist Table View -->
+                    <div>
+                        <div class="code-header" style="background: #dc2626; color: white; padding: 8px; border-radius: 4px; margin-bottom: 0;">📊 Data Scientist Solution - Analytics View</div>
+                        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                            <div style="background: #f9fafb; padding: 8px; border-bottom: 1px solid #e5e7eb; font-weight: 600; font-size: 0.875rem;">dbo.HL7_Messages_Analytics Table</div>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; font-size: 0.75rem; border-collapse: collapse;">
+                                    <thead style="background: #f3f4f6;">
+                                        <tr>
+                                            <th style="padding: 6px; border: 1px solid #e5e7eb; text-align: left;">MessageID</th>
+                                            <th style="padding: 6px; border: 1px solid #e5e7eb; text-align: left;">Type^Event</th>
+                                            <th style="padding: 6px; border: 1px solid #e5e7eb; text-align: left;">Complexity</th>
+                                            <th style="padding: 6px; border: 1px solid #e5e7eb; text-align: left;">Anomaly</th>
+                                            <th style="padding: 6px; border: 1px solid #e5e7eb; text-align: left;">Quality</th>
+                                            <th style="padding: 6px; border: 1px solid #e5e7eb; text-align: left;">Priority</th>
+                                            <th style="padding: 6px; border: 1px solid #e5e7eb; text-align: left;">TimeCategory</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">1001</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">ADT^A04</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">15.2</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #059669;">0.45</span></td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #059669;">95.0</span></td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #f59e0b;">HIGH</span></td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">Day</td>
+                                        </tr>
+                                        <tr style="background: #f9fafb;">
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">1002</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">ADT^A01</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">18.7</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #dc2626;">2.1</span></td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #059669;">88.5</span></td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #dc2626;">HIGH</span></td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">Evening</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">1003</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">ADT^A02</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">12.8</td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #059669;">0.32</span></td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #059669;">92.0</span></td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;"><span style="color: #6b7280;">NORMAL</span></td>
+                                            <td style="padding: 4px; border: 1px solid #e5e7eb;">Evening</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
