@@ -294,10 +294,7 @@ export default function ReferenceGuidesPage() {
                         </a>
                       </td>
                     </tr>
-                    <tr>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">SIU^S17</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">Notification of Appointment Addition</td>
-                    </tr>
+
                   </tbody>
                 </table>
               </div>
