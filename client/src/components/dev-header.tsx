@@ -2,8 +2,8 @@ import React from 'react';
 
 export function DevHeader() {
   // Version information
-  const version = "0.4.7";
-  const lastUpdated = "June 04, 2025";
+  const version = "0.4.8";
+  const lastUpdated = "June 08, 2025";
   
   return (
     <div className="bg-amber-100 border-b border-amber-200 py-1 text-center text-sm text-amber-800">
