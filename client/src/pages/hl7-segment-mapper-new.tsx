@@ -5,7 +5,9 @@ import {
   ZoomOut, 
   RefreshCw, 
   Info, 
-  Filter 
+  Filter,
+  Search,
+  X 
 } from 'lucide-react';
 
 // Define the data structures
@@ -135,10 +137,60 @@ const HL7SegmentMapper: React.FC = () => {
   const [filterValue, setFilterValue] = useState<number>(0); // 0 means no filter
   const [graphData, setGraphData] = useState<{nodes: GraphNode[], links: GraphLink[]}>({nodes: [], links: []});
   const [currentZoom, setCurrentZoom] = useState<number>(1);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchType, setSearchType] = useState<'all' | 'segments' | 'messages'>('all');
+  const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(new Set());
   
   // Function to calculate which message types contain a segment
   const getMessageTypesForSegment = (segmentId: string) => {
     return messageTypes.filter(type => type.segments.includes(segmentId));
+  };
+
+  // Search functionality
+  const performSearch = (term: string, type: 'all' | 'segments' | 'messages') => {
+    if (!term.trim()) {
+      setHighlightedNodes(new Set());
+      return;
+    }
+
+    const highlighted = new Set<string>();
+    const searchLower = term.toLowerCase();
+
+    if (type === 'all' || type === 'segments') {
+      allSegments.forEach(segment => {
+        if (
+          segment.id.toLowerCase().includes(searchLower) ||
+          segment.name.toLowerCase().includes(searchLower) ||
+          segment.description.toLowerCase().includes(searchLower)
+        ) {
+          highlighted.add(segment.id);
+        }
+      });
+    }
+
+    if (type === 'all' || type === 'messages') {
+      messageTypes.forEach(msgType => {
+        if (
+          msgType.id.toLowerCase().includes(searchLower) ||
+          msgType.name.toLowerCase().includes(searchLower)
+        ) {
+          highlighted.add(msgType.id);
+        }
+      });
+    }
+
+    setHighlightedNodes(highlighted);
+  };
+
+  // Handle search changes
+  useEffect(() => {
+    performSearch(searchTerm, searchType);
+  }, [searchTerm, searchType]);
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchTerm('');
+    setHighlightedNodes(new Set());
   };
   
   // Prepare data for force-directed graph
@@ -296,9 +348,15 @@ const HL7SegmentMapper: React.FC = () => {
     // Add circles to nodes
     node.append("circle")
       .attr("r", d => d.type === 'segment' ? 8 + (d.value * 0.5) : 12)
-      .attr("fill", d => d.type === 'segment' ? "#4299e1" : "#f6ad55")
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5);
+      .attr("fill", d => {
+        const isHighlighted = highlightedNodes.has(d.id);
+        if (isHighlighted) {
+          return d.type === 'segment' ? "#10b981" : "#f59e0b";
+        }
+        return d.type === 'segment' ? "#4299e1" : "#f6ad55";
+      })
+      .attr("stroke", d => highlightedNodes.has(d.id) ? "#065f46" : "#fff")
+      .attr("stroke-width", d => highlightedNodes.has(d.id) ? 3 : 1.5);
     
     // Add text labels to nodes
     node.append("text")
@@ -427,7 +485,7 @@ const HL7SegmentMapper: React.FC = () => {
     return () => {
       simulation.stop();
     };
-  }, [graphData, filterValue]);
+  }, [graphData, filterValue, highlightedNodes]);
   
   // Helper functions for UI controls
   const handleZoomIn = () => {
@@ -483,6 +541,59 @@ const HL7SegmentMapper: React.FC = () => {
         </div>
         
         <div className="p-4">
+          {/* Search Controls */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search segments or message types..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={clearSearch}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Filter:</span>
+                <select
+                  value={searchType}
+                  onChange={(e) => setSearchType(e.target.value as 'all' | 'segments' | 'messages')}
+                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  <option value="all">All</option>
+                  <option value="segments">Segments Only</option>
+                  <option value="messages">Messages Only</option>
+                </select>
+              </div>
+              
+              {highlightedNodes.size > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+                    {highlightedNodes.size} found
+                  </span>
+                </div>
+              )}
+            </div>
+            
+            {searchTerm && highlightedNodes.size === 0 && (
+              <div className="mt-3 text-sm text-gray-500">
+                No matches found for "{searchTerm}"
+              </div>
+            )}
+          </div>
+
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div className="flex items-center gap-2">
               <button 
