@@ -1,0 +1,7 @@
+Source System,Target System,Message Type,Frequency,Protocol,Data Elements,Business Rule,Error Handling
+Epic EHR,Lab System,ORU^R01,Real-time,TCP/IP,"PID, OBR, OBX",Auto-result on completion,Retry 3x then alert
+Epic EHR,PACS,ORM^O01,Real-time,TCP/IP,"PID, ORC, OBR",Immediate transmission,Dead letter queue
+Lab System,Epic EHR,ORU^R01,Real-time,TCP/IP,"PID, OBR, OBX",Real-time sync on updates,Exponential backoff
+PACS,Epic EHR,ORU^R01,Real-time,TCP/IP,"PID, OBR, OBX",Image availability notification,Manual intervention
+Pharmacy System,Epic EHR,RDE^O11,Real-time,TCP/IP,"PID, RXE, RXR",Medication order processing,Pharmacist review
+RIS,PACS,ORM^O01,Real-time,TCP/IP,"PID, ORC, OBR",Imaging order routing,Auto-retry 5 times

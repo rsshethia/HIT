@@ -1,0 +1,7 @@
+System Name,Vendor,Version,Environment,Status,Message Types,Integration Method,IP Address,Contact
+Epic EHR,Epic Systems,2023.1,Production,Active,"ADT, ORM, ORU, DFT",HL7 v2.5,10.1.100.50,john.smith@hospital.org
+Cerner PowerChart,Oracle Health,2024.1,Production,Active,"ADT, ORM, ORU, SIU",HL7 v2.5,10.1.100.51,sarah.jones@hospital.org
+Lab Information System,Sunquest,8.2,Production,Active,"ORU, ORM",HL7 v2.3,10.1.100.52,lab.admin@hospital.org
+PACS,GE Healthcare,4.5,Production,Active,"ORM, ORU",DICOM,10.1.100.53,imaging@hospital.org
+Pharmacy System,Epic Willow,2023.1,Production,Active,"RDE, RDS",HL7 v2.5,10.1.100.54,pharmacy@hospital.org
+Radiology Information System,Epic Radiant,2023.1,Production,Active,"ORM, ORU",HL7 v2.5,10.1.100.55,radiology@hospital.org

@@ -300,6 +300,53 @@ ${sheet.data.map((row, rowIndex) => {
     }
   };
 
+  const loadSampleData = () => {
+    setIsProcessing(true);
+    
+    // Create a mock file object for the sample data
+    const mockFile = new File(['sample-data'], 'sample-integration-data.csv', { type: 'text/csv' });
+    setFile(mockFile);
+    
+    // Use the actual sample data from our CSV files
+    setTimeout(() => {
+      const sampleSheets: ProcessedSheet[] = [
+        {
+          name: "System Inventory",
+          data: [
+            ["System Name", "Vendor", "Version", "Environment", "Status", "Message Types", "Integration Method", "IP Address", "Contact"],
+            ["Epic EHR", "Epic Systems", "2023.1", "Production", "Active", "ADT, ORM, ORU, DFT", "HL7 v2.5", "10.1.100.50", "john.smith@hospital.org"],
+            ["Cerner PowerChart", "Oracle Health", "2024.1", "Production", "Active", "ADT, ORM, ORU, SIU", "HL7 v2.5", "10.1.100.51", "sarah.jones@hospital.org"],
+            ["Lab Information System", "Sunquest", "8.2", "Production", "Active", "ORU, ORM", "HL7 v2.3", "10.1.100.52", "lab.admin@hospital.org"],
+            ["PACS", "GE Healthcare", "4.5", "Production", "Active", "ORM, ORU", "DICOM", "10.1.100.53", "imaging@hospital.org"],
+            ["Pharmacy System", "Epic Willow", "2023.1", "Production", "Active", "RDE, RDS", "HL7 v2.5", "10.1.100.54", "pharmacy@hospital.org"],
+            ["Radiology Information System", "Epic Radiant", "2023.1", "Production", "Active", "ORM, ORU", "HL7 v2.5", "10.1.100.55", "radiology@hospital.org"]
+          ],
+          preview: "Healthcare system inventory with 6 active production systems across EMR, lab, imaging, and pharmacy domains.",
+          rowCount: 7,
+          columnCount: 9
+        },
+        {
+          name: "Interface Mappings",
+          data: [
+            ["Source System", "Target System", "Message Type", "Frequency", "Protocol", "Data Elements", "Business Rule", "Error Handling"],
+            ["Epic EHR", "Lab System", "ORU^R01", "Real-time", "TCP/IP", "PID, OBR, OBX", "Auto-result on completion", "Retry 3x then alert"],
+            ["Epic EHR", "PACS", "ORM^O01", "Real-time", "TCP/IP", "PID, ORC, OBR", "Immediate transmission", "Dead letter queue"],
+            ["Lab System", "Epic EHR", "ORU^R01", "Real-time", "TCP/IP", "PID, OBR, OBX", "Real-time sync on updates", "Exponential backoff"],
+            ["PACS", "Epic EHR", "ORU^R01", "Real-time", "TCP/IP", "PID, OBR, OBX", "Image availability notification", "Manual intervention"],
+            ["Pharmacy System", "Epic EHR", "RDE^O11", "Real-time", "TCP/IP", "PID, RXE, RXR", "Medication order processing", "Pharmacist review"],
+            ["RIS", "PACS", "ORM^O01", "Real-time", "TCP/IP", "PID, ORC, OBR", "Imaging order routing", "Auto-retry 5 times"]
+          ],
+          preview: "Integration interface mappings showing real-time HL7 message flows between healthcare systems with error handling strategies.",
+          rowCount: 7,
+          columnCount: 8
+        }
+      ];
+      
+      setProcessedSheets(sampleSheets);
+      setIsProcessing(false);
+    }, 1500);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -314,6 +361,65 @@ ${sheet.data.map((row, rowIndex) => {
             structured booklets. Perfect for Integration Architects creating comprehensive 
             system documentation, interface specifications, and technical guides.
           </p>
+          
+          {/* Sample Files Section */}
+          <div className="mt-8 p-6 bg-white rounded-lg shadow-md border max-w-4xl mx-auto">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Sample Files & Expected Output</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <Grid className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <h4 className="font-medium text-blue-900 mb-2">Sample Data</h4>
+                <p className="text-sm text-blue-700 mb-3">Healthcare system inventory with integration details</p>
+                <a
+                  href="/samples/sample-integration-data.csv"
+                  download
+                  className="inline-flex items-center px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                >
+                  <Download className="h-4 w-4 mr-1" />
+                  Download CSV
+                </a>
+              </div>
+              
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <Layout className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                <h4 className="font-medium text-green-900 mb-2">Interface Mappings</h4>
+                <p className="text-sm text-green-700 mb-3">System integration flows and message types</p>
+                <a
+                  href="/samples/interface-mappings.csv"
+                  download
+                  className="inline-flex items-center px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                >
+                  <Download className="h-4 w-4 mr-1" />
+                  Download CSV
+                </a>
+              </div>
+              
+              <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <FileText className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                <h4 className="font-medium text-purple-900 mb-2">Sample Output</h4>
+                <p className="text-sm text-purple-700 mb-3">Generated booklet with professional templates</p>
+                <a
+                  href="/samples/sample-booklet-output.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-3 py-2 bg-purple-600 text-white text-sm rounded hover:bg-purple-700"
+                >
+                  <Eye className="h-4 w-4 mr-1" />
+                  View Sample
+                </a>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 mt-4 mb-4">
+              Download the sample files to see the expected input format, then view the sample output to understand how your booklet will be generated.
+            </p>
+            <button
+              onClick={loadSampleData}
+              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium"
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              Try Sample Data
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
