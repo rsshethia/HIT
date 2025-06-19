@@ -491,17 +491,18 @@ ${sheet.data.map((row, rowIndex) => {
         {
           name: "Interface Mappings",
           data: [
-            ["Source System", "Target System", "Message Type", "Frequency", "Protocol", "Data Elements", "Business Rule", "Error Handling"],
-            ["Epic EHR", "Lab System", "ORU^R01", "Real-time", "TCP/IP", "PID, OBR, OBX", "Auto-result on completion", "Retry 3x then alert"],
-            ["Epic EHR", "PACS", "ORM^O01", "Real-time", "TCP/IP", "PID, ORC, OBR", "Immediate transmission", "Dead letter queue"],
-            ["Lab System", "Epic EHR", "ORU^R01", "Real-time", "TCP/IP", "PID, OBR, OBX", "Real-time sync on updates", "Exponential backoff"],
-            ["PACS", "Epic EHR", "ORU^R01", "Real-time", "TCP/IP", "PID, OBR, OBX", "Image availability notification", "Manual intervention"],
-            ["Pharmacy System", "Epic EHR", "RDE^O11", "Real-time", "TCP/IP", "PID, RXE, RXR", "Medication order processing", "Pharmacist review"],
-            ["RIS", "PACS", "ORM^O01", "Real-time", "TCP/IP", "PID, ORC, OBR", "Imaging order routing", "Auto-retry 5 times"]
+            ["Source System", "Target System", "Message Type", "Interface Type", "Frequency", "Protocol", "Source IP", "Source Port", "Target IP", "Target Port", "Data Elements", "Business Rule", "Error Handling"],
+            ["Epic EHR", "Lab System", "ORM^O01", "Sender", "Real-time", "TCP/IP", "10.1.100.50", "5555", "10.1.100.52", "6661", "PID, ORC, OBR", "Lab order transmission", "Retry 3x then alert"],
+            ["Lab System", "Epic EHR", "ORU^R01", "Receiver", "Real-time", "TCP/IP", "10.1.100.52", "6663", "10.1.100.50", "5557", "PID, OBR, OBX", "Lab results processing", "Exponential backoff"],
+            ["Epic EHR", "PACS", "ORM^O01", "Sender", "Real-time", "TCP/IP", "10.1.100.50", "5556", "10.1.100.53", "6662", "PID, ORC, OBR", "Imaging order routing", "Dead letter queue"],
+            ["PACS", "Epic EHR", "ORU^R01", "Receiver", "Real-time", "TCP/IP", "10.1.100.53", "6664", "10.1.100.50", "5558", "PID, OBR, OBX", "Image result notification", "Manual intervention"],
+            ["Epic EHR", "Pharmacy System", "RDE^O11", "Sender", "Real-time", "TCP/IP", "10.1.100.50", "5559", "10.1.100.54", "6665", "PID, RXE, RXR", "Medication order processing", "Pharmacist review"],
+            ["Pharmacy System", "Epic EHR", "RDS^O13", "Receiver", "Real-time", "TCP/IP", "10.1.100.54", "6666", "10.1.100.50", "5560", "PID, RXD, RXR", "Dispense status update", "Auto-acknowledge"],
+            ["Interface Engine", "All Systems", "ACK^A01", "Receiver", "Real-time", "TCP/IP", "10.1.100.61", "7000", "10.1.100.0/24", "Various", "MSA, ERR", "Acknowledgment processing", "Log and forward"]
           ],
-          preview: "Integration interface mappings showing real-time HL7 message flows between healthcare systems with error handling strategies.",
-          rowCount: 7,
-          columnCount: 8
+          preview: "Complete interface mappings with bidirectional communication patterns, IP addresses, ports, and interface types (Sender/Receiver).",
+          rowCount: 8,
+          columnCount: 13
         }
       ];
       
@@ -546,7 +547,7 @@ ${sheet.data.map((row, rowIndex) => {
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <Layout className="h-8 w-8 text-green-600 mx-auto mb-2" />
                 <h4 className="font-medium text-green-900 mb-2">Interface Mappings</h4>
-                <p className="text-sm text-green-700 mb-3">System integration flows and message types</p>
+                <p className="text-sm text-green-700 mb-3">Complete interface details with IP addresses, ports, and Sender/Receiver types</p>
                 <a
                   href="/samples/interface-mappings.csv"
                   download

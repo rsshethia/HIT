@@ -1,7 +1,16 @@
-Source System,Target System,Message Type,Frequency,Protocol,Data Elements,Business Rule,Error Handling
-Epic EHR,Lab System,ORU^R01,Real-time,TCP/IP,"PID, OBR, OBX",Auto-result on completion,Retry 3x then alert
-Epic EHR,PACS,ORM^O01,Real-time,TCP/IP,"PID, ORC, OBR",Immediate transmission,Dead letter queue
-Lab System,Epic EHR,ORU^R01,Real-time,TCP/IP,"PID, OBR, OBX",Real-time sync on updates,Exponential backoff
-PACS,Epic EHR,ORU^R01,Real-time,TCP/IP,"PID, OBR, OBX",Image availability notification,Manual intervention
-Pharmacy System,Epic EHR,RDE^O11,Real-time,TCP/IP,"PID, RXE, RXR",Medication order processing,Pharmacist review
-RIS,PACS,ORM^O01,Real-time,TCP/IP,"PID, ORC, OBR",Imaging order routing,Auto-retry 5 times
+Source System,Target System,Message Type,Interface Type,Frequency,Protocol,Source IP,Source Port,Target IP,Target Port,Data Elements,Business Rule,Error Handling
+Epic EHR,Lab System,ORM^O01,Sender,Real-time,TCP/IP,10.1.100.50,5555,10.1.100.52,6661,"PID, ORC, OBR",Lab order transmission,Retry 3x then alert
+Lab System,Epic EHR,ORU^R01,Receiver,Real-time,TCP/IP,10.1.100.52,6663,10.1.100.50,5557,"PID, OBR, OBX",Lab results processing,Exponential backoff
+Epic EHR,PACS,ORM^O01,Sender,Real-time,TCP/IP,10.1.100.50,5556,10.1.100.53,6662,"PID, ORC, OBR",Imaging order routing,Dead letter queue
+PACS,Epic EHR,ORU^R01,Receiver,Real-time,TCP/IP,10.1.100.53,6664,10.1.100.50,5558,"PID, OBR, OBX",Image result notification,Manual intervention
+Epic EHR,Pharmacy System,RDE^O11,Sender,Real-time,TCP/IP,10.1.100.50,5559,10.1.100.54,6665,"PID, RXE, RXR",Medication order processing,Pharmacist review
+Pharmacy System,Epic EHR,RDS^O13,Receiver,Real-time,TCP/IP,10.1.100.54,6666,10.1.100.50,5560,"PID, RXD, RXR",Dispense status update,Auto-acknowledge
+Epic EHR,Billing System,DFT^P03,Sender,Batch,TCP/IP,10.1.100.50,5561,10.1.100.56,6668,"PID, FT1, DG1",Daily charge processing,Email notification
+Registration System,Epic EHR,ADT^A01,Sender,Real-time,TCP/IP,10.1.100.57,6669,10.1.100.50,5562,"PID, PV1, NK1",Patient admission workflow,Retry with delay
+Epic EHR,Registration System,ADT^A08,Receiver,Real-time,TCP/IP,10.1.100.50,5563,10.1.100.57,6670,"PID, PV1",Patient update notification,Manual review
+Cardiology System,Epic EHR,ORU^R01,Sender,Real-time,TCP/IP,10.1.100.59,6671,10.1.100.50,5564,"PID, OBR, OBX",Cardiac study results,Manual review
+Interface Engine,All Systems,ACK^A01,Receiver,Real-time,TCP/IP,10.1.100.61,7000,10.1.100.0/24,Various,"MSA, ERR",Acknowledgment processing,Log and forward
+Epic EHR,Interface Engine,Various,Sender,Real-time,TCP/IP,10.1.100.50,5565,10.1.100.61,7001,"Various HL7 segments",Central message routing,Queue and retry
+Pathology System,Lab System,ORU^R01,Sender,Real-time,TCP/IP,10.1.100.60,6672,10.1.100.52,6673,"PID, OBR, OBX",Pathology report integration,Auto-acknowledge
+Emergency System,Epic EHR,ADT^A04,Sender,Real-time,TCP/IP,10.1.100.62,6674,10.1.100.50,5566,"PID, PV1, AL1",Emergency registration,Immediate processing
+OR System,Epic EHR,SIU^S12,Receiver,Real-time,TCP/IP,10.1.100.63,6675,10.1.100.50,5567,"PID, SCH, RGS",Surgery schedule updates,Confirm receipt
