@@ -12,6 +12,7 @@ import {
   AlertCircle,
   X
 } from 'lucide-react';
+import jsPDF from 'jspdf';
 
 interface ProcessingOptions {
   includeHeaders: boolean;
@@ -114,9 +115,88 @@ export default function SheetToBookletPage() {
   };
 
   const generateBooklet = () => {
-    // In a real implementation, this would generate a PDF booklet
     const content = generateBookletContent();
-    downloadBooklet(content);
+    generatePDFBooklet(content);
+  };
+
+  const generatePDFBooklet = (content: string) => {
+    const doc = new jsPDF();
+    const pageHeight = doc.internal.pageSize.height;
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = 20;
+    const lineHeight = 7;
+    let currentY = margin;
+
+    // Set font
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+
+    // Split content into lines and process
+    const lines = content.split('\n');
+    
+    lines.forEach((line, index) => {
+      // Check if we need a new page
+      if (currentY > pageHeight - margin) {
+        doc.addPage();
+        currentY = margin;
+      }
+
+      // Handle different types of content
+      if (line.startsWith('# ')) {
+        // Main heading
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text(line.replace('# ', ''), margin, currentY);
+        currentY += lineHeight * 2;
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+      } else if (line.startsWith('## ')) {
+        // Section heading
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(line.replace('## ', ''), margin, currentY);
+        currentY += lineHeight * 1.5;
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+      } else if (line.startsWith('**') && line.endsWith('**')) {
+        // Bold text
+        doc.setFont('helvetica', 'bold');
+        doc.text(line.replace(/\*\*/g, ''), margin, currentY);
+        currentY += lineHeight;
+        doc.setFont('helvetica', 'normal');
+      } else if (line.startsWith('| ')) {
+        // Table row - simplified table handling
+        const cells = line.split(' | ').map(cell => cell.replace(/^\| |\|$/g, '').trim());
+        let xPos = margin;
+        const cellWidth = (pageWidth - margin * 2) / cells.length;
+        
+        cells.forEach(cell => {
+          const cleanCell = cell.replace(/\*\*/g, ''); // Remove markdown bold
+          doc.text(cleanCell.substring(0, 25), xPos, currentY); // Truncate long text
+          xPos += cellWidth;
+        });
+        currentY += lineHeight;
+      } else if (line.startsWith('- ')) {
+        // Bullet point
+        doc.text('• ' + line.replace('- ', ''), margin + 5, currentY);
+        currentY += lineHeight;
+      } else if (line.trim() === '---') {
+        // Page break
+        doc.addPage();
+        currentY = margin;
+      } else if (line.trim()) {
+        // Regular text
+        const splitText = doc.splitTextToSize(line, pageWidth - margin * 2);
+        doc.text(splitText, margin, currentY);
+        currentY += lineHeight * splitText.length;
+      } else {
+        // Empty line
+        currentY += lineHeight * 0.5;
+      }
+    });
+
+    // Save the PDF
+    doc.save(`integration-documentation-${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const getSystemProfileTemplate = () => {
@@ -300,14 +380,97 @@ ${sheet.data.map((row, rowIndex) => {
     }
   };
 
+  const generateSamplePDF = () => {
+    const doc = new jsPDF();
+    
+    // Add title page
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Integration Architecture Documentation', 20, 30);
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Generated on ' + new Date().toLocaleDateString(), 20, 45);
+    
+    // Add System Profile Template
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('System Profile Template', 20, 30);
+    
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    let yPos = 50;
+    
+    const templateLines = [
+      'SYSTEM NAME: _________________________',
+      'TYPE: □ EMR  □ Laboratory  □ Pharmacy  □ Imaging  □ Other: _______',
+      '',
+      'TECHNICAL DETAILS:',
+      '• Vendor: _________________',
+      '• Version: _______________', 
+      '• Database: _______________',
+      '• IP Address: _____________',
+      '',
+      'INTEGRATION CAPABILITIES:',
+      '□ HL7 v2.x    Version: ________',
+      '□ HL7 FHIR    Version: ________',
+      '□ API         Type: ___________',
+      '',
+      'MESSAGE TYPES SUPPORTED:',
+      '□ ADT  □ ORM  □ ORU  □ DFT  □ SIU  □ MDM'
+    ];
+    
+    templateLines.forEach(line => {
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 30;
+      }
+      doc.text(line, 20, yPos);
+      yPos += 8;
+    });
+    
+    // Add sample data page
+    doc.addPage();
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('System Inventory', 20, 30);
+    
+    // Table headers
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    yPos = 45;
+    doc.text('System Name', 20, yPos);
+    doc.text('Vendor', 70, yPos);
+    doc.text('Version', 120, yPos);
+    doc.text('Status', 160, yPos);
+    
+    // Sample data rows
+    doc.setFont('helvetica', 'normal');
+    const systems = [
+      ['Epic EHR', 'Epic Systems', '2023.1', 'Active'],
+      ['Cerner PowerChart', 'Oracle Health', '2024.1', 'Active'],
+      ['Lab System', 'Sunquest', '8.2', 'Active'],
+      ['PACS', 'GE Healthcare', '4.5', 'Active']
+    ];
+    
+    systems.forEach(system => {
+      yPos += 10;
+      doc.text(system[0], 20, yPos);
+      doc.text(system[1], 70, yPos);
+      doc.text(system[2], 120, yPos);
+      doc.text(system[3], 160, yPos);
+    });
+    
+    doc.save('sample-integration-booklet.pdf');
+  };
+
   const loadSampleData = () => {
     setIsProcessing(true);
     
-    // Create a mock file object for the sample data
     const mockFile = new File(['sample-data'], 'sample-integration-data.csv', { type: 'text/csv' });
     setFile(mockFile);
     
-    // Use the actual sample data from our CSV files
     setTimeout(() => {
       const sampleSheets: ProcessedSheet[] = [
         {
@@ -357,9 +520,9 @@ ${sheet.data.map((row, rowIndex) => {
             <h1 className="text-3xl font-bold text-gray-900">Sheet to Booklet</h1>
           </div>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Transform your integration documentation spreadsheets into professional, 
-            structured booklets. Perfect for Integration Architects creating comprehensive 
-            system documentation, interface specifications, and technical guides.
+            Transform your integration documentation spreadsheets into professional PDF booklets. 
+            Perfect for Integration Architects creating comprehensive system documentation, 
+            interface specifications, and technical guides with professional templates.
           </p>
           
           {/* Sample Files Section */}
@@ -396,17 +559,15 @@ ${sheet.data.map((row, rowIndex) => {
               
               <div className="text-center p-4 bg-purple-50 rounded-lg">
                 <FileText className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <h4 className="font-medium text-purple-900 mb-2">Sample Output</h4>
-                <p className="text-sm text-purple-700 mb-3">Generated booklet with professional templates</p>
-                <a
-                  href="/samples/sample-booklet-output.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <h4 className="font-medium text-purple-900 mb-2">Sample PDF Output</h4>
+                <p className="text-sm text-purple-700 mb-3">Professional PDF booklet with templates and data</p>
+                <button
+                  onClick={generateSamplePDF}
                   className="inline-flex items-center px-3 py-2 bg-purple-600 text-white text-sm rounded hover:bg-purple-700"
                 >
-                  <Eye className="h-4 w-4 mr-1" />
-                  View Sample
-                </a>
+                  <Download className="h-4 w-4 mr-1" />
+                  Download Sample PDF
+                </button>
               </div>
             </div>
             <p className="text-sm text-gray-500 mt-4 mb-4">
