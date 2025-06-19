@@ -1,0 +1,81 @@
+Documentation Templates
+System Profile Template
+SYSTEM NAME: _________________________
+TYPE: □ EMR  □ Laboratory  □ Pharmacy  □ Imaging  □ Other: _______
+
+TECHNICAL DETAILS:
+Vendor: _________________  Version: _______________
+Database: _______________  OS: ___________________
+IP Address: _____________  Ports: ________________
+Interface Engine: _______________________________
+
+INTEGRATION CAPABILITIES:
+□ HL7 v2.x    Version: ________
+□ HL7 FHIR    Version: ________
+□ API         Type: ___________
+□ File Transfer  Method: ______
+□ Database    Direct: _________
+
+MESSAGE TYPES SUPPORTED:
+□ ADT  □ ORM  □ ORU  □ DFT  □ SIU  □ MDM
+□ Custom: ____________________________________
+
+CONTACT INFORMATION:
+Technical Lead: ______________________________
+Phone: _____________ Email: __________________
+Vendor Support: _____________________________
+Phone: _____________ Email: __________________
+
+BUSINESS OWNER:
+Name: _______________________________________
+Department: _________________________________
+Phone: _____________ Email: __________________
+
+OPERATING SCHEDULE:
+Maintenance Windows: _________________________
+Peak Usage Times: ____________________________
+24/7 Operation: □ Yes  □ No
+Integration Flow Template
+INTEGRATION NAME: ____________________________
+SOURCE SYSTEM: ______________________________
+TARGET SYSTEM: ______________________________
+
+BUSINESS PURPOSE:
+_____________________________________________
+_____________________________________________
+
+TRIGGER EVENT:
+What starts this integration?
+_____________________________________________
+
+MESSAGE FLOW:
+Source → [Processing Steps] → Target
+
+Step 1: _____________________________________
+Step 2: _____________________________________
+Step 3: _____________________________________
+Step 4: _____________________________________
+
+DATA TRANSFORMATION:
+Source Field          Target Field         Notes
+____________          ____________         _____
+____________          ____________         _____
+____________          ____________         _____
+
+ERROR HANDLING:
+What happens when it fails?
+_____________________________________________
+Who gets notified?
+_____________________________________________
+Retry logic:
+_____________________________________________
+
+TESTING CRITERIA:
+□ _________________________________________
+□ _________________________________________
+□ _________________________________________
+
+SUCCESS METRICS:
+Volume: ___________________________________
+Timing: ___________________________________
+Accuracy: _________________________________

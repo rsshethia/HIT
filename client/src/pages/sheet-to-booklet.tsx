@@ -22,6 +22,8 @@ interface ProcessingOptions {
   fontSize: 'small' | 'medium' | 'large';
   orientation: 'portrait' | 'landscape';
   margins: 'narrow' | 'normal' | 'wide';
+  useTemplate: boolean;
+  templateType: 'system-profile' | 'integration-flow' | 'custom';
 }
 
 interface ProcessedSheet {
@@ -45,7 +47,9 @@ export default function SheetToBookletPage() {
     headerStyle: 'professional',
     fontSize: 'medium',
     orientation: 'portrait',
-    margins: 'normal'
+    margins: 'normal',
+    useTemplate: false,
+    templateType: 'system-profile'
   });
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -115,33 +119,162 @@ export default function SheetToBookletPage() {
     downloadBooklet(content);
   };
 
+  const getSystemProfileTemplate = () => {
+    return `
+# System Profile Template
+
+**SYSTEM NAME:** _________________________
+**TYPE:** □ EMR  □ Laboratory  □ Pharmacy  □ Imaging  □ Other: _______
+
+## TECHNICAL DETAILS:
+- **Vendor:** _________________  
+- **Version:** _______________
+- **Database:** _______________  
+- **OS:** ___________________
+- **IP Address:** _____________  
+- **Ports:** ________________
+- **Interface Engine:** _______________________________
+
+## INTEGRATION CAPABILITIES:
+□ HL7 v2.x    Version: ________
+□ HL7 FHIR    Version: ________
+□ API         Type: ___________
+□ File Transfer  Method: ______
+□ Database    Direct: _________
+
+## MESSAGE TYPES SUPPORTED:
+□ ADT  □ ORM  □ ORU  □ DFT  □ SIU  □ MDM
+□ Custom: ____________________________________
+
+## CONTACT INFORMATION:
+**Technical Lead:** ______________________________
+- **Phone:** _____________ 
+- **Email:** __________________
+
+**Vendor Support:** _____________________________
+- **Phone:** _____________ 
+- **Email:** __________________
+
+## BUSINESS OWNER:
+- **Name:** _______________________________________
+- **Department:** _________________________________
+- **Phone:** _____________ 
+- **Email:** __________________
+
+## OPERATING SCHEDULE:
+- **Maintenance Windows:** _________________________
+- **Peak Usage Times:** ____________________________
+- **24/7 Operation:** □ Yes  □ No
+
+---
+`;
+  };
+
+  const getIntegrationFlowTemplate = () => {
+    return `
+# Integration Flow Template
+
+**INTEGRATION NAME:** ____________________________
+**SOURCE SYSTEM:** ______________________________
+**TARGET SYSTEM:** ______________________________
+
+## BUSINESS PURPOSE:
+_____________________________________________
+_____________________________________________
+
+## TRIGGER EVENT:
+What starts this integration?
+_____________________________________________
+
+## MESSAGE FLOW:
+Source → [Processing Steps] → Target
+
+1. **Step 1:** _____________________________________
+2. **Step 2:** _____________________________________
+3. **Step 3:** _____________________________________
+4. **Step 4:** _____________________________________
+
+## DATA TRANSFORMATION:
+
+| Source Field | Target Field | Notes |
+|-------------|-------------|-------|
+| ____________ | ____________ | _____ |
+| ____________ | ____________ | _____ |
+| ____________ | ____________ | _____ |
+
+## ERROR HANDLING:
+**What happens when it fails?**
+_____________________________________________
+
+**Who gets notified?**
+_____________________________________________
+
+**Retry logic:**
+_____________________________________________
+
+## TESTING CRITERIA:
+□ _________________________________________
+□ _________________________________________
+□ _________________________________________
+
+## SUCCESS METRICS:
+- **Volume:** ___________________________________
+- **Timing:** ___________________________________
+- **Accuracy:** _________________________________
+
+---
+`;
+  };
+
   const generateBookletContent = () => {
-    let content = `
-# Integration Architecture Documentation
+    let content = `# Integration Architecture Documentation
 ## Generated on ${new Date().toLocaleDateString()}
 
-${processingOptions.includeTOC ? `
-## Table of Contents
+`;
+
+    if (processingOptions.useTemplate) {
+      content += `## Documentation Templates\n\n`;
+      
+      if (processingOptions.templateType === 'system-profile') {
+        content += getSystemProfileTemplate();
+      } else if (processingOptions.templateType === 'integration-flow') {
+        content += getIntegrationFlowTemplate();
+      }
+      
+      content += `\n## Processed Data\n\n`;
+    }
+
+    if (processingOptions.includeTOC && processedSheets.length > 0) {
+      content += `## Table of Contents
 ${processedSheets.map((sheet, index) => `${index + 1}. ${sheet.name}`).join('\n')}
 
 ---
-` : ''}
 
-${processedSheets.map((sheet, index) => `
+`;
+    }
+
+    if (processedSheets.length > 0) {
+      content += processedSheets.map((sheet, index) => `
 ${processingOptions.pageBreakOnSheets && index > 0 ? '\n---\n' : ''}
 
 ## ${index + 1}. ${sheet.name}
 
-${sheet.data.map(row => `| ${row.join(' | ')} |`).join('\n')}
+${sheet.data.map((row, rowIndex) => {
+  if (rowIndex === 0 && processingOptions.includeHeaders) {
+    return `| **${row.join('** | **')}** |`;
+  }
+  return `| ${row.join(' | ')} |`;
+}).join('\n')}
 
 **Summary:** ${sheet.preview}
-**Rows:** ${sheet.rowCount}, **Columns:** ${sheet.columnCount}
+**Data Points:** ${sheet.rowCount} rows × ${sheet.columnCount} columns
 
-`).join('\n')}
+`).join('\n');
+    }
 
----
+    content += `\n---
 *Generated by HIT Platform - Integration Architecture Documentation Tool*
-    `;
+*Template-based documentation for Integration Architects*`;
     
     return content;
   };
@@ -270,6 +403,20 @@ ${sheet.data.map(row => `| ${row.join(' | ')} |`).join('\n')}
                           Generate Booklet
                         </button>
                       </div>
+                      
+                      {processingOptions.useTemplate && (
+                        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-sm font-medium text-amber-900">Professional Template Included</h4>
+                              <p className="text-xs text-amber-700">
+                                {processingOptions.templateType === 'system-profile' ? 'System Profile' : 'Integration Flow'} template will be added to your booklet
+                              </p>
+                            </div>
+                            <FileText className="h-5 w-5 text-amber-600" />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -423,6 +570,50 @@ ${sheet.data.map(row => `| ${row.join(' | ')} |`).join('\n')}
                     <option value="wide">Wide</option>
                   </select>
                 </div>
+                
+                <div className="pt-4 border-t border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-900 mb-3">Professional Templates</h4>
+                  <div>
+                    <label className="flex items-center mb-3">
+                      <input
+                        type="checkbox"
+                        checked={processingOptions.useTemplate}
+                        onChange={(e) => setProcessingOptions(prev => ({
+                          ...prev,
+                          useTemplate: e.target.checked
+                        }))}
+                        className="mr-2"
+                      />
+                      <span className="text-sm text-gray-700">Include documentation template</span>
+                    </label>
+                  </div>
+                  
+                  {processingOptions.useTemplate && (
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Template Type</label>
+                      <select
+                        value={processingOptions.templateType}
+                        onChange={(e) => setProcessingOptions(prev => ({
+                          ...prev,
+                          templateType: e.target.value as any
+                        }))}
+                        className="w-full p-2 border border-gray-300 rounded text-sm"
+                      >
+                        <option value="system-profile">System Profile Template</option>
+                        <option value="integration-flow">Integration Flow Template</option>
+                        <option value="custom">Custom Template</option>
+                      </select>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {processingOptions.templateType === 'system-profile' && 
+                          'Comprehensive system documentation template with technical details, contacts, and capabilities.'}
+                        {processingOptions.templateType === 'integration-flow' && 
+                          'Integration workflow template with message flows, transformations, and error handling.'}
+                        {processingOptions.templateType === 'custom' && 
+                          'Customizable template for specific documentation needs.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="mt-6 p-4 bg-blue-50 rounded-lg">
@@ -431,13 +622,27 @@ ${sheet.data.map(row => `| ${row.join(' | ')} |`).join('\n')}
                   <div>
                     <h4 className="text-sm font-medium text-blue-900">Integration Architect Tool</h4>
                     <p className="text-xs text-blue-700 mt-1">
-                      Designed specifically for creating professional documentation 
-                      from integration spreadsheets, system inventories, and 
-                      interface specifications.
+                      Transform spreadsheets into professional documentation with 
+                      standardized templates for system profiles, integration flows, 
+                      and technical specifications.
                     </p>
                   </div>
                 </div>
               </div>
+              
+              {processingOptions.useTemplate && (
+                <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                  <h5 className="text-xs font-medium text-green-900 mb-1">Template Preview</h5>
+                  <p className="text-xs text-green-700">
+                    {processingOptions.templateType === 'system-profile' && 
+                      'System documentation with technical details, integration capabilities, contact information, and operating schedules.'}
+                    {processingOptions.templateType === 'integration-flow' && 
+                      'Integration workflow with business purpose, message flows, data transformations, error handling, and success metrics.'}
+                    {processingOptions.templateType === 'custom' && 
+                      'Flexible template structure for specialized documentation requirements.'}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
