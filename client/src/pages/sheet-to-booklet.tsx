@@ -667,7 +667,7 @@ ${sheet.data.map((row, rowIndex) => {
                           className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
                         >
                           <Download className="h-4 w-4 mr-2" />
-                          Generate Booklet
+                          Generate PDF Booklet
                         </button>
                       </div>
                       
@@ -695,7 +695,7 @@ ${sheet.data.map((row, rowIndex) => {
               <div className="bg-white rounded-lg shadow-lg p-6 mt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <Eye className="h-5 w-5 mr-2 text-indigo-600" />
-                  Booklet Preview
+                  PDF Content Preview
                 </h3>
                 <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
                   <pre className="text-sm text-gray-700 whitespace-pre-wrap">

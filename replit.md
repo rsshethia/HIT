@@ -116,6 +116,7 @@ Healthcare Integration Tools (HIT) is a comprehensive web application designed t
 
 Changelog:
 - June 19, 2025. Initial setup
+- June 19, 2025. Enhanced Sheet to Booklet tool with PDF generation using jsPDF library, added comprehensive sample files with authentic healthcare integration data, implemented "Try Sample Data" functionality for instant testing, and created downloadable sample PDF output for Integration Architects
 
 ## User Preferences
 
