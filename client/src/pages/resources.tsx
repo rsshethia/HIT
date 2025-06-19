@@ -106,6 +106,13 @@ export default function ResourcesPage() {
       link: "/hl7-segment-mapper",
       category: "Education",
       isInternalLink: true
+    },
+    {
+      title: "Sheet to Booklet",
+      description: "Transform complex integration documentation into comprehensive, professional booklets. Designed specifically for Integration Architects to create structured documentation from spreadsheets and data sources.",
+      link: "/sheet-to-booklet",
+      category: "Documentation",
+      isInternalLink: true
     }
   ];
 

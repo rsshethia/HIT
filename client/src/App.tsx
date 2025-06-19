@@ -17,6 +17,7 @@ import GuidesPage from "@/pages/guides";
 import HL7FlowGamePage from "@/pages/hl7-flow-game";
 import HL7SegmentMapper from "@/pages/hl7-segment-mapper";
 import ClinicalIntegrationPlay from "@/pages/clinical-integration-play";
+import SheetToBookletPage from "@/pages/sheet-to-booklet";
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { DevHeader } from "@/components/dev-header";
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/hl7-flow-game" component={HL7FlowGamePage} />
       <Route path="/hl7-segment-mapper" component={HL7SegmentMapper} />
       <Route path="/clinical-integration-play" component={ClinicalIntegrationPlay} />
+      <Route path="/sheet-to-booklet" component={SheetToBookletPage} />
       <Route component={NotFound} />
     </Switch>
   );
