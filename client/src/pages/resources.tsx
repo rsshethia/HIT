@@ -121,13 +121,7 @@ export default function ResourcesPage() {
       category: "Education",
       isInternalLink: true
     },
-    {
-      title: "Healthcare Integration Designer",
-      description: "Advanced drawing tool powered by Excalidraw for creating detailed healthcare system architecture diagrams. Features professional templates for EHR integrations, HL7 workflows, and cloud migration patterns.",
-      link: "/excalidraw-integration",
-      category: "Education",
-      isInternalLink: true
-    }
+
   ];
 
   // Filter resources to hide specific items

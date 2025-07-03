@@ -19,7 +19,7 @@ import HL7SegmentMapper from "@/pages/hl7-segment-mapper";
 import ClinicalIntegrationPlay from "@/pages/clinical-integration-play";
 import SheetToBookletPage from "@/pages/sheet-to-booklet";
 import IntegrationDiagramPage from "@/pages/integration-diagram";
-import ExcalidrawIntegrationPage from "@/pages/excalidraw-integration";
+
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { DevHeader } from "@/components/dev-header";
@@ -43,7 +43,6 @@ function Router() {
       <Route path="/clinical-integration-play" component={ClinicalIntegrationPlay} />
       <Route path="/sheet-to-booklet" component={SheetToBookletPage} />
       <Route path="/integration-diagram" component={IntegrationDiagramPage} />
-      <Route path="/excalidraw-integration" component={ExcalidrawIntegrationPage} />
       <Route component={NotFound} />
     </Switch>
   );
