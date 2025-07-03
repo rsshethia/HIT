@@ -118,6 +118,7 @@ Changelog:
 - June 19, 2025. Initial setup
 - June 19, 2025. Enhanced Sheet to Booklet tool with PDF generation using jsPDF library, added comprehensive sample files with authentic healthcare integration data, implemented "Try Sample Data" functionality for instant testing, and created downloadable sample PDF output for Integration Architects
 - January 3, 2025. Added Integration Diagram Tool using tldraw library for interactive healthcare system architecture drawings, workflow visualizations, and integration documentation with professional templates for common patterns
+- January 3, 2025. Enhanced platform with Excalidraw integration providing Healthcare Integration Designer tool with advanced drawing capabilities, healthcare-specific templates (EHR Hub, HL7 Workflows, PACS Integration, Cloud Migration), and professional export functionality
 
 ## User Preferences
 
