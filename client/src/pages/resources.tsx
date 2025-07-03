@@ -113,6 +113,13 @@ export default function ResourcesPage() {
       link: "/sheet-to-booklet",
       category: "Documentation",
       isInternalLink: true
+    },
+    {
+      title: "Integration Diagram Tool",
+      description: "Create professional integration diagrams, system architecture drawings, and workflow visualizations using an interactive drawing canvas. Perfect for documenting healthcare system connections and data flows.",
+      link: "/integration-diagram",
+      category: "Education",
+      isInternalLink: true
     }
   ];
 
