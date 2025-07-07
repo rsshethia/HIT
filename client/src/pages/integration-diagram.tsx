@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Tldraw } from 'tldraw';
+import React, { useState, useRef } from 'react';
+import { Tldraw, Editor, createShapeId, TLGeoShape } from 'tldraw';
 import 'tldraw/tldraw.css';
 import { Pen, Download, Save, FileText, Network, Layout, RefreshCw } from 'lucide-react';
 
 export default function IntegrationDiagramPage() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const editorRef = useRef<Editor | null>(null);
 
   const templates = [
     {
@@ -34,11 +35,116 @@ export default function IntegrationDiagramPage() {
     }
   ];
 
+  const createHubSpokeTemplate = () => {
+    if (!editorRef.current) return;
+
+    const editor = editorRef.current;
+    
+    // Clear existing shapes
+    editor.selectAll();
+    editor.deleteShapes(editor.getSelectedShapeIds());
+
+    // Create central hub (Interface Engine)
+    const hubId = createShapeId();
+    editor.createShape({
+      id: hubId,
+      type: 'geo',
+      x: 400,
+      y: 300,
+      props: {
+        geo: 'rectangle',
+        w: 160,
+        h: 80,
+        color: 'blue',
+        fill: 'solid',
+        text: 'Interface Engine\n(Hub)'
+      }
+    });
+
+    // Create spoke systems
+    const spokes = [
+      { name: 'EMR System', x: 200, y: 150, color: 'green' },
+      { name: 'Lab System\n(LIS)', x: 600, y: 150, color: 'orange' },
+      { name: 'PACS\nImaging', x: 650, y: 350, color: 'red' },
+      { name: 'Pharmacy\nSystem', x: 550, y: 500, color: 'violet' },
+      { name: 'Billing\nSystem', x: 250, y: 500, color: 'yellow' },
+      { name: 'Patient Portal', x: 150, y: 350, color: 'light-blue' }
+    ];
+
+    spokes.forEach((spoke) => {
+      const spokeId = createShapeId();
+      const arrowId = createShapeId();
+      
+      // Create spoke system
+      editor.createShape({
+        id: spokeId,
+        type: 'geo',
+        x: spoke.x,
+        y: spoke.y,
+        props: {
+          geo: 'rectangle',
+          w: 120,
+          h: 70,
+          color: spoke.color,
+          fill: 'solid',
+          text: spoke.name
+        }
+      });
+
+      // Create connecting arrow from spoke to hub
+      editor.createShape({
+        id: arrowId,
+        type: 'arrow',
+        x: 0,
+        y: 0,
+        props: {
+          start: { x: spoke.x + 60, y: spoke.y + 35 },
+          end: { x: 480, y: 340 },
+          color: spoke.color,
+          arrowheadStart: 'none',
+          arrowheadEnd: 'arrow'
+        }
+      });
+    });
+
+    // Add title
+    const titleId = createShapeId();
+    editor.createShape({
+      id: titleId,
+      type: 'text',
+      x: 350,
+      y: 50,
+      props: {
+        text: 'Hub & Spoke Integration Architecture',
+        size: 'xl',
+        color: 'black'
+      }
+    });
+
+    // Zoom to fit
+    editor.zoomToFit();
+  };
+
   const loadTemplate = (templateId: string) => {
     setSelectedTemplate(templateId);
     setShowTemplates(false);
-    // Template loading logic would be implemented here
-    console.log(`Loading template: ${templateId}`);
+    
+    switch (templateId) {
+      case 'hub-spoke':
+        createHubSpokeTemplate();
+        break;
+      case 'point-to-point':
+        console.log('Point-to-Point template would be implemented');
+        break;
+      case 'message-bus':
+        console.log('Message Bus template would be implemented');
+        break;
+      case 'api-gateway':
+        console.log('API Gateway template would be implemented');
+        break;
+      default:
+        console.log(`Template ${templateId} not yet implemented`);
+    }
   };
 
   return (
@@ -105,11 +211,28 @@ export default function IntegrationDiagramPage() {
                   <div 
                     key={template.id}
                     onClick={() => loadTemplate(template.id)}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 cursor-pointer transition-colors"
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      selectedTemplate === template.id 
+                        ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-200' 
+                        : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'
+                    }`}
                   >
-                    <h4 className="font-medium text-gray-900 mb-2">{template.name}</h4>
+                    <h4 className={`font-medium mb-2 ${
+                      selectedTemplate === template.id ? 'text-indigo-900' : 'text-gray-900'
+                    }`}>
+                      {template.name}
+                      {selectedTemplate === template.id && (
+                        <span className="ml-2 text-xs bg-indigo-200 text-indigo-800 px-2 py-1 rounded">
+                          Active
+                        </span>
+                      )}
+                    </h4>
                     <p className="text-sm text-gray-600 mb-2">{template.description}</p>
-                    <p className="text-xs text-indigo-600">{template.preview}</p>
+                    <p className={`text-xs ${
+                      selectedTemplate === template.id ? 'text-indigo-700' : 'text-indigo-600'
+                    }`}>
+                      {template.preview}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -119,7 +242,11 @@ export default function IntegrationDiagramPage() {
 
         {/* Drawing Canvas */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden" style={{ height: '600px' }}>
-          <Tldraw />
+          <Tldraw 
+            onMount={(editor) => {
+              editorRef.current = editor;
+            }}
+          />
         </div>
 
         {/* Help Section */}
