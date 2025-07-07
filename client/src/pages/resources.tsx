@@ -121,6 +121,13 @@ export default function ResourcesPage() {
       category: "Education",
       isInternalLink: true
     },
+    {
+      title: "Workflow Mapping Tool",
+      description: "Visualize healthcare integration workflows with interactive flowcharts. Design patient journeys, system interactions, and HL7 message flows using drag-and-drop workflow builder with professional templates.",
+      link: "/workflow-mapping",
+      category: "Education",
+      isInternalLink: true
+    },
 
   ];
 
