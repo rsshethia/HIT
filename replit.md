@@ -119,6 +119,7 @@ Changelog:
 - June 19, 2025. Enhanced Sheet to Booklet tool with PDF generation using jsPDF library, added comprehensive sample files with authentic healthcare integration data, implemented "Try Sample Data" functionality for instant testing, and created downloadable sample PDF output for Integration Architects
 - January 3, 2025. Added Integration Diagram Tool using tldraw library for interactive healthcare system architecture drawings, workflow visualizations, and integration documentation with professional templates for common patterns
 - January 3, 2025. Created Workflow Mapping Tool using @xyflow/react for interactive healthcare workflow visualization, featuring drag-and-drop workflow builder, patient journey mapping, HL7 message flow tracking, and professional healthcare templates
+- January 3, 2025. Enhanced Integration Diagram Tool with healthcare-specific features: added professional sidebar with drawing tools (HL7 Message, System Node, Workflow Step, Data Flow), expanded template library with healthcare integration patterns, improved UI with gradient header and better organization, integrated zoom controls and grid toggle functionality
 
 
 ## User Preferences

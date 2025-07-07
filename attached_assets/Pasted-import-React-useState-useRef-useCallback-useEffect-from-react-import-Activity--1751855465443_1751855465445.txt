@@ -1,0 +1,683 @@
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { 
+  Activity, 
+  Heart, 
+  Monitor, 
+  Database, 
+  Share2, 
+  Download, 
+  RotateCcw, 
+  ZoomIn, 
+  ZoomOut,
+  Grid,
+  Layers,
+  Settings,
+  MessageSquare,
+  Server,
+  Workflow,
+  Plus,
+  Save
+} from 'lucide-react';
+
+// Healthcare Integration Diagram Editor
+const HealthcareDiagramEditor = () => {
+  const canvasRef = useRef(null);
+  const [selectedTool, setSelectedTool] = useState('select');
+  const [shapes, setShapes] = useState([]);
+  const [selectedShape, setSelectedShape] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
+  const [showGrid, setShowGrid] = useState(true);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+
+  // Healthcare shape types and templates
+  const shapeTypes = {
+    'hl7-message': {
+      name: 'HL7 Message',
+      icon: '📡',
+      color: '#4f46e5',
+      width: 160,
+      height: 80,
+      defaultProps: { messageType: 'ADT^A01', description: 'Patient Admission', priority: 'high' }
+    },
+    'system-node': {
+      name: 'System Node',
+      icon: '🏥',
+      color: '#22c55e',
+      width: 120,
+      height: 120,
+      defaultProps: { systemType: 'EMR', status: 'active', connections: 0 }
+    },
+    'workflow-step': {
+      name: 'Workflow Step',
+      icon: '📋',
+      color: '#48bb78',
+      width: 200,
+      height: 60,
+      defaultProps: { stepNumber: 1, stepType: 'physical', description: 'Patient arrives', duration: '5 min' }
+    },
+    'data-flow': {
+      name: 'Data Flow',
+      icon: '🔄',
+      color: '#805ad5',
+      width: 140,
+      height: 40,
+      defaultProps: { flowType: 'bidirectional', protocol: 'HL7', status: 'active' }
+    }
+  };
+
+  const integrationTemplates = {
+    'admission-workflow': {
+      name: 'Patient Admission Workflow',
+      description: 'PAS to EMR admission integration flow',
+      icon: '🏥',
+      shapes: [
+        {
+          id: '1',
+          type: 'system-node',
+          x: 50,
+          y: 100,
+          props: { systemType: 'PAS', status: 'active', connections: 2 }
+        },
+        {
+          id: '2',
+          type: 'hl7-message',
+          x: 250,
+          y: 120,
+          props: { messageType: 'ADT^A01', description: 'Patient Admission', priority: 'high' }
+        },
+        {
+          id: '3',
+          type: 'system-node',
+          x: 480,
+          y: 100,
+          props: { systemType: 'EMR', status: 'active', connections: 3 }
+        }
+      ]
+    },
+    'hl7-sequence': {
+      name: 'HL7 Message Sequence',
+      description: 'Standard HL7 ADT message flow',
+      icon: '📡',
+      shapes: [
+        {
+          id: '1',
+          type: 'hl7-message',
+          x: 50,
+          y: 50,
+          props: { messageType: 'ADT^A04', description: 'Registration', priority: 'high' }
+        },
+        {
+          id: '2',
+          type: 'hl7-message',
+          x: 250,
+          y: 50,
+          props: { messageType: 'ORM^O01', description: 'Order', priority: 'medium' }
+        },
+        {
+          id: '3',
+          type: 'hl7-message',
+          x: 450,
+          y: 50,
+          props: { messageType: 'ORU^R01', description: 'Results', priority: 'medium' }
+        },
+        {
+          id: '4',
+          type: 'hl7-message',
+          x: 650,
+          y: 50,
+          props: { messageType: 'ADT^A03', description: 'Discharge', priority: 'high' }
+        }
+      ]
+    },
+    'clinical-workflow': {
+      name: 'Clinical Workflow',
+      description: 'Physical + digital process mapping',
+      icon: '👩‍⚕️',
+      shapes: [
+        {
+          id: '1',
+          type: 'workflow-step',
+          x: 50,
+          y: 50,
+          props: { stepNumber: 1, stepType: 'physical', description: 'Patient arrives at ED', duration: '2 min' }
+        },
+        {
+          id: '2',
+          type: 'workflow-step',
+          x: 300,
+          y: 50,
+          props: { stepNumber: 2, stepType: 'digital', description: 'Registration in PAS', duration: '5 min' }
+        },
+        {
+          id: '3',
+          type: 'workflow-step',
+          x: 550,
+          y: 50,
+          props: { stepNumber: 3, stepType: 'physical', description: 'Triage assessment', duration: '10 min' }
+        },
+        {
+          id: '4',
+          type: 'workflow-step',
+          x: 800,
+          y: 50,
+          props: { stepNumber: 4, stepType: 'digital', description: 'Episode creation', duration: '1 min' }
+        }
+      ]
+    }
+  };
+
+  // Handle canvas clicks
+  const handleCanvasClick = useCallback((e) => {
+    if (selectedTool === 'select') return;
+    
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left - panOffset.x) / zoom;
+    const y = (e.clientY - rect.top - panOffset.y) / zoom;
+    
+    if (shapeTypes[selectedTool]) {
+      const newShape = {
+        id: Date.now().toString(),
+        type: selectedTool,
+        x: x - shapeTypes[selectedTool].width / 2,
+        y: y - shapeTypes[selectedTool].height / 2,
+        props: { ...shapeTypes[selectedTool].defaultProps }
+      };
+      
+      setShapes(prev => [...prev, newShape]);
+      setSelectedTool('select');
+    }
+  }, [selectedTool, zoom, panOffset]);
+
+  // Shape rendering components
+  const HL7MessageShape = ({ shape, isSelected }) => {
+    const priorityColors = {
+      high: '#ef4444',
+      medium: '#eab308',
+      low: '#22c55e'
+    };
+
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: shape.x,
+          top: shape.y,
+          width: 160,
+          height: 80,
+          background: '#4f46e5',
+          border: `3px solid ${isSelected ? '#00d4ff' : priorityColors[shape.props.priority]}`,
+          borderRadius: 8,
+          color: 'white',
+          padding: 8,
+          fontSize: 11,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: isSelected ? '0 0 20px rgba(0, 212, 255, 0.5)' : '0 2px 8px rgba(0,0,0,0.2)'
+        }}
+      >
+        <div style={{ fontWeight: 'bold', marginBottom: 4 }}>📡</div>
+        <div style={{ fontWeight: 600, textAlign: 'center', marginBottom: 2 }}>
+          {shape.props.messageType}
+        </div>
+        <div style={{ fontSize: 9, textAlign: 'center', opacity: 0.9 }}>
+          {shape.props.description}
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: 4,
+            right: 4,
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: priorityColors[shape.props.priority]
+          }}
+        />
+      </div>
+    );
+  };
+
+  const SystemNodeShape = ({ shape, isSelected }) => {
+    const systemIcons = {
+      PAS: '🏥',
+      EMR: '📋',
+      LIS: '🧪',
+      PACS: '📊',
+      ADT: '🔄'
+    };
+
+    const statusColors = {
+      active: '#22c55e',
+      inactive: '#6b7280',
+      maintenance: '#eab308'
+    };
+
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: shape.x,
+          top: shape.y,
+          width: 120,
+          height: 120,
+          background: 'white',
+          border: `3px solid ${isSelected ? '#00d4ff' : statusColors[shape.props.status]}`,
+          borderRadius: 12,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: isSelected ? '0 0 20px rgba(0, 212, 255, 0.5)' : '0 2px 8px rgba(0,0,0,0.2)'
+        }}
+      >
+        <div style={{ fontSize: 32, marginBottom: 8 }}>
+          {systemIcons[shape.props.systemType]}
+        </div>
+        <div style={{
+          fontSize: 12,
+          fontWeight: 600,
+          color: '#1f2937',
+          textAlign: 'center'
+        }}>
+          {shape.props.systemType}
+        </div>
+        <div
+          style={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            width: 12,
+            height: 12,
+            borderRadius: '50%',
+            background: statusColors[shape.props.status]
+          }}
+        />
+        {shape.props.connections > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 8,
+              right: 8,
+              background: '#4f46e5',
+              color: 'white',
+              fontSize: 9,
+              padding: '2px 6px',
+              borderRadius: 10,
+              fontWeight: 600
+            }}
+          >
+            {shape.props.connections}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const WorkflowStepShape = ({ shape, isSelected }) => {
+    const typeColors = {
+      physical: '#48bb78',
+      digital: '#3182ce'
+    };
+
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: shape.x,
+          top: shape.y,
+          width: 200,
+          height: 60,
+          background: 'white',
+          border: `3px solid ${isSelected ? '#00d4ff' : typeColors[shape.props.stepType]}`,
+          borderRadius: 6,
+          padding: 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          cursor: 'pointer',
+          boxShadow: isSelected ? '0 0 20px rgba(0, 212, 255, 0.5)' : '0 2px 8px rgba(0,0,0,0.2)'
+        }}
+      >
+        <div
+          style={{
+            width: 24,
+            height: 24,
+            borderRadius: '50%',
+            background: typeColors[shape.props.stepType],
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 12,
+            fontWeight: 'bold'
+          }}
+        >
+          {shape.props.stepNumber}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: '#1f2937',
+            marginBottom: 2
+          }}>
+            {shape.props.description}
+          </div>
+          <div style={{ fontSize: 9, color: '#6b7280' }}>
+            {shape.props.stepType} • {shape.props.duration}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderShape = (shape) => {
+    const isSelected = selectedShape?.id === shape.id;
+    
+    switch (shape.type) {
+      case 'hl7-message':
+        return <HL7MessageShape key={shape.id} shape={shape} isSelected={isSelected} />;
+      case 'system-node':
+        return <SystemNodeShape key={shape.id} shape={shape} isSelected={isSelected} />;
+      case 'workflow-step':
+        return <WorkflowStepShape key={shape.id} shape={shape} isSelected={isSelected} />;
+      default:
+        return null;
+    }
+  };
+
+  const loadTemplate = (templateKey) => {
+    const template = integrationTemplates[templateKey];
+    if (template) {
+      setShapes(template.shapes);
+      setSelectedTemplate(templateKey);
+      setSelectedShape(null);
+    }
+  };
+
+  const clearCanvas = () => {
+    setShapes([]);
+    setSelectedShape(null);
+    setSelectedTemplate(null);
+  };
+
+  const exportDiagram = () => {
+    const diagramData = {
+      shapes,
+      metadata: {
+        template: selectedTemplate,
+        created: new Date().toISOString(),
+        version: '1.0'
+      }
+    };
+    
+    const blob = new Blob([JSON.stringify(diagramData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'healthcare-integration-diagram.json';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div style={{
+      width: '100%',
+      height: '800px',
+      border: '1px solid #e5e7eb',
+      borderRadius: '8px',
+      overflow: 'hidden',
+      background: '#f9fafb',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: '12px 16px',
+        background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+        color: 'white',
+        fontSize: '14px',
+        fontWeight: 600,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
+      }}>
+        <Heart className="w-5 h-5" />
+        Healthcare Integration Diagram Editor
+        <div style={{ marginLeft: 'auto', fontSize: '12px', opacity: 0.9 }}>
+          HIT Platform v2.1
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flex: 1 }}>
+        {/* Toolbar */}
+        <div style={{
+          width: '240px',
+          background: 'white',
+          borderRight: '1px solid #e5e7eb',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px'
+        }}>
+          {/* Tools */}
+          <div>
+            <h3 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: '#374151' }}>
+              Tools
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+              <button
+                onClick={() => setSelectedTool('select')}
+                style={{
+                  padding: '8px',
+                  border: selectedTool === 'select' ? '2px solid #4f46e5' : '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  background: selectedTool === 'select' ? '#eff6ff' : 'white',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Monitor className="w-4 h-4" />
+                Select
+              </button>
+              
+              {Object.entries(shapeTypes).map(([key, shape]) => (
+                <button
+                  key={key}
+                  onClick={() => setSelectedTool(key)}
+                  style={{
+                    padding: '8px',
+                    border: selectedTool === key ? '2px solid #4f46e5' : '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    background: selectedTool === key ? '#eff6ff' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <span style={{ fontSize: '16px' }}>{shape.icon}</span>
+                  {shape.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Templates */}
+          <div>
+            <h3 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: '#374151' }}>
+              Templates
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {Object.entries(integrationTemplates).map(([key, template]) => (
+                <button
+                  key={key}
+                  onClick={() => loadTemplate(key)}
+                  style={{
+                    padding: '8px 12px',
+                    border: selectedTemplate === key ? '2px solid #4f46e5' : '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    background: selectedTemplate === key ? '#eff6ff' : 'white',
+                    cursor: 'pointer',
+                    fontSize: '11px',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <span style={{ fontSize: '14px' }}>{template.icon}</span>
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{template.name}</div>
+                    <div style={{ fontSize: '9px', color: '#6b7280' }}>{template.description}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div>
+            <h3 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px', color: '#374151' }}>
+              Actions
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <button
+                onClick={clearCanvas}
+                style={{
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  background: 'white',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <RotateCcw className="w-4 h-4" />
+                Clear Canvas
+              </button>
+              <button
+                onClick={exportDiagram}
+                style={{
+                  padding: '8px 12px',
+                  border: '1px solid #4f46e5',
+                  borderRadius: '6px',
+                  background: '#4f46e5',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Canvas */}
+        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+          <div
+            ref={canvasRef}
+            onClick={handleCanvasClick}
+            style={{
+              width: '100%',
+              height: '100%',
+              background: showGrid ? 
+                `radial-gradient(circle, #e5e7eb 1px, transparent 1px)` : '#ffffff',
+              backgroundSize: showGrid ? '20px 20px' : 'auto',
+              position: 'relative',
+              cursor: selectedTool === 'select' ? 'default' : 'crosshair',
+              transform: `scale(${zoom}) translate(${panOffset.x}px, ${panOffset.y}px)`,
+              transformOrigin: '0 0'
+            }}
+          >
+            {shapes.map(renderShape)}
+          </div>
+
+          {/* Canvas Controls */}
+          <div style={{
+            position: 'absolute',
+            bottom: '16px',
+            right: '16px',
+            display: 'flex',
+            gap: '8px'
+          }}>
+            <button
+              onClick={() => setZoom(prev => Math.min(prev + 0.1, 2))}
+              style={{
+                padding: '8px',
+                background: 'white',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setZoom(prev => Math.max(prev - 0.1, 0.5))}
+              style={{
+                padding: '8px',
+                background: 'white',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setShowGrid(!showGrid)}
+              style={{
+                padding: '8px',
+                background: showGrid ? '#eff6ff' : 'white',
+                border: showGrid ? '1px solid #4f46e5' : '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              <Grid className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Zoom Indicator */}
+          <div style={{
+            position: 'absolute',
+            bottom: '16px',
+            left: '16px',
+            background: 'white',
+            border: '1px solid #d1d5db',
+            borderRadius: '6px',
+            padding: '4px 8px',
+            fontSize: '12px',
+            fontWeight: 600
+          }}>
+            {Math.round(zoom * 100)}%
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HealthcareDiagramEditor;
