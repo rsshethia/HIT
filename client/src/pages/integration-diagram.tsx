@@ -44,85 +44,135 @@ export default function IntegrationDiagramPage() {
     editor.selectAll();
     editor.deleteShapes(editor.getSelectedShapeIds());
 
-    // Create central hub (Interface Engine)
-    const hubId = createShapeId();
-    editor.createShape({
-      id: hubId,
-      type: 'geo',
-      x: 400,
-      y: 300,
-      props: {
-        geo: 'rectangle',
-        w: 160,
-        h: 80,
-        color: 'blue',
-        fill: 'solid',
-        text: 'Interface Engine\n(Hub)'
-      }
-    });
-
-    // Create spoke systems
-    const spokes = [
-      { name: 'EMR System', x: 200, y: 150, color: 'green' },
-      { name: 'Lab System\n(LIS)', x: 600, y: 150, color: 'orange' },
-      { name: 'PACS\nImaging', x: 650, y: 350, color: 'red' },
-      { name: 'Pharmacy\nSystem', x: 550, y: 500, color: 'violet' },
-      { name: 'Billing\nSystem', x: 250, y: 500, color: 'yellow' },
-      { name: 'Patient Portal', x: 150, y: 350, color: 'light-blue' }
-    ];
-
-    spokes.forEach((spoke) => {
-      const spokeId = createShapeId();
-      const arrowId = createShapeId();
-      
-      // Create spoke system
+    try {
+      // Create central hub (Interface Engine) - simple rectangle without text
+      const hubId = createShapeId();
       editor.createShape({
-        id: spokeId,
+        id: hubId,
         type: 'geo',
-        x: spoke.x,
-        y: spoke.y,
+        x: 400,
+        y: 300,
         props: {
           geo: 'rectangle',
-          w: 120,
-          h: 70,
-          color: spoke.color,
-          fill: 'solid',
-          text: spoke.name
+          w: 160,
+          h: 80,
+          color: 'blue',
+          fill: 'solid'
         }
       });
 
-      // Create connecting arrow from spoke to hub
+      // Create hub label as separate text
+      const hubLabelId = createShapeId();
       editor.createShape({
-        id: arrowId,
-        type: 'arrow',
-        x: 0,
-        y: 0,
+        id: hubLabelId,
+        type: 'text',
+        x: 450,
+        y: 330,
         props: {
-          start: { x: spoke.x + 60, y: spoke.y + 35 },
-          end: { x: 480, y: 340 },
-          color: spoke.color,
-          arrowheadStart: 'none',
-          arrowheadEnd: 'arrow'
+          text: 'Interface\nEngine',
+          color: 'white',
+          size: 'm'
         }
       });
-    });
 
-    // Add title
-    const titleId = createShapeId();
-    editor.createShape({
-      id: titleId,
-      type: 'text',
-      x: 350,
-      y: 50,
-      props: {
-        text: 'Hub & Spoke Integration Architecture',
-        size: 'xl',
-        color: 'black'
-      }
-    });
+      // Create spoke systems
+      const spokes = [
+        { name: 'EMR', x: 200, y: 150, color: 'green' },
+        { name: 'Lab\nSystem', x: 600, y: 150, color: 'orange' },
+        { name: 'PACS', x: 650, y: 350, color: 'red' },
+        { name: 'Pharmacy', x: 550, y: 500, color: 'violet' },
+        { name: 'Billing', x: 250, y: 500, color: 'yellow' },
+        { name: 'Patient\nPortal', x: 150, y: 350, color: 'light-blue' }
+      ];
 
-    // Zoom to fit
-    editor.zoomToFit();
+      spokes.forEach((spoke, index) => {
+        // Create spoke system rectangle
+        const spokeId = createShapeId();
+        editor.createShape({
+          id: spokeId,
+          type: 'geo',
+          x: spoke.x,
+          y: spoke.y,
+          props: {
+            geo: 'rectangle',
+            w: 120,
+            h: 70,
+            color: spoke.color,
+            fill: 'solid'
+          }
+        });
+
+        // Create spoke label
+        const spokeLabelId = createShapeId();
+        editor.createShape({
+          id: spokeLabelId,
+          type: 'text',
+          x: spoke.x + 60,
+          y: spoke.y + 35,
+          props: {
+            text: spoke.name,
+            color: 'white',
+            size: 's'
+          }
+        });
+
+        // Create connecting line from spoke to hub
+        const lineId = createShapeId();
+        editor.createShape({
+          id: lineId,
+          type: 'draw',
+          x: 0,
+          y: 0,
+          props: {
+            segments: [
+              {
+                type: 'straight',
+                points: [
+                  { x: spoke.x + 60, y: spoke.y + 35 },
+                  { x: 480, y: 340 }
+                ]
+              }
+            ],
+            color: spoke.color
+          }
+        });
+      });
+
+      // Add title
+      const titleId = createShapeId();
+      editor.createShape({
+        id: titleId,
+        type: 'text',
+        x: 350,
+        y: 80,
+        props: {
+          text: 'Hub & Spoke Integration Architecture',
+          color: 'black',
+          size: 'xl'
+        }
+      });
+
+      // Zoom to fit all content
+      setTimeout(() => {
+        editor.zoomToFit();
+      }, 100);
+
+    } catch (error) {
+      console.error('Error creating Hub & Spoke template:', error);
+      // Fallback - just create a simple message
+      const messageId = createShapeId();
+      editor.createShape({
+        id: messageId,
+        type: 'text',
+        x: 300,
+        y: 300,
+        props: {
+          text: 'Hub & Spoke Template\n\nUse the drawing tools to create:\n- Central Interface Engine\n- Connected EMR, Lab, PACS systems\n- Data flow arrows',
+          color: 'black',
+          size: 'l'
+        }
+      });
+    }
   };
 
   const loadTemplate = (templateId: string) => {
