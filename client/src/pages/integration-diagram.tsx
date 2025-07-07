@@ -44,135 +44,68 @@ export default function IntegrationDiagramPage() {
     editor.selectAll();
     editor.deleteShapes(editor.getSelectedShapeIds());
 
-    try {
-      // Create central hub (Interface Engine) - simple rectangle without text
-      const hubId = createShapeId();
+    // Create a simple visual template with just geometric shapes
+    // Central hub
+    const hubId = createShapeId();
+    editor.createShape({
+      id: hubId,
+      type: 'geo',
+      x: 400,
+      y: 300,
+      props: {
+        geo: 'rectangle',
+        w: 160,
+        h: 80,
+        color: 'blue',
+        fill: 'solid'
+      }
+    });
+
+    // Create 6 spoke systems positioned around the hub
+    const spokes = [
+      { x: 200, y: 150, color: 'green' },   // EMR (top-left)
+      { x: 600, y: 150, color: 'orange' },  // Lab (top-right)
+      { x: 650, y: 350, color: 'red' },     // PACS (right)
+      { x: 550, y: 500, color: 'violet' },  // Pharmacy (bottom-right)
+      { x: 250, y: 500, color: 'yellow' },  // Billing (bottom-left)
+      { x: 150, y: 350, color: 'light-blue' } // Patient Portal (left)
+    ];
+
+    spokes.forEach((spoke) => {
+      const spokeId = createShapeId();
       editor.createShape({
-        id: hubId,
+        id: spokeId,
         type: 'geo',
-        x: 400,
-        y: 300,
+        x: spoke.x,
+        y: spoke.y,
         props: {
           geo: 'rectangle',
-          w: 160,
-          h: 80,
-          color: 'blue',
+          w: 120,
+          h: 70,
+          color: spoke.color,
           fill: 'solid'
         }
       });
 
-      // Create hub label as separate text
-      const hubLabelId = createShapeId();
+      // Create connecting line using arrow type
+      const arrowId = createShapeId();
       editor.createShape({
-        id: hubLabelId,
-        type: 'text',
-        x: 450,
-        y: 330,
+        id: arrowId,
+        type: 'arrow',
+        x: 0,
+        y: 0,
         props: {
-          text: 'Interface\nEngine',
-          color: 'white',
-          size: 'm'
+          start: { x: spoke.x + 60, y: spoke.y + 35 },
+          end: { x: 480, y: 340 },
+          color: spoke.color
         }
       });
+    });
 
-      // Create spoke systems
-      const spokes = [
-        { name: 'EMR', x: 200, y: 150, color: 'green' },
-        { name: 'Lab\nSystem', x: 600, y: 150, color: 'orange' },
-        { name: 'PACS', x: 650, y: 350, color: 'red' },
-        { name: 'Pharmacy', x: 550, y: 500, color: 'violet' },
-        { name: 'Billing', x: 250, y: 500, color: 'yellow' },
-        { name: 'Patient\nPortal', x: 150, y: 350, color: 'light-blue' }
-      ];
-
-      spokes.forEach((spoke, index) => {
-        // Create spoke system rectangle
-        const spokeId = createShapeId();
-        editor.createShape({
-          id: spokeId,
-          type: 'geo',
-          x: spoke.x,
-          y: spoke.y,
-          props: {
-            geo: 'rectangle',
-            w: 120,
-            h: 70,
-            color: spoke.color,
-            fill: 'solid'
-          }
-        });
-
-        // Create spoke label
-        const spokeLabelId = createShapeId();
-        editor.createShape({
-          id: spokeLabelId,
-          type: 'text',
-          x: spoke.x + 60,
-          y: spoke.y + 35,
-          props: {
-            text: spoke.name,
-            color: 'white',
-            size: 's'
-          }
-        });
-
-        // Create connecting line from spoke to hub
-        const lineId = createShapeId();
-        editor.createShape({
-          id: lineId,
-          type: 'draw',
-          x: 0,
-          y: 0,
-          props: {
-            segments: [
-              {
-                type: 'straight',
-                points: [
-                  { x: spoke.x + 60, y: spoke.y + 35 },
-                  { x: 480, y: 340 }
-                ]
-              }
-            ],
-            color: spoke.color
-          }
-        });
-      });
-
-      // Add title
-      const titleId = createShapeId();
-      editor.createShape({
-        id: titleId,
-        type: 'text',
-        x: 350,
-        y: 80,
-        props: {
-          text: 'Hub & Spoke Integration Architecture',
-          color: 'black',
-          size: 'xl'
-        }
-      });
-
-      // Zoom to fit all content
-      setTimeout(() => {
-        editor.zoomToFit();
-      }, 100);
-
-    } catch (error) {
-      console.error('Error creating Hub & Spoke template:', error);
-      // Fallback - just create a simple message
-      const messageId = createShapeId();
-      editor.createShape({
-        id: messageId,
-        type: 'text',
-        x: 300,
-        y: 300,
-        props: {
-          text: 'Hub & Spoke Template\n\nUse the drawing tools to create:\n- Central Interface Engine\n- Connected EMR, Lab, PACS systems\n- Data flow arrows',
-          color: 'black',
-          size: 'l'
-        }
-      });
-    }
+    // Zoom to fit after a brief delay
+    setTimeout(() => {
+      editor.zoomToFit();
+    }, 200);
   };
 
   const loadTemplate = (templateId: string) => {
@@ -286,6 +219,46 @@ export default function IntegrationDiagramPage() {
                   </div>
                 ))}
               </div>
+              
+              {/* Hub & Spoke Legend */}
+              {selectedTemplate === 'hub-spoke' && (
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <h4 className="font-medium text-blue-900 mb-2">Hub & Spoke Color Guide:</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-blue-500 rounded mr-2"></div>
+                      <span>Interface Engine (Hub)</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-green-500 rounded mr-2"></div>
+                      <span>EMR System</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-orange-500 rounded mr-2"></div>
+                      <span>Lab System</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-red-500 rounded mr-2"></div>
+                      <span>PACS Imaging</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-violet-500 rounded mr-2"></div>
+                      <span>Pharmacy</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-yellow-500 rounded mr-2"></div>
+                      <span>Billing</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-sky-500 rounded mr-2"></div>
+                      <span>Patient Portal</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-blue-700 mt-2">
+                    Each system connects to the central hub with arrows showing data flow direction.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
