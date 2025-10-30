@@ -231,6 +231,8 @@ export default function PlantUMLMapperPage() {
       setImageUrl(url);
     } catch (error) {
       console.error('Encoding error:', error);
+      setIsLoading(false);
+      setImageError(true);
       toast({
         title: 'Encoding Error',
         description: 'Failed to encode PlantUML diagram',
@@ -461,27 +463,28 @@ export default function PlantUMLMapperPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-grow flex items-center justify-center bg-white rounded-md border min-h-[500px] relative overflow-auto">
-              {isLoading && (
-                <div className="flex flex-col items-center gap-2 text-gray-400">
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                  <span className="text-sm">Rendering diagram...</span>
-                </div>
-              )}
-              {!isLoading && imageError && (
-                <div className="text-center text-gray-400 p-8">
-                  <p className="text-sm mb-2">Unable to render diagram</p>
-                  <p className="text-xs">Check your PlantUML syntax</p>
-                </div>
-              )}
-              {!isLoading && !imageError && imageUrl && (
+              {imageUrl && (
                 <img
                   src={imageUrl}
                   alt="PlantUML diagram"
                   onLoad={handleImageLoad}
                   onError={handleImageError}
                   className="max-w-full h-auto"
+                  style={{ display: imageError ? 'none' : 'block' }}
                   data-testid="img-diagram-preview"
                 />
+              )}
+              {isLoading && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-gray-400 bg-white bg-opacity-90">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                  <span className="text-sm">Rendering diagram...</span>
+                </div>
+              )}
+              {imageError && !isLoading && (
+                <div className="text-center text-gray-400 p-8">
+                  <p className="text-sm mb-2">Unable to render diagram</p>
+                  <p className="text-xs">Check your PlantUML syntax</p>
+                </div>
               )}
               {!imageUrl && !isLoading && (
                 <div className="text-center text-gray-400">
