@@ -128,6 +128,13 @@ export default function ResourcesPage() {
       category: "Education",
       isInternalLink: true
     },
+    {
+      title: "PlantUML Mapping Tool",
+      description: "Create professional UML diagrams using PlantUML text-based notation. Design sequence diagrams, component architectures, workflow states, and system integrations with simple, intuitive syntax.",
+      link: "/plantuml-mapper",
+      category: "Education",
+      isInternalLink: true
+    },
 
   ];
 
