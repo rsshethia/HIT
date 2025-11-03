@@ -301,9 +301,14 @@ export default function PlantUMLMapperPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <Card>
+          <Card className="border-l-4 border-l-blue-500">
             <CardHeader>
-              <CardTitle className="text-sm">Quick Templates</CardTitle>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold">
+                  1
+                </span>
+                <CardTitle className="text-sm">Quick Templates</CardTitle>
+              </div>
             </CardHeader>
             <CardContent className="space-y-2">
               <Button
@@ -396,10 +401,15 @@ export default function PlantUMLMapperPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="flex flex-col">
+          <Card className="flex flex-col border-l-4 border-l-green-500">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>PlantUML Code</CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white text-xs font-bold">
+                    2
+                  </span>
+                  <CardTitle>PlantUML Code</CardTitle>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -425,10 +435,15 @@ export default function PlantUMLMapperPage() {
             </CardContent>
           </Card>
 
-          <Card className="flex flex-col">
+          <Card className="flex flex-col border-l-4 border-l-purple-500">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Diagram Preview</CardTitle>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 text-white text-xs font-bold">
+                    3
+                  </span>
+                  <CardTitle>Diagram Preview</CardTitle>
+                </div>
                 <div className="flex gap-2">
                   <Tabs value={format} onValueChange={(v) => setFormat(v as 'svg' | 'png')}>
                     <TabsList>
