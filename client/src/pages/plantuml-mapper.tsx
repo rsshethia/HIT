@@ -372,11 +372,40 @@ export default function PlantUMLMapperPage() {
             <CardHeader>
               <CardTitle className="text-sm">Getting Started</CardTitle>
               <CardDescription>
-                PlantUML uses simple text notation to create diagrams
+                Follow these simple steps to create your healthcare integration diagrams
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-4">
+                <div className="flex gap-3">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-500 text-white text-xs font-bold flex-shrink-0">
+                    1
+                  </span>
+                  <div>
+                    <h4 className="font-semibold mb-1 text-blue-700">Choose a Template</h4>
+                    <p className="text-gray-600">Select from healthcare-specific templates on the left to get started quickly</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white text-xs font-bold flex-shrink-0">
+                    2
+                  </span>
+                  <div>
+                    <h4 className="font-semibold mb-1 text-green-700">Edit the Code</h4>
+                    <p className="text-gray-600">Customize the PlantUML code to match your integration scenario</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 text-white text-xs font-bold flex-shrink-0">
+                    3
+                  </span>
+                  <div>
+                    <h4 className="font-semibold mb-1 text-purple-700">View & Export</h4>
+                    <p className="text-gray-600">Watch your diagram update live and export as PNG or SVG</p>
+                  </div>
+                </div>
+              </div>
+              <div className="border-t pt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <h4 className="font-semibold mb-2">Basic Syntax:</h4>
                   <ul className="space-y-1 text-gray-600">
