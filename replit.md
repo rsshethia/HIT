@@ -38,14 +38,12 @@ Healthcare Integration Tools (HIT) is a comprehensive web application designed t
 ### Visualization Components
 - **D3.js Charts**: Custom pie charts, bar charts, and radar charts
 - **Observable Plot**: Integration for advanced data visualization
-- **Network Diagrams**: System integration mapping with D3 force layouts
-- **Sankey Diagrams**: Data flow visualization between systems
-- **Integration Matrix**: System connection mapping with quality indicators
 
 ### Educational Resources
 - **HL7 Reference Guides**: Quick reference for common message types
-- **Integration Mapping Tool**: System connection mapping with network diagrams and data flow visualization
+- **PlantUML Mapping Tool**: Create professional UML diagrams using text-based notation
 - **Interactive Games**: HL7 Flow Game and Clinical Integration Play for learning
+- **Integration Diagram Tool**: Interactive drawing canvas for system architecture and workflow visualizations
 - **Best Practice Guides**: Organization, system, and interface level guidance
 
 ### UI Components

@@ -87,15 +87,15 @@ export default function LandingPage() {
                   <div className="-mt-6">
                     <div>
                       <span className="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg">
-                        <span className="material-icons text-white">account_tree</span>
+                        <span className="material-icons text-white">draw</span>
                       </span>
                     </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Integration Mapping Tool</h3>
+                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">PlantUML Mapping Tool</h3>
                     <p className="mt-5 text-base text-gray-500">
-                      Create interactive visualizations of healthcare system integrations and data flows.
+                      Create professional UML diagrams using simple text-based notation for workflows and integrations.
                     </p>
                     <div className="mt-4">
-                      <Button variant="outline" size="sm" onClick={() => setLocation("/integration-mapping")} className="w-full">
+                      <Button variant="outline" size="sm" onClick={() => setLocation("/plantuml-mapper")} className="w-full">
                         <span className="material-icons text-sm mr-1">arrow_forward</span>
                         Explore
                       </Button>
