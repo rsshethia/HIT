@@ -342,11 +342,10 @@ activate Broker
 
 note right of Broker
   Topic: patient.admitted
-  Payload: {
-    patientId: "12345",
-    location: "ICU-3",
+  Payload:
+    patientId: "12345"
+    location: "ICU-3"
     timestamp: "..."
-  }
 end note
 
 par Parallel Subscribers
@@ -358,12 +357,16 @@ par Parallel Subscribers
   and
   Broker -> Alert: Deliver Event
   Alert -> Alert: Check Bed Capacity
-  alt Capacity Threshold Reached
-    Alert -> Alert: Send Alert to Charge Nurse
-  end
+  Alert -> Alert: Send Alert (if needed)
 end
 
 deactivate Broker
+
+note over EMR, Alert
+  Event-driven architecture allows
+  multiple systems to react to
+  the same event independently
+end note
 @enduml`
       }
     ]
