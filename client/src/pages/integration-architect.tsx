@@ -321,12 +321,7 @@ export default function IntegrationArchitect() {
 
   const handleDownload = () => {
     if (!imageUrl) return;
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `diagram.${format}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(imageUrl, '_blank');
   };
 
   const handleCopyUrl = () => {
