@@ -44,7 +44,7 @@ Healthcare Integration Tools (HIT) is a comprehensive web application designed t
 
 ### Educational Resources
 - **HL7 Reference Guides**: Quick reference for common message types
-- **Integration Flow Visualizer**: Patient journey mapping with message flows
+- **Integration Mapping Tool**: System connection mapping with network diagrams and data flow visualization
 - **Interactive Games**: HL7 Flow Game and Clinical Integration Play for learning
 - **Best Practice Guides**: Organization, system, and interface level guidance
 

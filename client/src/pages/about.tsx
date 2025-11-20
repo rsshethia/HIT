@@ -36,7 +36,7 @@ export default function AboutPage() {
                   
                   <ul className="list-disc pl-5 mt-2 space-y-2">
                     <li><span className="font-medium">Directors and Managers</span>: The Maturity Assessment Tool helps leadership evaluate organizational integration capabilities and plan strategic improvements.</li>
-                    <li><span className="font-medium">Analysts</span>: The Integration Flow Visualizer helps analysts understand message flows across different patient journeys and system touchpoints.</li>
+                    <li><span className="font-medium">Analysts</span>: The Integration Mapping Tool helps analysts visualize system connections and understand data flows across the healthcare ecosystem.</li>
                     <li><span className="font-medium">Developers</span>: The Reference Guides provide technical documentation on HL7 message types and implementation details for integration projects.</li>
                     <li><span className="font-medium">Project Teams</span>: The comprehensive resources support cross-functional teams working on healthcare integration initiatives.</li>
                   </ul>
