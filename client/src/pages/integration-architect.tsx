@@ -33,7 +33,10 @@ import {
   Play,
   Book,
   LayoutTemplate,
-  ChevronRight
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
+  Maximize2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import plantumlEncoder from 'plantuml-encoder';
@@ -841,6 +844,7 @@ export default function IntegrationArchitect() {
   const [format, setFormat] = useState<'svg' | 'png'>('svg');
   const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [zoom, setZoom] = useState(100);
 
   // Saved Diagrams State
   const [savedDiagrams, setSavedDiagrams] = useState<SavedDiagram[]>([]);
@@ -977,6 +981,18 @@ export default function IntegrationArchitect() {
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(imageUrl);
     toast({ title: 'Copied!', description: 'Image URL copied to clipboard' });
+  };
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 25, 200));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 25, 25));
+  };
+
+  const handleZoomReset = () => {
+    setZoom(100);
   };
 
   return (
@@ -1158,7 +1174,41 @@ export default function IntegrationArchitect() {
                   </TabsList>
                 </Tabs>
               </div>
-              {isLoading && <span className="text-xs text-primary animate-pulse">Rendering...</span>}
+              <div className="flex items-center gap-2">
+                {isLoading && <span className="text-xs text-primary animate-pulse mr-2">Rendering...</span>}
+                <div className="flex items-center gap-1 border rounded-md px-1">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6" 
+                    onClick={handleZoomOut}
+                    disabled={zoom <= 25}
+                    data-testid="button-zoom-out"
+                  >
+                    <ZoomOut className="h-3 w-3" />
+                  </Button>
+                  <span className="text-xs text-gray-600 min-w-[3rem] text-center font-medium">{zoom}%</span>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6" 
+                    onClick={handleZoomIn}
+                    disabled={zoom >= 200}
+                    data-testid="button-zoom-in"
+                  >
+                    <ZoomIn className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6" 
+                    onClick={handleZoomReset}
+                    data-testid="button-zoom-reset"
+                  >
+                    <Maximize2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
             </div>
 
             <div className="flex-grow overflow-auto p-8 flex items-center justify-center">
@@ -1168,8 +1218,12 @@ export default function IntegrationArchitect() {
                   alt="Diagram Preview"
                   onLoad={handleImageLoad}
                   onError={handleImageError}
-                  className="max-w-full shadow-lg bg-white rounded-lg"
-                  style={{ display: imageError ? 'none' : 'block' }}
+                  className="shadow-lg bg-white rounded-lg transition-transform"
+                  style={{ 
+                    display: imageError ? 'none' : 'block',
+                    transform: `scale(${zoom / 100})`,
+                    transformOrigin: 'center'
+                  }}
                 />
               ) : (
                 <div className="text-center text-gray-400">
