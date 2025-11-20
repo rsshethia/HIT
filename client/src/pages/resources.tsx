@@ -66,23 +66,9 @@ export default function ResourcesPage() {
       isInternalLink: true
     },
     {
-      title: "Integration Flow",
-      description: "Visualize integration flows based on patient type. This visualization tool demonstrates how selecting different patient journeys reveals the systems integration touchpoints triggered by HL7 messages throughout the care process.",
-      link: "/integration-flow",
-      category: "Education",
-      isInternalLink: true
-    },
-    {
       title: "D3.js Data Visualizations",
       description: "Interactive visualization components for assessment data. Explore pie charts, bar charts, and radar diagrams for visualizing integration metrics and assessment results.",
       link: "/visualizations",
-      category: "Education",
-      isInternalLink: true
-    },
-    {
-      title: "Integration Mapping Tool",
-      description: "Create interactive visualizations of your healthcare system integrations. Map system connections, specify data flow directions, and generate network diagrams, matrices, and Sankey diagrams.",
-      link: "/integration-mapping",
       category: "Education",
       isInternalLink: true
     },

@@ -9,9 +9,7 @@ import LandingPage from "@/pages/landing-page";
 import AboutPage from "@/pages/about";
 import ResourcesPage from "@/pages/resources";
 import ReferenceGuidesPage from "@/pages/reference-guides";
-import IntegrationFlowPage from "@/pages/integration-flow";
 import VisualizationsPage from "@/pages/visualizations";
-import IntegrationMappingPage from "@/pages/integration-mapping";
 import ObservableDemoPage from "@/pages/observable-demo";
 import GuidesPage from "@/pages/guides";
 import HL7FlowGamePage from "@/pages/hl7-flow-game";
@@ -34,9 +32,7 @@ function Router() {
       <Route path="/about" component={AboutPage} />
       <Route path="/resources" component={ResourcesPage} />
       <Route path="/reference-guides" component={ReferenceGuidesPage} />
-      <Route path="/integration-flow" component={IntegrationFlowPage} />
       <Route path="/visualizations" component={VisualizationsPage} />
-      <Route path="/integration-mapping" component={IntegrationMappingPage} />
       <Route path="/observable-demo" component={ObservableDemoPage} />
       <Route path="/guides" component={GuidesPage} />
       <Route path="/hl7-flow-game" component={HL7FlowGamePage} />

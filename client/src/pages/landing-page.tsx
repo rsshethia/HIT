@@ -64,17 +64,17 @@ export default function LandingPage() {
                   <div className="-mt-6">
                     <div>
                       <span className="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg">
-                        <span className="material-icons text-white">timeline</span>
+                        <span className="material-icons text-white">library_books</span>
                       </span>
                     </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Integration Flow Visualizer</h3>
+                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Reference Guides</h3>
                     <p className="mt-5 text-base text-gray-500">
-                      Interactive visualization of HL7 message flows across different patient journeys.
+                      Comprehensive guides for HL7 message types and healthcare integration standards.
                     </p>
                     <div className="mt-4">
-                      <Button variant="outline" size="sm" onClick={() => setLocation("/integration-flow")} className="w-full">
+                      <Button variant="outline" size="sm" onClick={() => setLocation("/reference-guides")} className="w-full">
                         <span className="material-icons text-sm mr-1">arrow_forward</span>
-                        Explore
+                        View Guides
                       </Button>
                     </div>
                   </div>
@@ -87,17 +87,17 @@ export default function LandingPage() {
                   <div className="-mt-6">
                     <div>
                       <span className="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg">
-                        <span className="material-icons text-white">library_books</span>
+                        <span className="material-icons text-white">draw</span>
                       </span>
                     </div>
-                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Reference Guides</h3>
+                    <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">PlantUML Mapping Tool</h3>
                     <p className="mt-5 text-base text-gray-500">
-                      Comprehensive guides for HL7 message types and healthcare integration standards.
+                      Create professional UML diagrams using simple text-based notation for workflows and integrations.
                     </p>
                     <div className="mt-4">
-                      <Button variant="outline" size="sm" onClick={() => setLocation("/reference-guides")} className="w-full">
+                      <Button variant="outline" size="sm" onClick={() => setLocation("/plantuml-mapper")} className="w-full">
                         <span className="material-icons text-sm mr-1">arrow_forward</span>
-                        View Guides
+                        Explore
                       </Button>
                     </div>
                   </div>
