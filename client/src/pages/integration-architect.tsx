@@ -178,10 +178,10 @@ database "Database" {
 ];
 
 interface SavedDiagram {
-  id: string;
+  id: number;
   name: string;
   code: string;
-  date: string;
+  createdAt: string;
 }
 
 export default function IntegrationArchitect() {
@@ -195,18 +195,29 @@ export default function IntegrationArchitect() {
   // Saved Diagrams State
   const [savedDiagrams, setSavedDiagrams] = useState<SavedDiagram[]>([]);
   const [diagramName, setDiagramName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Load saved diagrams on mount
   useEffect(() => {
-    const saved = localStorage.getItem('hit_saved_diagrams');
-    if (saved) {
-      try {
-        setSavedDiagrams(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse saved diagrams", e);
-      }
-    }
+    fetchDiagrams();
   }, []);
+
+  const fetchDiagrams = async () => {
+    try {
+      const res = await fetch('/api/diagrams');
+      if (res.ok) {
+        const data = await res.json();
+        setSavedDiagrams(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch diagrams", error);
+      toast({
+        title: "Error",
+        description: "Failed to load saved diagrams.",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Update image when code changes
   useEffect(() => {
@@ -239,7 +250,7 @@ export default function IntegrationArchitect() {
   };
 
   // Save Diagram Logic
-  const handleSaveDiagram = () => {
+  const handleSaveDiagram = async () => {
     if (!diagramName.trim()) {
       toast({
         title: "Name Required",
@@ -249,22 +260,37 @@ export default function IntegrationArchitect() {
       return;
     }
 
-    const newDiagram: SavedDiagram = {
-      id: Date.now().toString(),
-      name: diagramName,
-      code: code,
-      date: new Date().toLocaleDateString()
-    };
+    setIsSaving(true);
+    try {
+      const res = await fetch('/api/diagrams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: diagramName,
+          code: code,
+          createdAt: new Date().toLocaleDateString()
+        })
+      });
 
-    const updated = [newDiagram, ...savedDiagrams];
-    setSavedDiagrams(updated);
-    localStorage.setItem('hit_saved_diagrams', JSON.stringify(updated));
-    setDiagramName('');
-
-    toast({
-      title: "Saved",
-      description: "Diagram saved successfully.",
-    });
+      if (res.ok) {
+        await fetchDiagrams();
+        setDiagramName('');
+        toast({
+          title: "Saved",
+          description: "Diagram saved successfully.",
+        });
+      } else {
+        throw new Error('Failed to save');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save diagram.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLoadDiagram = (diagramCode: string, name: string) => {
@@ -275,11 +301,22 @@ export default function IntegrationArchitect() {
     });
   };
 
-  const handleDeleteDiagram = (id: string, e: React.MouseEvent) => {
+  const handleDeleteDiagram = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    const updated = savedDiagrams.filter(d => d.id !== id);
-    setSavedDiagrams(updated);
-    localStorage.setItem('hit_saved_diagrams', JSON.stringify(updated));
+    try {
+      const res = await fetch(`/api/diagrams/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        await fetchDiagrams();
+      } else {
+        throw new Error('Failed to delete');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete diagram.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDownload = () => {
@@ -409,7 +446,7 @@ export default function IntegrationArchitect() {
                       onClick={() => handleLoadDiagram(diagram.code, diagram.name)}
                     >
                       <div className="font-medium text-sm">{diagram.name}</div>
-                      <div className="text-xs text-gray-500 mt-1">{diagram.date}</div>
+                      <div className="text-xs text-gray-500 mt-1">{diagram.createdAt}</div>
                       <Button
                         variant="ghost"
                         size="icon"

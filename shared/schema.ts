@@ -17,5 +17,21 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
+export const diagrams = pgTable("diagrams", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  code: text("code").notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
+export const insertDiagramSchema = createInsertSchema(diagrams).pick({
+  name: true,
+  code: true,
+  createdAt: true,
+});
+
+export type InsertDiagram = z.infer<typeof insertDiagramSchema>;
+export type Diagram = typeof diagrams.$inferSelect;
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
