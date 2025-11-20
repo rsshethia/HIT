@@ -324,50 +324,6 @@ else Within Limit
 end
 deactivate Gateway
 @enduml`
-      },
-      {
-        id: "pub-sub",
-        title: "Publish-Subscribe Pattern",
-        description: "Event-driven architecture with message broker",
-        code: `@startuml
-title Event-Driven Integration (Pub/Sub)
-participant "EMR" as EMR
-participant "Message\\nBroker" as Broker
-participant "Analytics" as Analytics
-participant "Reporting" as Report
-participant "Alerting" as Alert
-
-EMR -> Broker: Publish Event\\n(PatientAdmitted)
-activate Broker
-
-note right of Broker
-  Topic: patient.admitted
-  Payload:
-    patientId: "12345"
-    location: "ICU-3"
-    timestamp: "..."
-end note
-
-par Parallel Subscribers
-  Broker -> Analytics: Deliver Event
-  Analytics -> Analytics: Update Dashboard
-  and
-  Broker -> Report: Deliver Event
-  Report -> Report: Generate Census Report
-  and
-  Broker -> Alert: Deliver Event
-  Alert -> Alert: Check Bed Capacity
-  Alert -> Alert: Send Alert (if needed)
-end
-
-deactivate Broker
-
-note over EMR, Alert
-  Event-driven architecture allows
-  multiple systems to react to
-  the same event independently
-end note
-@enduml`
       }
     ]
   },
