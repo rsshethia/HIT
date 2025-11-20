@@ -19,7 +19,7 @@ import HL7SegmentMapper from "@/pages/hl7-segment-mapper";
 import ClinicalIntegrationPlay from "@/pages/clinical-integration-play";
 import SheetToBookletPage from "@/pages/sheet-to-booklet";
 import IntegrationDiagramPage from "@/pages/integration-diagram";
-import PlantUMLMapperPage from "@/pages/plantuml-mapper";
+import IntegrationArchitect from "@/pages/integration-architect";
 
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
@@ -44,7 +44,7 @@ function Router() {
       <Route path="/clinical-integration-play" component={ClinicalIntegrationPlay} />
       <Route path="/sheet-to-booklet" component={SheetToBookletPage} />
       <Route path="/integration-diagram" component={IntegrationDiagramPage} />
-      <Route path="/plantuml-mapper" component={PlantUMLMapperPage} />
+      <Route path="/integration-architect" component={IntegrationArchitect} />
       <Route component={NotFound} />
     </Switch>
   );

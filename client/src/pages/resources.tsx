@@ -122,31 +122,33 @@ export default function ResourcesPage() {
       isInternalLink: true
     },
     {
-      title: "PlantUML Mapping Tool",
-      description: "Create professional UML diagrams using PlantUML text-based notation. Design sequence diagrams, component architectures, workflow states, and system integrations with simple, intuitive syntax.",
-      link: "/plantuml-mapper",
-      category: "Education",
+      title: "Integration Architect",
+      description: "The premier tool for designing healthcare integration flows. Features AI-assisted diagram generation, local saving, and professional export options.",
+      link: "/integration-architect",
+      category: "Featured",
       isInternalLink: true
     },
 
   ];
 
   // Filter resources to hide specific items
-  const filteredResources = resources.filter(resource => 
-    resource.title !== "HL7 Version 2" && 
+  const filteredResources = resources.filter(resource =>
+    resource.title !== "HL7 Version 2" &&
     resource.title !== "IHE Profiles" &&
     resource.title !== "D3.js Data Visualizations" &&
-    resource.category !== "Tools" && 
+    resource.category !== "Tools" &&
     resource.category !== "Frameworks"
   );
 
-  // Create a sorted array of categories with Education first and hide Tools and Frameworks
+  // Create a sorted array of categories
   const allCategories = Array.from(new Set(filteredResources.map(resource => resource.category)));
   const categories = [
-    // Put Education first if it exists
+    // Put Featured first
+    ...allCategories.filter(cat => cat === "Featured"),
+    // Then Education
     ...allCategories.filter(cat => cat === "Education"),
-    // Then add all other categories except Tools and Frameworks
-    ...allCategories.filter(cat => cat !== "Education")
+    // Then others
+    ...allCategories.filter(cat => cat !== "Featured" && cat !== "Education")
   ];
 
   return (
@@ -172,7 +174,7 @@ export default function ResourcesPage() {
                         <p className="mt-2 text-base text-gray-500">{resource.description}</p>
                         <div className="mt-4">
                           {resource.isInternalLink ? (
-                            <Link 
+                            <Link
                               href={resource.link}
                               className="text-primary hover:text-primary-700 font-medium flex items-center"
                             >
@@ -180,7 +182,7 @@ export default function ResourcesPage() {
                               <span className="material-icons ml-1 text-sm">arrow_forward</span>
                             </Link>
                           ) : (
-                            <a 
+                            <a
                               href={resource.link}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -196,9 +198,6 @@ export default function ResourcesPage() {
                 </div>
               </div>
             ))}
-
-
-
           </div>
         </div>
       </div>

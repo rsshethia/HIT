@@ -27,42 +27,49 @@ export default function NavBar() {
               </Link>
             </div>
             <div className="hidden md:ml-6 md:flex md:space-x-6">
-              <Link 
+              <Link
                 href="/"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  isActive("/") 
-                    ? "border-primary text-gray-900" 
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${isActive("/")
+                    ? "border-primary text-gray-900"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+                  }`}
               >
                 Home
               </Link>
 
-              <Link 
-                href="/resources"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  isActive("/resources") 
-                    ? "border-primary text-gray-900" 
+              <Link
+                href="/integration-architect"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${isActive("/integration-architect")
+                    ? "border-primary text-gray-900"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+                  }`}
+              >
+                Integration Architect
+              </Link>
+
+              <Link
+                href="/resources"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${isActive("/resources")
+                    ? "border-primary text-gray-900"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  }`}
               >
                 Resources
               </Link>
-              <Link 
+              <Link
                 href="/about"
-                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                  isActive("/about") 
-                    ? "border-primary text-gray-900" 
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${isActive("/about")
+                    ? "border-primary text-gray-900"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+                  }`}
               >
                 About
               </Link>
             </div>
           </div>
-          
+
           <div className="hidden md:ml-6 md:flex md:items-center">
-            <Button 
+            <Button
               variant="outline"
               onClick={() => setLocation("/resources")}
               size="sm"
@@ -72,7 +79,7 @@ export default function NavBar() {
               Tools & Resources
             </Button>
           </div>
-          
+
           <div className="-mr-2 flex items-center md:hidden">
             <button
               onClick={toggleMenu}
@@ -88,42 +95,50 @@ export default function NavBar() {
       {/* Mobile menu */}
       <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden absolute w-full bg-white shadow-lg z-50`}>
         <div className="pt-2 pb-3 space-y-1">
-          <Link 
+          <Link
             href="/"
             onClick={() => setIsMenuOpen(false)}
-            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-              isActive("/") 
-                ? "border-primary text-primary bg-primary-50" 
+            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${isActive("/")
+                ? "border-primary text-primary bg-primary-50"
                 : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-            }`}
+              }`}
           >
             Home
           </Link>
 
-          <Link 
+          <Link
+            href="/integration-architect"
+            onClick={() => setIsMenuOpen(false)}
+            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${isActive("/integration-architect")
+                ? "border-primary text-primary bg-primary-50"
+                : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+              }`}
+          >
+            Integration Architect
+          </Link>
+
+          <Link
             href="/resources"
             onClick={() => setIsMenuOpen(false)}
-            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-              isActive("/resources") 
-                ? "border-primary text-primary bg-primary-50" 
+            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${isActive("/resources")
+                ? "border-primary text-primary bg-primary-50"
                 : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-            }`}
+              }`}
           >
             Resources
           </Link>
-          <Link 
+          <Link
             href="/about"
             onClick={() => setIsMenuOpen(false)}
-            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-              isActive("/about") 
-                ? "border-primary text-primary bg-primary-50" 
+            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${isActive("/about")
+                ? "border-primary text-primary bg-primary-50"
                 : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-            }`}
+              }`}
           >
             About
           </Link>
           <div className="mt-4 px-4 pb-2">
-            <Button 
+            <Button
               variant="outline"
               onClick={() => {
                 setLocation("/resources");
