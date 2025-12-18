@@ -22,8 +22,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Database, FileCode, Table, Play, RefreshCw } from 'lucide-react';
+import { Copy, Database, FileCode, Table, Play, RefreshCw, Filter, Settings2 } from 'lucide-react';
+
+interface IdentifierOption {
+  code: string;
+  name: string;
+  description: string;
+}
 
 interface HL7Field {
   id: string;
@@ -32,6 +39,9 @@ interface HL7Field {
   dataType: string;
   maxLength: number;
   description: string;
+  repeating?: boolean;
+  identifierComponent?: number;
+  identifierOptions?: IdentifierOption[];
 }
 
 interface HL7Segment {
@@ -39,7 +49,60 @@ interface HL7Segment {
   name: string;
   description: string;
   fields: HL7Field[];
+  repeating?: boolean;
 }
+
+interface FieldConfig {
+  repeatHandling: 'first' | 'concatenate' | 'filter';
+  identifierFilter?: string;
+}
+
+const IDENTIFIER_TYPES = {
+  patientId: [
+    { code: 'MR', name: 'Medical Record', description: 'Medical Record Number' },
+    { code: 'SS', name: 'Social Security', description: 'Social Security Number' },
+    { code: 'DL', name: 'Driver License', description: "Driver's License" },
+    { code: 'PI', name: 'Patient Internal', description: 'Patient Internal Identifier' },
+    { code: 'PT', name: 'Patient External', description: 'Patient External Identifier' },
+    { code: 'AN', name: 'Account Number', description: 'Account Number' },
+    { code: 'VN', name: 'Visit Number', description: 'Visit Number' },
+  ],
+  patientName: [
+    { code: 'L', name: 'Legal', description: 'Legal Name' },
+    { code: 'A', name: 'Alias', description: 'Alias/Nickname' },
+    { code: 'M', name: 'Maiden', description: 'Maiden Name' },
+    { code: 'B', name: 'Birth', description: 'Name at Birth' },
+    { code: 'C', name: 'Adopted', description: 'Adopted Name' },
+    { code: 'D', name: 'Display', description: 'Display Name' },
+    { code: 'N', name: 'Nickname', description: 'Nickname' },
+  ],
+  address: [
+    { code: 'H', name: 'Home', description: 'Home Address' },
+    { code: 'B', name: 'Business', description: 'Business/Office Address' },
+    { code: 'M', name: 'Mailing', description: 'Mailing Address' },
+    { code: 'C', name: 'Current', description: 'Current/Temporary Address' },
+    { code: 'P', name: 'Permanent', description: 'Permanent Address' },
+    { code: 'L', name: 'Legal', description: 'Legal Address' },
+  ],
+  phone: [
+    { code: 'PRN', name: 'Primary', description: 'Primary Residence Number' },
+    { code: 'ORN', name: 'Other', description: 'Other Residence Number' },
+    { code: 'WPN', name: 'Work', description: 'Work Phone Number' },
+    { code: 'VHN', name: 'Vacation', description: 'Vacation Home Number' },
+    { code: 'ASN', name: 'Answering', description: 'Answering Service' },
+    { code: 'EMR', name: 'Emergency', description: 'Emergency Number' },
+    { code: 'NET', name: 'Email', description: 'Network/Email Address' },
+    { code: 'BPN', name: 'Beeper', description: 'Beeper/Pager' },
+  ],
+};
+
+const FIELD_VALUE_COMPONENTS: Record<string, number> = {
+  'PID-3': 1,
+  'PID-5': 1,
+  'PID-11': 1,
+  'PID-13': 1,
+  'PID-14': 1,
+};
 
 const HL7_SEGMENTS: HL7Segment[] = [
   {
@@ -78,18 +141,18 @@ const HL7_SEGMENTS: HL7Segment[] = [
     fields: [
       { id: "PID-1", position: "PID-1", name: "Set ID", dataType: "INT", maxLength: 0, description: "Sequence number" },
       { id: "PID-2", position: "PID-2", name: "External Patient ID", dataType: "VARCHAR", maxLength: 50, description: "External patient identifier" },
-      { id: "PID-3", position: "PID-3", name: "Patient ID (MRN)", dataType: "VARCHAR", maxLength: 50, description: "Medical Record Number" },
+      { id: "PID-3", position: "PID-3", name: "Patient ID (MRN)", dataType: "VARCHAR", maxLength: 50, description: "Medical Record Number", repeating: true, identifierComponent: 5, identifierOptions: IDENTIFIER_TYPES.patientId },
       { id: "PID-4", position: "PID-4", name: "Alternate Patient ID", dataType: "VARCHAR", maxLength: 50, description: "Alternate patient identifier" },
-      { id: "PID-5", position: "PID-5", name: "Patient Name", dataType: "VARCHAR", maxLength: 100, description: "Full patient name" },
+      { id: "PID-5", position: "PID-5", name: "Patient Name", dataType: "VARCHAR", maxLength: 100, description: "Full patient name", repeating: true, identifierComponent: 7, identifierOptions: IDENTIFIER_TYPES.patientName },
       { id: "PID-6", position: "PID-6", name: "Mother's Maiden Name", dataType: "VARCHAR", maxLength: 50, description: "Mother's maiden name" },
       { id: "PID-7", position: "PID-7", name: "Date of Birth", dataType: "DATE", maxLength: 0, description: "Patient date of birth" },
       { id: "PID-8", position: "PID-8", name: "Sex", dataType: "CHAR", maxLength: 1, description: "Administrative sex (M/F/U)" },
       { id: "PID-9", position: "PID-9", name: "Patient Alias", dataType: "VARCHAR", maxLength: 100, description: "Patient alias/nickname" },
       { id: "PID-10", position: "PID-10", name: "Race", dataType: "VARCHAR", maxLength: 20, description: "Patient race" },
-      { id: "PID-11", position: "PID-11", name: "Patient Address", dataType: "VARCHAR", maxLength: 200, description: "Patient home address" },
+      { id: "PID-11", position: "PID-11", name: "Patient Address", dataType: "VARCHAR", maxLength: 200, description: "Patient home address", repeating: true, identifierComponent: 7, identifierOptions: IDENTIFIER_TYPES.address },
       { id: "PID-12", position: "PID-12", name: "County Code", dataType: "VARCHAR", maxLength: 20, description: "County of residence" },
-      { id: "PID-13", position: "PID-13", name: "Home Phone", dataType: "VARCHAR", maxLength: 30, description: "Home phone number" },
-      { id: "PID-14", position: "PID-14", name: "Business Phone", dataType: "VARCHAR", maxLength: 30, description: "Business phone number" },
+      { id: "PID-13", position: "PID-13", name: "Home Phone", dataType: "VARCHAR", maxLength: 30, description: "Home phone number", repeating: true, identifierComponent: 2, identifierOptions: IDENTIFIER_TYPES.phone },
+      { id: "PID-14", position: "PID-14", name: "Business Phone", dataType: "VARCHAR", maxLength: 30, description: "Business phone number", repeating: true, identifierComponent: 2, identifierOptions: IDENTIFIER_TYPES.phone },
       { id: "PID-15", position: "PID-15", name: "Primary Language", dataType: "VARCHAR", maxLength: 20, description: "Primary language" },
       { id: "PID-16", position: "PID-16", name: "Marital Status", dataType: "VARCHAR", maxLength: 10, description: "Marital status code" },
       { id: "PID-17", position: "PID-17", name: "Religion", dataType: "VARCHAR", maxLength: 20, description: "Religion code" },
@@ -141,6 +204,7 @@ const HL7_SEGMENTS: HL7Segment[] = [
     id: "NK1",
     name: "NK1 - Next of Kin",
     description: "Next of kin/emergency contact information",
+    repeating: true,
     fields: [
       { id: "NK1-1", position: "NK1-1", name: "Set ID", dataType: "INT", maxLength: 0, description: "Sequence number" },
       { id: "NK1-2", position: "NK1-2", name: "Name", dataType: "VARCHAR", maxLength: 100, description: "Contact name" },
@@ -155,6 +219,7 @@ const HL7_SEGMENTS: HL7Segment[] = [
     id: "DG1",
     name: "DG1 - Diagnosis",
     description: "Diagnosis information",
+    repeating: true,
     fields: [
       { id: "DG1-1", position: "DG1-1", name: "Set ID", dataType: "INT", maxLength: 0, description: "Sequence number" },
       { id: "DG1-2", position: "DG1-2", name: "Diagnosis Coding Method", dataType: "VARCHAR", maxLength: 10, description: "Coding method (ICD-10, etc.)" },
@@ -170,6 +235,7 @@ const HL7_SEGMENTS: HL7Segment[] = [
     id: "IN1",
     name: "IN1 - Insurance",
     description: "Insurance information",
+    repeating: true,
     fields: [
       { id: "IN1-1", position: "IN1-1", name: "Set ID", dataType: "INT", maxLength: 0, description: "Sequence number" },
       { id: "IN1-2", position: "IN1-2", name: "Insurance Plan ID", dataType: "VARCHAR", maxLength: 50, description: "Insurance plan identifier" },
@@ -186,6 +252,7 @@ const HL7_SEGMENTS: HL7Segment[] = [
     id: "AL1",
     name: "AL1 - Allergy Information",
     description: "Patient allergy information",
+    repeating: true,
     fields: [
       { id: "AL1-1", position: "AL1-1", name: "Set ID", dataType: "INT", maxLength: 0, description: "Sequence number" },
       { id: "AL1-2", position: "AL1-2", name: "Allergen Type", dataType: "VARCHAR", maxLength: 20, description: "Type of allergen" },
@@ -200,10 +267,22 @@ const HL7_SEGMENTS: HL7Segment[] = [
 export default function HL7SQLBuilder() {
   const { toast } = useToast();
   const [selectedFields, setSelectedFields] = useState<Set<string>>(new Set());
+  const [fieldConfigs, setFieldConfigs] = useState<Record<string, FieldConfig>>({});
   const [tableName, setTableName] = useState('PatientData');
   const [sourceTableName, setSourceTableName] = useState('HL7_RAW_Messages');
   const [procedureName, setProcedureName] = useState('usp_ParseHL7Message');
   const [dbPlatform, setDbPlatform] = useState<'sqlserver' | 'mysql' | 'postgresql'>('sqlserver');
+
+  const getFieldConfig = (fieldId: string): FieldConfig => {
+    return fieldConfigs[fieldId] || { repeatHandling: 'first' };
+  };
+
+  const updateFieldConfig = (fieldId: string, config: Partial<FieldConfig>) => {
+    setFieldConfigs(prev => ({
+      ...prev,
+      [fieldId]: { ...getFieldConfig(fieldId), ...config }
+    }));
+  };
 
   const toggleField = (fieldId: string) => {
     const newSet = new Set(selectedFields);
@@ -238,6 +317,7 @@ export default function HL7SQLBuilder() {
 
   const clearAll = () => {
     setSelectedFields(new Set());
+    setFieldConfigs({});
   };
 
   const getSelectedFieldsGroupedBySegment = useMemo(() => {
@@ -251,19 +331,61 @@ export default function HL7SQLBuilder() {
     return grouped;
   }, [selectedFields]);
 
+  const getFieldInfo = (fieldId: string): HL7Field | undefined => {
+    for (const segment of HL7_SEGMENTS) {
+      const field = segment.fields.find(f => f.id === fieldId);
+      if (field) return field;
+    }
+    return undefined;
+  };
+
   const generateSQL = useMemo(() => {
     if (selectedFields.size === 0) {
-      return '-- Select fields from the left panel to generate SQL\n-- This stored procedure will parse HL7 messages from your raw message table';
+      return `-- ============================================
+-- HL7 SQL Builder
+-- ============================================
+-- Select fields from the left panel to generate SQL
+-- This tool creates stored procedures to parse HL7 messages
+
+-- REPEAT HANDLING OPTIONS:
+-- Fields with repeating values (like PID-3, PID-5, PID-11)
+-- can be configured with these options:
+--   * First Only: Gets the first occurrence
+--   * Concatenate: Joins all values with semicolons
+--   * Filter by Type: Extracts only matching identifier types
+--     (e.g., Legal Name only, Home Address only, MRN only)
+
+-- NOTE ON HL7 DATA TYPES:
+-- Complex HL7 fields use components separated by ^
+-- By default, this tool extracts the first component:
+--   * Names (XPN): Last^First^Middle -> extracts "Last"
+--   * Addresses (XAD): Street^City^State^Zip -> extracts "Street"
+--   * IDs (CX): ID^Check^Type -> extracts "ID"
+--   * Phones (XTN): Multiple formats supported
+--
+-- To extract different components, modify the helper function
+-- or adjust the component position in the FILTER call.`;
     }
 
     const grouped = getSelectedFieldsGroupedBySegment;
     const allFields: HL7Field[] = [];
     Object.values(grouped).forEach(fields => allFields.push(...fields));
 
+    const getColumnName = (f: HL7Field): string => {
+      const config = getFieldConfig(f.id);
+      let name = f.name.replace(/[^a-zA-Z0-9]/g, '_');
+      if (config.repeatHandling === 'filter' && config.identifierFilter) {
+        const opt = f.identifierOptions?.find(o => o.code === config.identifierFilter);
+        if (opt) {
+          name = `${opt.name.replace(/[^a-zA-Z0-9]/g, '_')}_${f.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        }
+      }
+      return name;
+    };
+
     let sql = '';
 
     if (dbPlatform === 'sqlserver') {
-      // SQL Server syntax
       sql = `-- ============================================
 -- HL7 Message Parser Stored Procedure
 -- Generated by HIT HL7 SQL Builder
@@ -278,13 +400,155 @@ BEGIN
         [RawMessageID] INT NOT NULL,
         [ProcessedDateTime] DATETIME DEFAULT GETDATE(),
 ${allFields.map(f => {
-  if (f.dataType === 'INT') return `        [${f.name.replace(/[^a-zA-Z0-9]/g, '_')}] INT NULL`;
-  if (f.dataType === 'DATETIME') return `        [${f.name.replace(/[^a-zA-Z0-9]/g, '_')}] DATETIME NULL`;
-  if (f.dataType === 'DATE') return `        [${f.name.replace(/[^a-zA-Z0-9]/g, '_')}] DATE NULL`;
-  if (f.dataType === 'CHAR') return `        [${f.name.replace(/[^a-zA-Z0-9]/g, '_')}] CHAR(${f.maxLength}) NULL`;
-  return `        [${f.name.replace(/[^a-zA-Z0-9]/g, '_')}] VARCHAR(${f.maxLength}) NULL`;
+  const colName = getColumnName(f);
+  if (f.dataType === 'INT') return `        [${colName}] INT NULL`;
+  if (f.dataType === 'DATETIME') return `        [${colName}] DATETIME NULL`;
+  if (f.dataType === 'DATE') return `        [${colName}] DATE NULL`;
+  if (f.dataType === 'CHAR') return `        [${colName}] CHAR(${f.maxLength}) NULL`;
+  const config = getFieldConfig(f.id);
+  const len = config.repeatHandling === 'concatenate' ? 500 : f.maxLength;
+  return `        [${colName}] VARCHAR(${len}) NULL`;
 }).join(',\n')}
     );
+END
+GO
+
+-- ============================================
+-- Helper Function: Extract HL7 Field Value
+-- Supports: first occurrence, concatenation, and type filtering
+-- ============================================
+CREATE OR ALTER FUNCTION [dbo].[fn_GetHL7Field]
+(
+    @HL7Message NVARCHAR(MAX),
+    @FieldPath VARCHAR(20),
+    @RepeatMode VARCHAR(20) = 'FIRST',
+    @TypeFilter VARCHAR(20) = NULL,
+    @TypeComponent INT = 0
+)
+RETURNS NVARCHAR(1000)
+AS
+BEGIN
+    DECLARE @Result NVARCHAR(1000) = NULL;
+    DECLARE @SegmentName VARCHAR(3);
+    DECLARE @FieldNum INT;
+    DECLARE @Segment NVARCHAR(MAX);
+    DECLARE @FieldValue NVARCHAR(MAX);
+    DECLARE @Repeat NVARCHAR(500);
+    DECLARE @RepeatDelim CHAR(1) = '~';
+    DECLARE @CompDelim CHAR(1) = '^';
+    DECLARE @FieldDelim CHAR(1) = '|';
+    DECLARE @SegmentDelim CHAR(1) = CHAR(13);
+    DECLARE @StartPos INT;
+    DECLARE @EndPos INT;
+    DECLARE @RepeatStart INT;
+    DECLARE @RepeatEnd INT;
+    DECLARE @TypeValue NVARCHAR(50);
+    DECLARE @FirstComponent NVARCHAR(500);
+    
+    SET @SegmentName = LEFT(@FieldPath, 3);
+    SET @FieldNum = CAST(SUBSTRING(@FieldPath, 5, LEN(@FieldPath)) AS INT);
+    
+    SET @StartPos = CHARINDEX(@SegmentName + '|', @HL7Message);
+    IF @StartPos = 0 RETURN NULL;
+    
+    SET @EndPos = CHARINDEX(@SegmentDelim, @HL7Message, @StartPos);
+    IF @EndPos = 0 SET @EndPos = LEN(@HL7Message) + 1;
+    
+    SET @Segment = SUBSTRING(@HL7Message, @StartPos, @EndPos - @StartPos);
+    
+    -- Extract field
+    DECLARE @FieldStart INT = 1;
+    DECLARE @FieldEnd INT;
+    DECLARE @CurrentField INT = 0;
+    
+    WHILE @CurrentField < @FieldNum AND @FieldStart <= LEN(@Segment)
+    BEGIN
+        SET @FieldEnd = CHARINDEX(@FieldDelim, @Segment, @FieldStart);
+        IF @FieldEnd = 0 SET @FieldEnd = LEN(@Segment) + 1;
+        
+        IF @CurrentField = @FieldNum - 1
+        BEGIN
+            SET @FieldValue = SUBSTRING(@Segment, @FieldStart, @FieldEnd - @FieldStart);
+            BREAK;
+        END
+        
+        SET @FieldStart = @FieldEnd + 1;
+        SET @CurrentField = @CurrentField + 1;
+    END
+    
+    IF @FieldValue IS NULL RETURN NULL;
+    
+    -- Handle repeat mode
+    IF @RepeatMode = 'FIRST'
+    BEGIN
+        IF CHARINDEX(@RepeatDelim, @FieldValue) > 0
+            SET @Result = LEFT(@FieldValue, CHARINDEX(@RepeatDelim, @FieldValue) - 1);
+        ELSE
+            SET @Result = @FieldValue;
+        
+        IF CHARINDEX(@CompDelim, @Result) > 0
+            SET @Result = LEFT(@Result, CHARINDEX(@CompDelim, @Result) - 1);
+    END
+    ELSE IF @RepeatMode = 'CONCAT'
+    BEGIN
+        SET @Result = '';
+        SET @RepeatStart = 1;
+        WHILE @RepeatStart <= LEN(@FieldValue)
+        BEGIN
+            SET @RepeatEnd = CHARINDEX(@RepeatDelim, @FieldValue, @RepeatStart);
+            IF @RepeatEnd = 0 SET @RepeatEnd = LEN(@FieldValue) + 1;
+            
+            SET @Repeat = SUBSTRING(@FieldValue, @RepeatStart, @RepeatEnd - @RepeatStart);
+            SET @FirstComponent = CASE WHEN CHARINDEX(@CompDelim, @Repeat) > 0 
+                THEN LEFT(@Repeat, CHARINDEX(@CompDelim, @Repeat) - 1) 
+                ELSE @Repeat END;
+            
+            IF LEN(@Result) > 0 SET @Result = @Result + '; ';
+            SET @Result = @Result + @FirstComponent;
+            
+            SET @RepeatStart = @RepeatEnd + 1;
+        END
+    END
+    ELSE IF @RepeatMode = 'FILTER' AND @TypeFilter IS NOT NULL AND @TypeComponent > 0
+    BEGIN
+        SET @RepeatStart = 1;
+        WHILE @RepeatStart <= LEN(@FieldValue)
+        BEGIN
+            SET @RepeatEnd = CHARINDEX(@RepeatDelim, @FieldValue, @RepeatStart);
+            IF @RepeatEnd = 0 SET @RepeatEnd = LEN(@FieldValue) + 1;
+            
+            SET @Repeat = SUBSTRING(@FieldValue, @RepeatStart, @RepeatEnd - @RepeatStart);
+            
+            -- Get type component
+            DECLARE @CompStart INT = 1;
+            DECLARE @CompEnd INT;
+            DECLARE @CompNum INT = 1;
+            WHILE @CompNum < @TypeComponent AND @CompStart <= LEN(@Repeat)
+            BEGIN
+                SET @CompEnd = CHARINDEX(@CompDelim, @Repeat, @CompStart);
+                IF @CompEnd = 0 BREAK;
+                SET @CompStart = @CompEnd + 1;
+                SET @CompNum = @CompNum + 1;
+            END
+            
+            SET @CompEnd = CHARINDEX(@CompDelim, @Repeat, @CompStart);
+            IF @CompEnd = 0 SET @CompEnd = LEN(@Repeat) + 1;
+            SET @TypeValue = SUBSTRING(@Repeat, @CompStart, @CompEnd - @CompStart);
+            
+            IF @TypeValue = @TypeFilter
+            BEGIN
+                SET @FirstComponent = CASE WHEN CHARINDEX(@CompDelim, @Repeat) > 0 
+                    THEN LEFT(@Repeat, CHARINDEX(@CompDelim, @Repeat) - 1) 
+                    ELSE @Repeat END;
+                SET @Result = @FirstComponent;
+                BREAK;
+            END
+            
+            SET @RepeatStart = @RepeatEnd + 1;
+        END
+    END
+    
+    RETURN @Result;
 END
 GO
 
@@ -296,17 +560,13 @@ BEGIN
     SET NOCOUNT ON;
     
     DECLARE @RawMessage NVARCHAR(MAX);
-    DECLARE @CurrentSegment NVARCHAR(MAX);
-    DECLARE @SegmentName VARCHAR(3);
+    DECLARE @MsgID INT;
     
-    -- Cursor to process unprocessed messages
     DECLARE msg_cursor CURSOR FOR
         SELECT ID, RawHL7Message 
         FROM [dbo].[${sourceTableName}]
         WHERE (@RawMessageID IS NULL OR ID = @RawMessageID)
           AND ProcessedFlag = 0;
-    
-    DECLARE @MsgID INT;
     
     OPEN msg_cursor;
     FETCH NEXT FROM msg_cursor INTO @MsgID, @RawMessage;
@@ -314,24 +574,30 @@ BEGIN
     WHILE @@FETCH_STATUS = 0
     BEGIN
         BEGIN TRY
-            -- Parse and insert data
             INSERT INTO [dbo].[${tableName}] (
                 [RawMessageID],
-${allFields.map(f => `                [${f.name.replace(/[^a-zA-Z0-9]/g, '_')}]`).join(',\n')}
+${allFields.map(f => `                [${getColumnName(f)}]`).join(',\n')}
             )
             SELECT 
                 @MsgID,
-${allFields.map(f => `                dbo.fn_GetHL7Field(@RawMessage, '${f.position}') AS [${f.name.replace(/[^a-zA-Z0-9]/g, '_')}]`).join(',\n')}
+${allFields.map(f => {
+  const config = getFieldConfig(f.id);
+  if (config.repeatHandling === 'first' || !f.repeating) {
+    return `                dbo.fn_GetHL7Field(@RawMessage, '${f.position}', 'FIRST', NULL, 0)`;
+  } else if (config.repeatHandling === 'concatenate') {
+    return `                dbo.fn_GetHL7Field(@RawMessage, '${f.position}', 'CONCAT', NULL, 0)`;
+  } else if (config.repeatHandling === 'filter' && config.identifierFilter) {
+    return `                dbo.fn_GetHL7Field(@RawMessage, '${f.position}', 'FILTER', '${config.identifierFilter}', ${f.identifierComponent || 0})`;
+  }
+  return `                dbo.fn_GetHL7Field(@RawMessage, '${f.position}', 'FIRST', NULL, 0)`;
+}).join(',\n')}
             
-            -- Mark as processed
             UPDATE [dbo].[${sourceTableName}]
-            SET ProcessedFlag = 1,
-                ProcessedDateTime = GETDATE()
+            SET ProcessedFlag = 1, ProcessedDateTime = GETDATE()
             WHERE ID = @MsgID;
             
         END TRY
         BEGIN CATCH
-            -- Log error
             PRINT 'Error processing message ID: ' + CAST(@MsgID AS VARCHAR(10));
             PRINT ERROR_MESSAGE();
         END CATCH
@@ -344,71 +610,7 @@ ${allFields.map(f => `                dbo.fn_GetHL7Field(@RawMessage, '${f.posit
 END
 GO
 
--- ============================================
--- Helper Function: Extract HL7 Field Value
--- ============================================
-CREATE OR ALTER FUNCTION [dbo].[fn_GetHL7Field]
-(
-    @HL7Message NVARCHAR(MAX),
-    @FieldPath VARCHAR(20)  -- e.g., 'PID-3', 'PV1-7'
-)
-RETURNS NVARCHAR(500)
-AS
-BEGIN
-    DECLARE @Result NVARCHAR(500) = NULL;
-    DECLARE @SegmentName VARCHAR(3);
-    DECLARE @FieldNum INT;
-    DECLARE @Segment NVARCHAR(MAX);
-    DECLARE @FieldDelim CHAR(1) = '|';
-    DECLARE @SegmentDelim CHAR(1) = CHAR(13);
-    
-    -- Parse field path
-    SET @SegmentName = LEFT(@FieldPath, 3);
-    SET @FieldNum = CAST(SUBSTRING(@FieldPath, 5, LEN(@FieldPath)) AS INT);
-    
-    -- Find the segment
-    DECLARE @StartPos INT = CHARINDEX(@SegmentName + '|', @HL7Message);
-    IF @StartPos > 0
-    BEGIN
-        DECLARE @EndPos INT = CHARINDEX(@SegmentDelim, @HL7Message, @StartPos);
-        IF @EndPos = 0 SET @EndPos = LEN(@HL7Message) + 1;
-        
-        SET @Segment = SUBSTRING(@HL7Message, @StartPos, @EndPos - @StartPos);
-        
-        -- Extract field value
-        DECLARE @FieldStart INT = 1;
-        DECLARE @FieldEnd INT;
-        DECLARE @CurrentField INT = 0;
-        
-        WHILE @CurrentField < @FieldNum AND @FieldStart <= LEN(@Segment)
-        BEGIN
-            SET @FieldEnd = CHARINDEX(@FieldDelim, @Segment, @FieldStart);
-            IF @FieldEnd = 0 SET @FieldEnd = LEN(@Segment) + 1;
-            
-            IF @CurrentField = @FieldNum - 1
-            BEGIN
-                SET @Result = SUBSTRING(@Segment, @FieldStart, @FieldEnd - @FieldStart);
-                -- Handle component delimiter (^) - get first component
-                IF CHARINDEX('^', @Result) > 0
-                    SET @Result = LEFT(@Result, CHARINDEX('^', @Result) - 1);
-                BREAK;
-            END
-            
-            SET @FieldStart = @FieldEnd + 1;
-            SET @CurrentField = @CurrentField + 1;
-        END
-    END
-    
-    RETURN @Result;
-END
-GO
-
--- ============================================
--- Example: Schedule the procedure to run
--- ============================================
--- EXEC [dbo].[${procedureName}];
--- Or for a specific message:
--- EXEC [dbo].[${procedureName}] @RawMessageID = 123;
+-- Execute: EXEC [dbo].[${procedureName}];
 `;
     } else if (dbPlatform === 'postgresql') {
       sql = `-- ============================================
@@ -423,50 +625,84 @@ CREATE TABLE IF NOT EXISTS ${tableName} (
     raw_message_id INT NOT NULL,
     processed_datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 ${allFields.map(f => {
-  const colName = f.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+  const colName = getColumnName(f).toLowerCase();
   if (f.dataType === 'INT') return `    ${colName} INT`;
   if (f.dataType === 'DATETIME') return `    ${colName} TIMESTAMP`;
   if (f.dataType === 'DATE') return `    ${colName} DATE`;
   if (f.dataType === 'CHAR') return `    ${colName} CHAR(${f.maxLength})`;
-  return `    ${colName} VARCHAR(${f.maxLength})`;
+  const config = getFieldConfig(f.id);
+  const len = config.repeatHandling === 'concatenate' ? 500 : f.maxLength;
+  return `    ${colName} VARCHAR(${len})`;
 }).join(',\n')}
 );
 
--- Create helper function to extract HL7 field
+-- Helper function with repeat handling
 CREATE OR REPLACE FUNCTION get_hl7_field(
     hl7_message TEXT,
-    field_path VARCHAR(20)
+    field_path VARCHAR(20),
+    repeat_mode VARCHAR(20) DEFAULT 'FIRST',
+    type_filter VARCHAR(20) DEFAULT NULL,
+    type_component INT DEFAULT 0
 )
 RETURNS TEXT AS $$
 DECLARE
     segment_name VARCHAR(3);
     field_num INT;
     segment_text TEXT;
+    field_value TEXT;
     fields TEXT[];
+    repeats TEXT[];
+    repeat_item TEXT;
+    components TEXT[];
     result TEXT;
+    type_value TEXT;
 BEGIN
     segment_name := LEFT(field_path, 3);
     field_num := CAST(SUBSTRING(field_path FROM 5) AS INT);
     
-    -- Find segment
     SELECT s INTO segment_text
     FROM unnest(string_to_array(hl7_message, E'\\r')) s
     WHERE s LIKE segment_name || '|%'
     LIMIT 1;
     
-    IF segment_text IS NULL THEN
-        RETURN NULL;
-    END IF;
+    IF segment_text IS NULL THEN RETURN NULL; END IF;
     
-    -- Split by pipe and get field
     fields := string_to_array(segment_text, '|');
-    IF array_length(fields, 1) >= field_num THEN
-        result := fields[field_num + 1];
-        -- Get first component if contains ^
+    IF array_length(fields, 1) < field_num + 1 THEN RETURN NULL; END IF;
+    
+    field_value := fields[field_num + 1];
+    IF field_value IS NULL OR field_value = '' THEN RETURN NULL; END IF;
+    
+    repeats := string_to_array(field_value, '~');
+    
+    IF repeat_mode = 'FIRST' THEN
+        result := repeats[1];
         IF position('^' in result) > 0 THEN
             result := split_part(result, '^', 1);
         END IF;
         RETURN result;
+    ELSIF repeat_mode = 'CONCAT' THEN
+        result := '';
+        FOREACH repeat_item IN ARRAY repeats LOOP
+            IF result <> '' THEN result := result || '; '; END IF;
+            IF position('^' in repeat_item) > 0 THEN
+                result := result || split_part(repeat_item, '^', 1);
+            ELSE
+                result := result || repeat_item;
+            END IF;
+        END LOOP;
+        RETURN result;
+    ELSIF repeat_mode = 'FILTER' AND type_filter IS NOT NULL AND type_component > 0 THEN
+        FOREACH repeat_item IN ARRAY repeats LOOP
+            components := string_to_array(repeat_item, '^');
+            IF array_length(components, 1) >= type_component THEN
+                type_value := components[type_component];
+                IF type_value = type_filter THEN
+                    RETURN components[1];
+                END IF;
+            END IF;
+        END LOOP;
+        RETURN NULL;
     END IF;
     
     RETURN NULL;
@@ -491,16 +727,25 @@ BEGIN
         BEGIN
             INSERT INTO ${tableName} (
                 raw_message_id,
-${allFields.map(f => `                ${f.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`).join(',\n')}
+${allFields.map(f => `                ${getColumnName(f).toLowerCase()}`).join(',\n')}
             )
             VALUES (
                 rec.id,
-${allFields.map(f => `                get_hl7_field(rec.raw_hl7_message, '${f.position}')`).join(',\n')}
+${allFields.map(f => {
+  const config = getFieldConfig(f.id);
+  if (config.repeatHandling === 'first' || !f.repeating) {
+    return `                get_hl7_field(rec.raw_hl7_message, '${f.position}', 'FIRST', NULL, 0)`;
+  } else if (config.repeatHandling === 'concatenate') {
+    return `                get_hl7_field(rec.raw_hl7_message, '${f.position}', 'CONCAT', NULL, 0)`;
+  } else if (config.repeatHandling === 'filter' && config.identifierFilter) {
+    return `                get_hl7_field(rec.raw_hl7_message, '${f.position}', 'FILTER', '${config.identifierFilter}', ${f.identifierComponent || 0})`;
+  }
+  return `                get_hl7_field(rec.raw_hl7_message, '${f.position}', 'FIRST', NULL, 0)`;
+}).join(',\n')}
             );
             
             UPDATE ${sourceTableName}
-            SET processed_flag = TRUE,
-                processed_datetime = CURRENT_TIMESTAMP
+            SET processed_flag = TRUE, processed_datetime = CURRENT_TIMESTAMP
             WHERE id = rec.id;
             
         EXCEPTION WHEN OTHERS THEN
@@ -513,7 +758,6 @@ $$;
 -- Execute: CALL ${procedureName}();
 `;
     } else {
-      // MySQL syntax
       sql = `-- ============================================
 -- HL7 Message Parser Stored Procedure
 -- Generated by HIT HL7 SQL Builder
@@ -526,51 +770,97 @@ CREATE TABLE IF NOT EXISTS \`${tableName}\` (
     \`RawMessageID\` INT NOT NULL,
     \`ProcessedDateTime\` DATETIME DEFAULT CURRENT_TIMESTAMP,
 ${allFields.map(f => {
-  if (f.dataType === 'INT') return `    \`${f.name.replace(/[^a-zA-Z0-9]/g, '_')}\` INT`;
-  if (f.dataType === 'DATETIME') return `    \`${f.name.replace(/[^a-zA-Z0-9]/g, '_')}\` DATETIME`;
-  if (f.dataType === 'DATE') return `    \`${f.name.replace(/[^a-zA-Z0-9]/g, '_')}\` DATE`;
-  if (f.dataType === 'CHAR') return `    \`${f.name.replace(/[^a-zA-Z0-9]/g, '_')}\` CHAR(${f.maxLength})`;
-  return `    \`${f.name.replace(/[^a-zA-Z0-9]/g, '_')}\` VARCHAR(${f.maxLength})`;
+  const colName = getColumnName(f);
+  if (f.dataType === 'INT') return `    \`${colName}\` INT`;
+  if (f.dataType === 'DATETIME') return `    \`${colName}\` DATETIME`;
+  if (f.dataType === 'DATE') return `    \`${colName}\` DATE`;
+  if (f.dataType === 'CHAR') return `    \`${colName}\` CHAR(${f.maxLength})`;
+  const config = getFieldConfig(f.id);
+  const len = config.repeatHandling === 'concatenate' ? 500 : f.maxLength;
+  return `    \`${colName}\` VARCHAR(${len})`;
 }).join(',\n')}
 );
 
 DELIMITER //
 
--- Helper function to extract HL7 field
+-- Helper function with repeat handling
 CREATE FUNCTION IF NOT EXISTS fn_GetHL7Field(
     hl7_message TEXT,
-    field_path VARCHAR(20)
+    field_path VARCHAR(20),
+    repeat_mode VARCHAR(20),
+    type_filter VARCHAR(20),
+    type_component INT
 )
-RETURNS VARCHAR(500)
+RETURNS VARCHAR(1000)
 DETERMINISTIC
 BEGIN
     DECLARE segment_name VARCHAR(3);
     DECLARE field_num INT;
     DECLARE segment_text TEXT;
-    DECLARE result VARCHAR(500);
+    DECLARE field_value TEXT;
+    DECLARE result VARCHAR(1000);
+    DECLARE repeat_item VARCHAR(500);
+    DECLARE type_value VARCHAR(50);
+    DECLARE repeat_count INT;
+    DECLARE i INT;
     
     SET segment_name = LEFT(field_path, 3);
     SET field_num = CAST(SUBSTRING(field_path, 5) AS UNSIGNED);
     
-    -- Find and extract segment
     SET segment_text = SUBSTRING_INDEX(
         SUBSTRING_INDEX(hl7_message, CONCAT('\\r', segment_name, '|'), -1),
         '\\r', 1
     );
     
-    IF segment_text IS NOT NULL THEN
-        SET result = SUBSTRING_INDEX(
-            SUBSTRING_INDEX(CONCAT(segment_name, '|', segment_text), '|', field_num + 1),
-            '|', -1
-        );
-        
-        -- Get first component
+    IF segment_text IS NULL OR segment_text = '' THEN
+        RETURN NULL;
+    END IF;
+    
+    SET field_value = SUBSTRING_INDEX(
+        SUBSTRING_INDEX(CONCAT(segment_name, '|', segment_text), '|', field_num + 1),
+        '|', -1
+    );
+    
+    IF field_value IS NULL OR field_value = '' THEN
+        RETURN NULL;
+    END IF;
+    
+    IF repeat_mode = 'FIRST' OR repeat_mode IS NULL THEN
+        SET result = SUBSTRING_INDEX(field_value, '~', 1);
         IF LOCATE('^', result) > 0 THEN
             SET result = SUBSTRING_INDEX(result, '^', 1);
         END IF;
+        RETURN result;
+    ELSEIF repeat_mode = 'CONCAT' THEN
+        SET result = '';
+        SET repeat_count = LENGTH(field_value) - LENGTH(REPLACE(field_value, '~', '')) + 1;
+        SET i = 1;
+        WHILE i <= repeat_count DO
+            SET repeat_item = SUBSTRING_INDEX(SUBSTRING_INDEX(field_value, '~', i), '~', -1);
+            IF LOCATE('^', repeat_item) > 0 THEN
+                SET repeat_item = SUBSTRING_INDEX(repeat_item, '^', 1);
+            END IF;
+            IF result <> '' THEN SET result = CONCAT(result, '; '); END IF;
+            SET result = CONCAT(result, repeat_item);
+            SET i = i + 1;
+        END WHILE;
+        RETURN result;
+    ELSEIF repeat_mode = 'FILTER' AND type_filter IS NOT NULL THEN
+        SET repeat_count = LENGTH(field_value) - LENGTH(REPLACE(field_value, '~', '')) + 1;
+        SET i = 1;
+        WHILE i <= repeat_count DO
+            SET repeat_item = SUBSTRING_INDEX(SUBSTRING_INDEX(field_value, '~', i), '~', -1);
+            SET type_value = SUBSTRING_INDEX(SUBSTRING_INDEX(repeat_item, '^', type_component), '^', -1);
+            IF type_value = type_filter THEN
+                SET result = SUBSTRING_INDEX(repeat_item, '^', 1);
+                RETURN result;
+            END IF;
+            SET i = i + 1;
+        END WHILE;
+        RETURN NULL;
     END IF;
     
-    RETURN result;
+    RETURN NULL;
 END //
 
 -- Create stored procedure
@@ -600,16 +890,25 @@ BEGIN
         
         INSERT INTO \`${tableName}\` (
             \`RawMessageID\`,
-${allFields.map(f => `            \`${f.name.replace(/[^a-zA-Z0-9]/g, '_')}\``).join(',\n')}
+${allFields.map(f => `            \`${getColumnName(f)}\``).join(',\n')}
         )
         VALUES (
             v_MsgID,
-${allFields.map(f => `            fn_GetHL7Field(v_RawMessage, '${f.position}')`).join(',\n')}
+${allFields.map(f => {
+  const config = getFieldConfig(f.id);
+  if (config.repeatHandling === 'first' || !f.repeating) {
+    return `            fn_GetHL7Field(v_RawMessage, '${f.position}', 'FIRST', NULL, 0)`;
+  } else if (config.repeatHandling === 'concatenate') {
+    return `            fn_GetHL7Field(v_RawMessage, '${f.position}', 'CONCAT', NULL, 0)`;
+  } else if (config.repeatHandling === 'filter' && config.identifierFilter) {
+    return `            fn_GetHL7Field(v_RawMessage, '${f.position}', 'FILTER', '${config.identifierFilter}', ${f.identifierComponent || 0})`;
+  }
+  return `            fn_GetHL7Field(v_RawMessage, '${f.position}', 'FIRST', NULL, 0)`;
+}).join(',\n')}
         );
         
         UPDATE \`${sourceTableName}\`
-        SET ProcessedFlag = 1,
-            ProcessedDateTime = NOW()
+        SET ProcessedFlag = 1, ProcessedDateTime = NOW()
         WHERE ID = v_MsgID;
     END LOOP;
     
@@ -623,7 +922,7 @@ DELIMITER ;
     }
 
     return sql;
-  }, [selectedFields, tableName, sourceTableName, procedureName, dbPlatform, getSelectedFieldsGroupedBySegment]);
+  }, [selectedFields, fieldConfigs, tableName, sourceTableName, procedureName, dbPlatform, getSelectedFieldsGroupedBySegment]);
 
   const copySQL = () => {
     navigator.clipboard.writeText(generateSQL);
@@ -631,7 +930,7 @@ DELIMITER ;
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col bg-neutral-50">
+    <div className="h-[calc(100vh-4rem)] flex flex-col bg-neutral-50" data-testid="hl7-sql-builder-page">
       {/* Header */}
       <div className="bg-white border-b px-6 py-3 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
@@ -678,7 +977,7 @@ DELIMITER ;
       {/* Main Content */}
       <ResizablePanelGroup direction="horizontal" className="flex-grow">
         {/* Left Panel - Segment Selector */}
-        <ResizablePanel defaultSize={35} minSize={25}>
+        <ResizablePanel defaultSize={40} minSize={30}>
           <div className="h-full flex flex-col bg-white">
             <div className="px-4 py-3 bg-gray-50 border-b">
               <div className="flex items-center gap-2 mb-2">
@@ -686,60 +985,118 @@ DELIMITER ;
                 <span className="text-sm font-medium">HL7 Message Segments</span>
                 <span className="text-xs text-gray-500 ml-auto">{selectedFields.size} fields selected</span>
               </div>
-              <p className="text-xs text-gray-500">Select the segments and fields you want to extract</p>
+              <p className="text-xs text-gray-500">Select fields to extract. Fields with <Filter className="h-3 w-3 inline" /> support type filtering.</p>
             </div>
             
             <ScrollArea className="flex-grow">
               <Accordion type="multiple" defaultValue={["PID", "PV1"]} className="p-2">
                 {HL7_SEGMENTS.map((segment) => {
                   const selectedCount = segment.fields.filter(f => selectedFields.has(f.id)).length;
-                  const allSelected = selectedCount === segment.fields.length;
+                  const allSelected = selectedCount === segment.fields.length && segment.fields.length > 0;
                   
                   return (
                     <AccordionItem key={segment.id} value={segment.id} className="border rounded-lg mb-2 overflow-hidden">
-                      <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-gray-50">
-                        <div className="flex items-center gap-2 w-full">
+                      <div className="flex items-center px-3 py-2 bg-white hover:bg-gray-50">
+                        <div className="mr-2" onClick={(e) => e.stopPropagation()}>
                           <Checkbox 
                             checked={allSelected}
                             onCheckedChange={() => toggleSegment(segment)}
-                            onClick={(e) => e.stopPropagation()}
                             data-testid={`checkbox-segment-${segment.id}`}
                           />
-                          <span className="font-mono text-sm font-medium text-primary">{segment.id}</span>
-                          <span className="text-xs text-gray-600 truncate">{segment.description}</span>
-                          {selectedCount > 0 && (
-                            <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                              {selectedCount}
-                            </span>
-                          )}
                         </div>
-                      </AccordionTrigger>
+                        <AccordionTrigger className="flex-1 hover:no-underline p-0 [&>svg]:ml-auto" data-testid={`accordion-trigger-${segment.id}`}>
+                          <div className="flex items-center gap-2 flex-1">
+                            <span className="font-mono text-sm font-medium text-primary">{segment.id}</span>
+                            <span className="text-xs text-gray-600 truncate">{segment.description}</span>
+                            {segment.repeating && (
+                              <Badge variant="outline" className="text-[10px] px-1 py-0">repeating</Badge>
+                            )}
+                            {selectedCount > 0 && (
+                              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                                {selectedCount}
+                              </span>
+                            )}
+                          </div>
+                        </AccordionTrigger>
+                      </div>
                       <AccordionContent className="px-3 pb-3">
                         <div className="space-y-1 pt-2">
-                          {segment.fields.map((field) => (
-                            <label 
-                              key={field.id} 
-                              className="flex items-start gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer"
-                            >
-                              <Checkbox 
-                                checked={selectedFields.has(field.id)}
-                                onCheckedChange={() => toggleField(field.id)}
-                                className="mt-0.5"
-                                data-testid={`checkbox-field-${field.id}`}
-                              />
-                              <div className="flex-grow min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-mono text-xs text-gray-700">{field.position}</span>
-                                  <span className="text-sm">{field.name}</span>
-                                </div>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-xs text-gray-400">{field.dataType}{field.maxLength > 0 ? `(${field.maxLength})` : ''}</span>
-                                  <span className="text-xs text-gray-400">•</span>
-                                  <span className="text-xs text-gray-400 truncate">{field.description}</span>
-                                </div>
+                          {segment.fields.map((field) => {
+                            const isSelected = selectedFields.has(field.id);
+                            const config = getFieldConfig(field.id);
+                            
+                            return (
+                              <div key={field.id} className="rounded hover:bg-gray-50">
+                                <label className="flex items-start gap-2 p-2 cursor-pointer">
+                                  <Checkbox 
+                                    checked={isSelected}
+                                    onCheckedChange={() => toggleField(field.id)}
+                                    className="mt-0.5"
+                                    data-testid={`checkbox-field-${field.id}`}
+                                  />
+                                  <div className="flex-grow min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-mono text-xs text-gray-700">{field.position}</span>
+                                      <span className="text-sm">{field.name}</span>
+                                      {field.repeating && (
+                                        <span title="Supports filtering"><Filter className="h-3 w-3 text-amber-500" /></span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                      <span className="text-xs text-gray-400">{field.dataType}{field.maxLength > 0 ? `(${field.maxLength})` : ''}</span>
+                                      <span className="text-xs text-gray-400">•</span>
+                                      <span className="text-xs text-gray-400 truncate">{field.description}</span>
+                                    </div>
+                                  </div>
+                                </label>
+                                
+                                {isSelected && field.repeating && field.identifierOptions && (
+                                  <div className="ml-8 mr-2 mb-2 p-2 bg-amber-50 rounded border border-amber-100">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Settings2 className="h-3 w-3 text-amber-600" />
+                                      <span className="text-xs font-medium text-amber-800">Repeat Handling</span>
+                                    </div>
+                                    <div className="flex gap-2 mb-2">
+                                      <Select 
+                                        value={config.repeatHandling} 
+                                        onValueChange={(v) => updateFieldConfig(field.id, { repeatHandling: v as 'first' | 'concatenate' | 'filter' })}
+                                      >
+                                        <SelectTrigger className="h-7 text-xs" data-testid={`select-repeat-${field.id}`}>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="first">First Only</SelectItem>
+                                          <SelectItem value="concatenate">Concatenate All</SelectItem>
+                                          <SelectItem value="filter">Filter by Type</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    
+                                    {config.repeatHandling === 'filter' && (
+                                      <div>
+                                        <Label className="text-xs text-amber-700 mb-1 block">Select Type:</Label>
+                                        <Select 
+                                          value={config.identifierFilter || ''} 
+                                          onValueChange={(v) => updateFieldConfig(field.id, { identifierFilter: v })}
+                                        >
+                                          <SelectTrigger className="h-7 text-xs" data-testid={`select-filter-${field.id}`}>
+                                            <SelectValue placeholder="Choose identifier type..." />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {field.identifierOptions.map(opt => (
+                                              <SelectItem key={opt.code} value={opt.code}>
+                                                {opt.code} - {opt.name}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                            </label>
-                          ))}
+                            );
+                          })}
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -753,7 +1110,7 @@ DELIMITER ;
         <ResizableHandle data-testid="panel-resize-handle" />
 
         {/* Right Panel - SQL Output */}
-        <ResizablePanel defaultSize={65}>
+        <ResizablePanel defaultSize={60}>
           <div className="h-full flex flex-col bg-slate-900">
             <div className="px-4 py-3 bg-slate-950 border-b border-slate-800">
               <div className="flex items-center justify-between">
