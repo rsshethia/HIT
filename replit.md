@@ -117,6 +117,7 @@ Changelog:
 - June 19, 2025. Enhanced Sheet to Booklet tool with PDF generation using jsPDF library, added comprehensive sample files with authentic healthcare integration data, implemented "Try Sample Data" functionality for instant testing, and created downloadable sample PDF output for Integration Architects
 - January 3, 2025. Added Integration Diagram Tool using tldraw library for interactive healthcare system architecture drawings, workflow visualizations, and integration documentation with professional templates for common patterns
 - November 3, 2025. Added PlantUML Mapping Tool for creating professional UML diagrams using text-based PlantUML notation, featuring healthcare-specific templates for sequence diagrams, component architectures, and workflow visualizations
+- December 18, 2025. Created HL7 SQL Builder tool - interactive stored procedure generator for parsing RAW HL7 messages with support for SQL Server, PostgreSQL, and MySQL. Features segment/field selector with 9 HL7 segments (MSH, EVN, PID, PV1, PV2, NK1, DG1, IN1, AL1) and dynamic SQL generation
 
 
 ## User Preferences

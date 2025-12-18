@@ -18,6 +18,7 @@ import ClinicalIntegrationPlay from "@/pages/clinical-integration-play";
 import SheetToBookletPage from "@/pages/sheet-to-booklet";
 import IntegrationDiagramPage from "@/pages/integration-diagram";
 import IntegrationArchitect from "@/pages/integration-architect";
+import HL7SQLBuilder from "@/pages/hl7-sql-builder";
 
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
@@ -41,6 +42,7 @@ function Router() {
       <Route path="/sheet-to-booklet" component={SheetToBookletPage} />
       <Route path="/integration-diagram" component={IntegrationDiagramPage} />
       <Route path="/integration-architect" component={IntegrationArchitect} />
+      <Route path="/hl7-sql-builder" component={HL7SQLBuilder} />
       <Route component={NotFound} />
     </Switch>
   );

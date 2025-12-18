@@ -114,6 +114,13 @@ export default function ResourcesPage() {
       category: "Featured",
       isInternalLink: true
     },
+    {
+      title: "HL7 SQL Builder",
+      description: "Generate SQL stored procedures to parse RAW HL7 messages stored in your database. Select segments and fields from ADT messages, and get ready-to-use SQL for SQL Server, PostgreSQL, or MySQL.",
+      link: "/hl7-sql-builder",
+      category: "Featured",
+      isInternalLink: true
+    },
 
   ];
 
