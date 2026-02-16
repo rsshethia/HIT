@@ -118,6 +118,7 @@ Changelog:
 - January 3, 2025. Added Integration Diagram Tool using tldraw library for interactive healthcare system architecture drawings, workflow visualizations, and integration documentation with professional templates for common patterns
 - November 3, 2025. Added PlantUML Mapping Tool for creating professional UML diagrams using text-based PlantUML notation, featuring healthcare-specific templates for sequence diagrams, component architectures, and workflow visualizations
 - December 18, 2025. Created HL7 SQL Builder tool - interactive stored procedure generator for parsing RAW HL7 messages with support for SQL Server, PostgreSQL, and MySQL. Features segment/field selector with 9 HL7 segments (MSH, EVN, PID, PV1, PV2, NK1, DG1, IN1, AL1) and dynamic SQL generation
+- February 16, 2026. Added MessageTrace tool - a downloadable PowerShell script (Search-HL7Message.ps1) for searching HL7 message archives by Patient ID (PID-3), Visit Number (PV1-19), or Location (PV1-3). Features documentation page with overview, usage examples, reference guide, and script viewer. Placed under Featured category
 
 
 ## User Preferences

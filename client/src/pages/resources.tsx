@@ -121,6 +121,13 @@ export default function ResourcesPage() {
       category: "Featured",
       isInternalLink: true
     },
+    {
+      title: "MessageTrace",
+      description: "MessageTrace is a lightweight PowerShell tool for healthcare IT professionals to rapidly locate HL7 messages in production archives. Search by patient ID, visit number, or location across thousands of files in seconds. No database setup, no external dependencies — just pure PowerShell efficiency for critical incident response.",
+      link: "/message-trace",
+      category: "Featured",
+      isInternalLink: true
+    },
 
   ];
 
