@@ -1,19 +1,21 @@
-import React from 'react';
+import React from "react";
 
 export function DevHeader() {
   // Version information
-  const version = "0.12.1";
-  const lastUpdated = "February 16, 2026";
-  
+  const version = "0.12.9";
+  const lastUpdated = "March 09, 2026";
+
   return (
     <div className="bg-amber-100 border-b border-amber-200 py-1 text-center text-sm text-amber-800">
       <div className="container mx-auto px-4 flex items-center justify-center flex-wrap">
-        <span className="material-icons text-amber-600 mr-1 text-sm">construction</span>
+        <span className="material-icons text-amber-600 mr-1 text-sm">
+          construction
+        </span>
         <span>
           Dev Version {version} (Updated: {lastUpdated}) - Supported by{" "}
-          <a 
-            href="https://www.linkedin.com/in/rsshethia" 
-            target="_blank" 
+          <a
+            href="https://www.linkedin.com/in/rsshethia"
+            target="_blank"
             rel="noopener noreferrer"
             className="font-medium hover:underline"
           >
