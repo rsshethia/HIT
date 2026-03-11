@@ -140,9 +140,13 @@ export default function MapPage() {
   const [captcha, setCaptcha] = useState(generateCaptcha);
   const [captchaInput, setCaptchaInput] = useState("");
   const [geocoding, setGeocoding] = useState(false);
-  const [disclaimerDismissed, setDisclaimerDismissed] = useState(
-    () => sessionStorage.getItem("map-disclaimer-dismissed") === "true"
-  );
+  const [disclaimerDismissed, setDisclaimerDismissed] = useState(() => {
+    try {
+      return sessionStorage.getItem("map-disclaimer-dismissed") === "true";
+    } catch {
+      return false;
+    }
+  });
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: systems = [] } = useQuery<MapSystem[]>({
@@ -184,19 +188,23 @@ export default function MapPage() {
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: "mapbox://styles/mapbox/light-v11",
-      center: AUSTRALIA_CENTER,
-      zoom: AUSTRALIA_ZOOM,
-      projection: { name: "mercator" } as any,
-      pitchWithRotate: false,
-      dragRotate: false,
-      touchPitch: false,
-    });
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: "mapbox://styles/mapbox/light-v11",
+        center: AUSTRALIA_CENTER,
+        zoom: AUSTRALIA_ZOOM,
+        projection: { name: "mercator" } as any,
+        pitchWithRotate: false,
+        dragRotate: false,
+        touchPitch: false,
+      });
 
-    map.current.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
-    map.current.addControl(new mapboxgl.ScaleControl(), "bottom-right");
+      map.current.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
+      map.current.addControl(new mapboxgl.ScaleControl(), "bottom-right");
+    } catch (err) {
+      console.error("Map failed to initialise:", err);
+    }
 
     return () => {
       map.current?.remove();
@@ -561,7 +569,7 @@ export default function MapPage() {
           </p>
           <button
             onClick={() => {
-              sessionStorage.setItem("map-disclaimer-dismissed", "true");
+              try { sessionStorage.setItem("map-disclaimer-dismissed", "true"); } catch {}
               setDisclaimerDismissed(true);
             }}
             className="text-xs text-amber-700 font-medium hover:text-amber-900 shrink-0 ml-2 underline underline-offset-2"
