@@ -585,7 +585,7 @@ export default function MapPage() {
 
           {/* Desktop: detail panel (floating top-right card) */}
           {selectedSystem && (
-            <div className="hidden md:flex flex-col absolute top-3 right-3 w-80 bg-white rounded-xl shadow-xl border overflow-hidden z-10 max-h-[calc(100vh-6rem)]">
+            <div className="hidden md:flex flex-col absolute top-3 right-3 w-80 bg-white rounded-xl shadow-xl border overflow-hidden z-10 max-h-[calc(100%-1.5rem)]">
               <div className="bg-blue-600 px-4 py-3 flex items-start justify-between shrink-0">
                 <div className="min-w-0">
                   <h2 className="text-white font-bold text-base truncate">{selectedSystem.systemName}</h2>
