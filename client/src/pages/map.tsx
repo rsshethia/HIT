@@ -85,8 +85,9 @@ export default function MapPage() {
     queryKey: ["/api/map/systems"],
   });
 
+  const historyQueryKey = `/api/map/systems/${selectedSystem?.id}/history`;
   const { data: history = [] } = useQuery<MapSystemHistory[]>({
-    queryKey: ["/api/map/systems", selectedSystem?.id, "history"],
+    queryKey: [historyQueryKey],
     enabled: !!selectedSystem && showHistory,
   });
 
@@ -104,9 +105,9 @@ export default function MapPage() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number; data: any }) => apiRequest("PUT", `/api/map/systems/${id}`, data),
-    onSuccess: () => {
+    onSuccess: (_res, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/map/systems"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/map/systems", selectedSystem?.id, "history"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/map/systems/${variables.id}/history`] });
       toast({ title: "System updated", description: "The record has been updated and previous version saved to history." });
       closeForm();
     },
@@ -159,31 +160,30 @@ export default function MapPage() {
         return;
       }
 
-      // Create custom marker element
+      // Use a plain circle element anchored at center — no rotation, no anchor drift
       const el = document.createElement("div");
-      el.className = "map-marker";
       el.style.cssText = `
-        width: 32px;
-        height: 32px;
+        width: 18px;
+        height: 18px;
         background: #2563eb;
         border: 3px solid white;
-        border-radius: 50% 50% 50% 0;
-        transform: rotate(-45deg);
+        border-radius: 50%;
         cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        transition: transform 0.2s, background 0.2s;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+        transition: transform 0.15s, background 0.15s;
       `;
 
       el.addEventListener("mouseenter", () => {
         el.style.background = "#1d4ed8";
-        el.style.transform = "rotate(-45deg) scale(1.2)";
+        el.style.transform = "scale(1.3)";
       });
       el.addEventListener("mouseleave", () => {
         el.style.background = "#2563eb";
-        el.style.transform = "rotate(-45deg) scale(1)";
+        el.style.transform = "scale(1)";
       });
 
-      const marker = new mapboxgl.Marker({ element: el })
+      // anchor: 'center' keeps the circle exactly on the coordinate when scaling
+      const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
         .setLngLat([system.longitude, system.latitude])
         .addTo(map.current!);
 
