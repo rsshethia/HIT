@@ -663,7 +663,9 @@ export default function MapPage() {
                 </Label>
                 <Input
                   id="captcha"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   placeholder="Answer"
                   value={captchaInput}
                   onChange={e => setCaptchaInput(e.target.value)}
