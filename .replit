@@ -43,3 +43,8 @@ waitForPort = 5000
 
 [agent]
 integrations = ["styling_shadcn:1.0.0", "javascript_websocket:1.0.0", "javascript_sendgrid:1.0.0"]
+
+[userenv]
+
+[userenv.shared]
+VITE_MAPBOX_TOKEN = "pk.eyJ1IjoiZm9yY2VseW9wZW4iLCJhIjoiY21tazE2dXF4MWFtODJvcHh2c2hrcGsycyJ9.PjJLd-B7uOilLcUMfXMJTQ"
