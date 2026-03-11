@@ -507,8 +507,8 @@ export default function MapPage() {
 
           {/* Desktop: detail panel (floating top-right card) */}
           {selectedSystem && (
-            <div className="hidden md:block absolute top-3 right-3 w-80 bg-white rounded-xl shadow-xl border overflow-hidden z-10">
-              <div className="bg-blue-600 px-4 py-3 flex items-start justify-between">
+            <div className="hidden md:flex flex-col absolute top-3 right-3 w-80 bg-white rounded-xl shadow-xl border overflow-hidden z-10 max-h-[calc(100vh-6rem)]">
+              <div className="bg-blue-600 px-4 py-3 flex items-start justify-between shrink-0">
                 <div className="min-w-0">
                   <h2 className="text-white font-bold text-base truncate">{selectedSystem.systemName}</h2>
                   <p className="text-blue-100 text-sm">{selectedSystem.vendor}</p>
@@ -520,9 +520,9 @@ export default function MapPage() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <ScrollArea className="max-h-[calc(100vh-14rem)]">
+              <div className="flex-1 overflow-y-auto min-h-0">
                 {detailContent}
-              </ScrollArea>
+              </div>
             </div>
           )}
 
@@ -540,7 +540,7 @@ export default function MapPage() {
       {/* Mobile: bottom sheet detail panel */}
       {selectedSystem && (
         <div className="md:hidden absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-2xl shadow-2xl border-t max-h-[70vh] flex flex-col">
-          <div className="bg-blue-600 px-4 py-3 rounded-t-2xl flex items-start justify-between">
+          <div className="bg-blue-600 px-4 py-3 rounded-t-2xl flex items-start justify-between shrink-0">
             <div className="min-w-0">
               <h2 className="text-white font-bold text-base truncate">{selectedSystem.systemName}</h2>
               <p className="text-blue-100 text-sm">{selectedSystem.vendor}</p>
@@ -552,9 +552,9 @@ export default function MapPage() {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <ScrollArea className="flex-1">
+          <div className="flex-1 overflow-y-auto min-h-0">
             {detailContent}
-          </ScrollArea>
+          </div>
         </div>
       )}
 
