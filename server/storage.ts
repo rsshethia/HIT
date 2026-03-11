@@ -102,6 +102,7 @@ export class MemStorage implements IStorage {
       systemId: existing.id,
       systemName: existing.systemName,
       vendor: existing.vendor,
+      systemType: existing.systemType,
       department: existing.department,
       organization: existing.organization,
       city: existing.city,

@@ -20,6 +20,67 @@ const AUSTRALIA_CENTER: [number, number] = [133.7751, -25.2744];
 const AUSTRALIA_ZOOM = 3.8;
 const AU_STATES = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
+const SYSTEM_TYPES = [
+  "API Gateway",
+  "Bed Management System",
+  "Billing System",
+  "Blood Bank System",
+  "Business Intelligence / Analytics Platform",
+  "Clinical Data Repository (CDR)",
+  "Clinical Decision Support System (CDS)",
+  "Clinical Documentation System",
+  "Claims Processing System",
+  "Computerized Physician Order Entry (CPOE)",
+  "Consent Management System",
+  "Costing System",
+  "Cardiovascular Information System (CVIS)",
+  "Data Warehouse",
+  "Dialysis Management System",
+  "Digital Medical Record (DMR)",
+  "Document Management System",
+  "Electronic Health Record (EHR)",
+  "Electronic Medical Record (EMR)",
+  "Emergency Department Information System (EDIS)",
+  "Endoscopy Reporting System",
+  "Enterprise Resource Planning (ERP / Finance)",
+  "Enterprise Service Bus (ESB)",
+  "ePrescribing System",
+  "GP Clinic System",
+  "Health Information Exchange (HIE)",
+  "HL7 Interface Engine",
+  "ICU Clinical System",
+  "Identity and Access Management System",
+  "Infection Control System",
+  "Insurance Verification System",
+  "Integration Engine (e.g., Rhapsody Integration Engine)",
+  "Laboratory Information System (LIS)",
+  "Master Patient Index (MPI)",
+  "Maternity / Obstetrics System",
+  "Medication Management System",
+  "Mental Health Clinical System",
+  "Message Broker",
+  "Operating Room / Theatre Management System",
+  "Oncology Information System",
+  "Other",
+  "Pathology Information System",
+  "Patient Administration System (PAS)",
+  "Patient Portal",
+  "Pharmacy Information System",
+  "Picture Archiving and Communication System (PACS)",
+  "Population Health Management System",
+  "Provider Registry",
+  "Public Health Reporting System",
+  "Radiology Information System (RIS)",
+  "Referral Management System",
+  "Rehabilitation / Physiotherapy System",
+  "Remote Patient Monitoring System",
+  "Revenue Cycle Management (RCM)",
+  "Scheduling System",
+  "SMS / Notification System",
+  "Telehealth Platform",
+  "Waitlist Management System",
+];
+
 function generateCaptcha() {
   const a = Math.floor(Math.random() * 9) + 1;
   const b = Math.floor(Math.random() * 9) + 1;
@@ -41,6 +102,7 @@ async function geocodeCity(city: string, state: string): Promise<{ lat: number; 
 interface SystemFormData {
   systemName: string;
   vendor: string;
+  systemType: string;
   department: string;
   organization: string;
   city: string;
@@ -49,7 +111,7 @@ interface SystemFormData {
 }
 
 const emptyForm: SystemFormData = {
-  systemName: "", vendor: "", department: "",
+  systemName: "", vendor: "", systemType: "", department: "",
   organization: "", city: "", state: "", changeNote: "",
 };
 
@@ -213,6 +275,7 @@ export default function MapPage() {
     setEditingSystem(system);
     setFormData({
       systemName: system.systemName, vendor: system.vendor,
+      systemType: system.systemType,
       department: system.department, organization: system.organization,
       city: system.city, state: system.state, changeNote: "",
     });
@@ -263,6 +326,7 @@ export default function MapPage() {
     const payload = {
       systemName: formData.systemName.trim(),
       vendor: formData.vendor.trim(),
+      systemType: formData.systemType.trim(),
       department: formData.department.trim(),
       organization: formData.organization.trim(),
       city: formData.city.trim(),
@@ -382,6 +446,12 @@ export default function MapPage() {
         </div>
       </div>
 
+      {selectedSystem.systemType && (
+        <div className="flex items-start gap-2">
+          <Badge variant="secondary" className="text-xs mt-0.5 shrink-0 h-fit">{selectedSystem.systemType}</Badge>
+        </div>
+      )}
+
       <Separator />
 
       <div className="text-xs text-gray-400 space-y-0.5">
@@ -427,6 +497,7 @@ export default function MapPage() {
                       <span className="text-gray-400">{formatDate(entry.changedAt)}</span>
                     </div>
                     <p className="text-gray-700 font-medium">{entry.systemName} · {entry.vendor}</p>
+                    {entry.systemType && <p className="text-gray-500 italic">{entry.systemType}</p>}
                     <p className="text-gray-500">{entry.department} · {entry.organization}</p>
                     <p className="text-gray-500">{entry.city}{entry.state ? `, ${entry.state}` : ""}</p>
                     <p className="mt-1 italic">
@@ -590,6 +661,19 @@ export default function MapPage() {
                   onChange={e => setFormData(f => ({ ...f, vendor: e.target.value }))}
                 />
               </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="systemType">Type</Label>
+              <select
+                id="systemType"
+                value={formData.systemType}
+                onChange={e => setFormData(f => ({ ...f, systemType: e.target.value }))}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="">Select system type</option>
+                {SYSTEM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
