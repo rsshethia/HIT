@@ -128,6 +128,13 @@ export default function ResourcesPage() {
       category: "Featured",
       isInternalLink: true
     },
+    {
+      title: "Healthcare Systems Map",
+      description: "An interactive map of digital healthcare systems deployed across Australia. Browse by organisation, vendor, department, and location. Community-contributed records with full version history — see which systems are being used where across the country.",
+      link: "/map",
+      category: "Featured",
+      isInternalLink: true
+    },
 
   ];
 

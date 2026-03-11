@@ -20,6 +20,7 @@ import IntegrationDiagramPage from "@/pages/integration-diagram";
 import IntegrationArchitect from "@/pages/integration-architect";
 import HL7SQLBuilder from "@/pages/hl7-sql-builder";
 import MessageTracePage from "@/pages/message-trace";
+import MapPage from "@/pages/map";
 
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/integration-architect" component={IntegrationArchitect} />
       <Route path="/hl7-sql-builder" component={HL7SQLBuilder} />
       <Route path="/message-trace" component={MessageTracePage} />
+      <Route path="/map" component={MapPage} />
       <Route component={NotFound} />
     </Switch>
   );
