@@ -224,20 +224,27 @@ export default function MapPage() {
       const el = document.createElement("div");
       el.style.cssText = `
         width: 18px; height: 18px;
+        cursor: pointer;
+      `;
+
+      const innerEl = document.createElement("div");
+      innerEl.style.cssText = `
+        width: 100%; height: 100%;
         background: #2563eb;
         border: 3px solid white;
         border-radius: 50%;
-        cursor: pointer;
         box-shadow: 0 2px 6px rgba(0,0,0,0.35);
         transition: transform 0.15s, background 0.15s;
       `;
+      el.appendChild(innerEl);
+
       el.addEventListener("mouseenter", () => {
-        el.style.background = "#1d4ed8";
-        el.style.transform = "scale(1.3)";
+        innerEl.style.background = "#1d4ed8";
+        innerEl.style.transform = "scale(1.3)";
       });
       el.addEventListener("mouseleave", () => {
-        el.style.background = "#2563eb";
-        el.style.transform = "scale(1)";
+        innerEl.style.background = "#2563eb";
+        innerEl.style.transform = "scale(1)";
       });
 
       const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
