@@ -10,6 +10,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
 
+  // Geocoding proxy — keeps the MapBox token server-side so it is always available at runtime
+  app.get("/api/geocode", async (req, res) => {
+    const query = req.query.query as string;
+    if (!query) return res.status(400).json({ message: "query param required" });
+    const token = process.env.VITE_MAPBOX_TOKEN;
+    if (!token) return res.status(500).json({ message: "Geocoding not configured" });
+    try {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?country=AU&limit=1&access_token=${token}`;
+      const response = await fetch(url);
+      if (!response.ok) return res.status(response.status).json({ message: "Geocoding API error" });
+      const data = await response.json();
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ message: "Geocoding request failed" });
+    }
+  });
+
   // Diagram Routes
   app.get("/api/diagrams", async (_req, res) => {
     const diagrams = await storage.getDiagrams();

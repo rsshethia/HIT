@@ -89,9 +89,7 @@ function generateCaptcha() {
 
 async function geocodeCity(city: string, state: string): Promise<{ lat: number; lng: number } | null> {
   const query = state ? `${city}, ${state}, Australia` : `${city}, Australia`;
-  const token = import.meta.env.VITE_MAPBOX_TOKEN as string;
-  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?country=AU&limit=1&access_token=${token}`;
-  const res = await fetch(url);
+  const res = await fetch(`/api/geocode?query=${encodeURIComponent(query)}`);
   if (!res.ok) return null;
   const data = await res.json();
   if (!data.features?.length) return null;
