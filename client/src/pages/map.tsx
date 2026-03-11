@@ -159,7 +159,7 @@ export default function MapPage() {
     mutationFn: (data: any) => apiRequest("POST", "/api/map/systems", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/map/systems"] });
-      toast({ title: "System added", description: "The healthcare system has been added to the map." });
+      toast({ title: "Thank you for contributing!", description: "Your record has been added to the map. Every contribution helps make this resource more valuable for the healthcare community." });
       closeForm();
     },
     onError: () => {
@@ -172,7 +172,7 @@ export default function MapPage() {
     onSuccess: (_res, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/map/systems"] });
       queryClient.invalidateQueries({ queryKey: [`/api/map/systems/${variables.id}/history`] });
-      toast({ title: "System updated", description: "The record has been updated and previous version saved to history." });
+      toast({ title: "Thank you for keeping this up to date!", description: "Your update has been saved and the previous version archived in the record's history." });
       closeForm();
     },
     onError: () => {
