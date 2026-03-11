@@ -17,7 +17,7 @@ export interface IStorage {
   getMapSystems(): Promise<MapSystem[]>;
   getMapSystem(id: number): Promise<MapSystem | undefined>;
   createMapSystem(data: InsertMapSystem): Promise<MapSystem>;
-  updateMapSystem(id: number, data: InsertMapSystem): Promise<MapSystem | undefined>;
+  updateMapSystem(id: number, data: InsertMapSystem, changeNote: string): Promise<MapSystem | undefined>;
   getMapSystemHistory(systemId: number): Promise<MapSystemHistory[]>;
 }
 
@@ -91,11 +91,11 @@ export class MemStorage implements IStorage {
     return system;
   }
 
-  async updateMapSystem(id: number, data: InsertMapSystem): Promise<MapSystem | undefined> {
+  async updateMapSystem(id: number, data: InsertMapSystem, changeNote: string): Promise<MapSystem | undefined> {
     const existing = this.mapSystems.get(id);
     if (!existing) return undefined;
 
-    // Archive current version to history
+    // Archive current version to history before applying the update
     const historyId = this.currentMapSystemHistoryId++;
     const historyEntry: MapSystemHistory = {
       id: historyId,
@@ -108,7 +108,7 @@ export class MemStorage implements IStorage {
       state: existing.state,
       latitude: existing.latitude,
       longitude: existing.longitude,
-      changeNote: (data as any).changeNote ?? "",
+      changeNote,
       changedAt: new Date().toISOString(),
     };
     this.mapSystemHistory.set(historyId, historyEntry);

@@ -2,7 +2,6 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertDiagramSchema, insertMapSystemSchema } from "@shared/schema";
-import { z } from "zod";
 import fs from "fs";
 import path from "path";
 
@@ -62,8 +61,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+      // Extract changeNote before Zod parses and strips unknown fields
+      const changeNote = typeof req.body.changeNote === "string" ? req.body.changeNote.trim() : "";
       const data = insertMapSystemSchema.parse(req.body);
-      const updated = await storage.updateMapSystem(id, data);
+      const updated = await storage.updateMapSystem(id, data, changeNote);
       if (!updated) return res.status(404).json({ message: "System not found" });
       res.json(updated);
     } catch (error) {
