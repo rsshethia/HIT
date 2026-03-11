@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Plus, Pencil, Clock, X, Search, Building2, Cpu, Users, MapPinned, List, ChevronDown } from "lucide-react";
+import { MapPin, Plus, Pencil, Clock, X, Search, Building2, Cpu, Users, MapPinned, List, ChevronDown, Info } from "lucide-react";
 import type { MapSystem, MapSystemHistory } from "@shared/schema";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN as string;
@@ -140,6 +140,9 @@ export default function MapPage() {
   const [captcha, setCaptcha] = useState(generateCaptcha);
   const [captchaInput, setCaptchaInput] = useState("");
   const [geocoding, setGeocoding] = useState(false);
+  const [disclaimerDismissed, setDisclaimerDismissed] = useState(
+    () => sessionStorage.getItem("map-disclaimer-dismissed") === "true"
+  );
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: systems = [] } = useQuery<MapSystem[]>({
@@ -548,6 +551,25 @@ export default function MapPage() {
           <span className="sm:hidden">Add</span>
         </Button>
       </div>
+
+      {/* Disclaimer banner */}
+      {!disclaimerDismissed && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center gap-2 shrink-0 z-10">
+          <Info className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+          <p className="text-xs text-amber-800 flex-1">
+            This map is <strong>community-contributed and open source</strong>. Records are added voluntarily by the healthcare community and may contain errors — always verify with official sources before relying on this data.
+          </p>
+          <button
+            onClick={() => {
+              sessionStorage.setItem("map-disclaimer-dismissed", "true");
+              setDisclaimerDismissed(true);
+            }}
+            className="text-xs text-amber-700 font-medium hover:text-amber-900 shrink-0 ml-2 underline underline-offset-2"
+          >
+            Got it
+          </button>
+        </div>
+      )}
 
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden relative">
