@@ -8,30 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Plus, Pencil, Clock, X, Search, Building2, Cpu, Users, MapPinned } from "lucide-react";
+import { MapPin, Plus, Pencil, Clock, X, Search, Building2, Cpu, Users, MapPinned, List, ChevronDown } from "lucide-react";
 import type { MapSystem, MapSystemHistory } from "@shared/schema";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN as string;
 
-// Australian state bounding box
 const AUSTRALIA_CENTER: [number, number] = [133.7751, -25.2744];
 const AUSTRALIA_ZOOM = 3.8;
-
-// Australian states for dropdown helper
 const AU_STATES = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
-// Generate a simple math CAPTCHA
 function generateCaptcha() {
   const a = Math.floor(Math.random() * 9) + 1;
   const b = Math.floor(Math.random() * 9) + 1;
   return { a, b, answer: a + b, question: `${a} + ${b}` };
 }
 
-// Geocode a city + state using MapBox Geocoding API
 async function geocodeCity(city: string, state: string): Promise<{ lat: number; lng: number } | null> {
   const query = state ? `${city}, ${state}, Australia` : `${city}, Australia`;
   const token = import.meta.env.VITE_MAPBOX_TOKEN as string;
@@ -55,14 +49,18 @@ interface SystemFormData {
 }
 
 const emptyForm: SystemFormData = {
-  systemName: "",
-  vendor: "",
-  department: "",
-  organization: "",
-  city: "",
-  state: "",
-  changeNote: "",
+  systemName: "", vendor: "", department: "",
+  organization: "", city: "", state: "", changeNote: "",
 };
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "—";
+  return d.toLocaleString("en-AU", {
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
 
 export default function MapPage() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -75,6 +73,7 @@ export default function MapPage() {
   const [editingSystem, setEditingSystem] = useState<MapSystem | null>(null);
   const [selectedSystem, setSelectedSystem] = useState<MapSystem | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [formData, setFormData] = useState<SystemFormData>(emptyForm);
   const [captcha, setCaptcha] = useState(generateCaptcha);
   const [captchaInput, setCaptchaInput] = useState("");
@@ -116,7 +115,7 @@ export default function MapPage() {
     },
   });
 
-  // Initialize map
+  // Initialize map — flat 2D Mercator, no globe, no 3D pitch
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
@@ -125,9 +124,13 @@ export default function MapPage() {
       style: "mapbox://styles/mapbox/light-v11",
       center: AUSTRALIA_CENTER,
       zoom: AUSTRALIA_ZOOM,
+      projection: { name: "mercator" } as any,
+      pitchWithRotate: false,
+      dragRotate: false,
+      touchPitch: false,
     });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
+    map.current.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
     map.current.addControl(new mapboxgl.ScaleControl(), "bottom-right");
 
     return () => {
@@ -136,14 +139,13 @@ export default function MapPage() {
     };
   }, []);
 
-  // Sync markers with systems data
+  // Sync markers
   useEffect(() => {
     if (!map.current) return;
 
     const existingIds = new Set(markersRef.current.keys());
     const currentIds = new Set(systems.map(s => s.id));
 
-    // Remove markers for deleted systems
     existingIds.forEach(id => {
       if (!currentIds.has(id)) {
         markersRef.current.get(id)?.remove();
@@ -151,20 +153,15 @@ export default function MapPage() {
       }
     });
 
-    // Add or update markers
     systems.forEach(system => {
       if (markersRef.current.has(system.id)) {
-        // Update position if needed
-        const marker = markersRef.current.get(system.id)!;
-        marker.setLngLat([system.longitude, system.latitude]);
+        markersRef.current.get(system.id)!.setLngLat([system.longitude, system.latitude]);
         return;
       }
 
-      // Use a plain circle element anchored at center — no rotation, no anchor drift
       const el = document.createElement("div");
       el.style.cssText = `
-        width: 18px;
-        height: 18px;
+        width: 18px; height: 18px;
         background: #2563eb;
         border: 3px solid white;
         border-radius: 50%;
@@ -172,7 +169,6 @@ export default function MapPage() {
         box-shadow: 0 2px 6px rgba(0,0,0,0.35);
         transition: transform 0.15s, background 0.15s;
       `;
-
       el.addEventListener("mouseenter", () => {
         el.style.background = "#1d4ed8";
         el.style.transform = "scale(1.3)";
@@ -182,7 +178,6 @@ export default function MapPage() {
         el.style.transform = "scale(1)";
       });
 
-      // anchor: 'center' keeps the circle exactly on the coordinate when scaling
       const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
         .setLngLat([system.longitude, system.latitude])
         .addTo(map.current!);
@@ -190,6 +185,7 @@ export default function MapPage() {
       el.addEventListener("click", () => {
         setSelectedSystem(system);
         setShowHistory(false);
+        setShowSidebar(false);
         map.current?.flyTo({ center: [system.longitude, system.latitude], zoom: 9, duration: 800 });
       });
 
@@ -197,7 +193,7 @@ export default function MapPage() {
     });
   }, [systems]);
 
-  // Update selected system when systems data refreshes
+  // Keep selected system in sync after data refresh
   useEffect(() => {
     if (selectedSystem) {
       const updated = systems.find(s => s.id === selectedSystem.id);
@@ -216,13 +212,9 @@ export default function MapPage() {
   function openEditForm(system: MapSystem) {
     setEditingSystem(system);
     setFormData({
-      systemName: system.systemName,
-      vendor: system.vendor,
-      department: system.department,
-      organization: system.organization,
-      city: system.city,
-      state: system.state,
-      changeNote: "",
+      systemName: system.systemName, vendor: system.vendor,
+      department: system.department, organization: system.organization,
+      city: system.city, state: system.state, changeNote: "",
     });
     setCaptcha(generateCaptcha());
     setCaptchaInput("");
@@ -239,7 +231,6 @@ export default function MapPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // Validate required fields
     const required = ["systemName", "vendor", "department", "organization", "city"] as const;
     for (const field of required) {
       if (!formData[field].trim()) {
@@ -248,7 +239,6 @@ export default function MapPage() {
       }
     }
 
-    // Validate CAPTCHA
     if (parseInt(captchaInput) !== captcha.answer) {
       toast({ title: "Verification failed", description: "Please solve the math question correctly.", variant: "destructive" });
       setCaptcha(generateCaptcha());
@@ -256,7 +246,6 @@ export default function MapPage() {
       return;
     }
 
-    // Geocode the city
     setGeocoding(true);
     const coords = await geocodeCity(formData.city, formData.state);
     setGeocoding(false);
@@ -304,25 +293,169 @@ export default function MapPage() {
     );
   }, [systems, searchQuery]);
 
-  function formatDate(iso: string) {
-    return new Date(iso).toLocaleString("en-AU", {
-      day: "2-digit", month: "short", year: "numeric",
-      hour: "2-digit", minute: "2-digit",
-    });
-  }
-
   const isPending = createMutation.isPending || updateMutation.isPending;
+
+  // Sidebar list content — shared between desktop sidebar and mobile slide-in
+  const sidebarContent = (
+    <>
+      <div className="px-3 py-2 border-b bg-gray-50 flex items-center justify-between">
+        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+          {searchQuery ? `${filteredSystems.length} results` : `${systems.length} systems`}
+        </p>
+        <button
+          className="md:hidden text-gray-400 hover:text-gray-600"
+          onClick={() => setShowSidebar(false)}
+          aria-label="Close list"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+      <ScrollArea className="flex-1">
+        {filteredSystems.length === 0 ? (
+          <div className="p-4 text-center text-sm text-gray-400">
+            {searchQuery ? "No systems match your search." : "No systems yet. Click Add System to get started."}
+          </div>
+        ) : (
+          <div className="divide-y">
+            {filteredSystems.map(system => (
+              <button
+                key={system.id}
+                onClick={() => {
+                  setSelectedSystem(system);
+                  setShowHistory(false);
+                  setShowSidebar(false);
+                  map.current?.flyTo({ center: [system.longitude, system.latitude], zoom: 9, duration: 800 });
+                }}
+                className={`w-full text-left px-3 py-3 hover:bg-blue-50 transition-colors ${selectedSystem?.id === system.id ? "bg-blue-50 border-l-2 border-blue-600" : ""}`}
+              >
+                <div className="flex items-start gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-600 mt-1.5 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{system.systemName}</p>
+                    <p className="text-xs text-gray-500 truncate">{system.vendor}</p>
+                    <p className="text-xs text-gray-400 truncate">{system.organization} · {system.city}{system.state ? `, ${system.state}` : ""}</p>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+    </>
+  );
+
+  // Detail panel content — shared between desktop card and mobile bottom sheet
+  const detailContent = selectedSystem && (
+    <div className="p-4 space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex items-start gap-2">
+          <Users className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Department</p>
+            <p className="text-sm font-medium text-gray-800">{selectedSystem.department}</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <Building2 className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Organisation</p>
+            <p className="text-sm font-medium text-gray-800">{selectedSystem.organization}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-2">
+        <MapPinned className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
+        <div>
+          <p className="text-xs text-gray-400 uppercase tracking-wide">Location</p>
+          <p className="text-sm font-medium text-gray-800">
+            {selectedSystem.city}{selectedSystem.state ? `, ${selectedSystem.state}` : ""}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-start gap-2">
+        <Cpu className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
+        <div>
+          <p className="text-xs text-gray-400 uppercase tracking-wide">System / Vendor</p>
+          <p className="text-sm font-medium text-gray-800">{selectedSystem.systemName} by {selectedSystem.vendor}</p>
+        </div>
+      </div>
+
+      <Separator />
+
+      <div className="text-xs text-gray-400 space-y-0.5">
+        <p>Added {formatDate(selectedSystem.createdAt)}</p>
+        {selectedSystem.updatedAt !== selectedSystem.createdAt && (
+          <p>Updated {formatDate(selectedSystem.updatedAt)}</p>
+        )}
+      </div>
+
+      <div className="flex gap-2 pt-1">
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1 gap-1.5 text-xs"
+          onClick={() => setShowHistory(!showHistory)}
+        >
+          <Clock className="h-3.5 w-3.5" />
+          {showHistory ? "Hide History" : "History"}
+        </Button>
+        <Button
+          size="sm"
+          className="flex-1 gap-1.5 text-xs"
+          onClick={() => openEditForm(selectedSystem)}
+        >
+          <Pencil className="h-3.5 w-3.5" />
+          Update
+        </Button>
+      </div>
+
+      {showHistory && (
+        <div className="border rounded-lg overflow-hidden">
+          <div className="bg-gray-50 px-3 py-2 border-b">
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Change History</p>
+          </div>
+          {history.length === 0 ? (
+            <p className="text-xs text-gray-400 p-3">No previous versions recorded.</p>
+          ) : (
+            <ScrollArea className="max-h-52">
+              <div className="divide-y">
+                {history.map((entry, idx) => (
+                  <div key={entry.id} className="p-3 text-xs">
+                    <div className="flex items-center justify-between mb-1">
+                      <Badge variant="outline" className="text-xs py-0">v{history.length - idx}</Badge>
+                      <span className="text-gray-400">{formatDate(entry.changedAt)}</span>
+                    </div>
+                    <p className="text-gray-700 font-medium">{entry.systemName} · {entry.vendor}</p>
+                    <p className="text-gray-500">{entry.department} · {entry.organization}</p>
+                    <p className="text-gray-500">{entry.city}{entry.state ? `, ${entry.state}` : ""}</p>
+                    <p className="mt-1 italic">
+                      {entry.changeNote
+                        ? <span className="text-gray-600">"{entry.changeNote}"</span>
+                        : <span className="text-gray-300">No reason provided</span>
+                      }
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Top bar */}
-      <div className="bg-white border-b px-4 py-3 flex items-center gap-3 flex-wrap z-10">
-        <div className="flex items-center gap-2">
+      <div className="bg-white border-b px-3 md:px-4 py-2 md:py-3 flex items-center gap-2 md:gap-3 z-10">
+        <div className="flex items-center gap-2 shrink-0">
           <MapPin className="h-5 w-5 text-blue-600" />
-          <h1 className="text-lg font-bold text-gray-900">Healthcare Digital Systems Map</h1>
-          <Badge variant="secondary" className="text-xs">{systems.length} {systems.length === 1 ? "system" : "systems"}</Badge>
+          <h1 className="hidden md:block text-lg font-bold text-gray-900">Healthcare Digital Systems Map</h1>
+          <Badge variant="secondary" className="text-xs">{systems.length}</Badge>
         </div>
-        <div className="flex-1 min-w-48">
+        <div className="flex-1 min-w-0">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
             <Input
@@ -333,60 +466,50 @@ export default function MapPage() {
             />
           </div>
         </div>
-        <Button onClick={openAddForm} size="sm" className="gap-1.5">
+        <Button onClick={openAddForm} size="sm" className="gap-1.5 shrink-0">
           <Plus className="h-4 w-4" />
-          Add System
+          <span className="hidden sm:inline">Add System</span>
+          <span className="sm:hidden">Add</span>
         </Button>
       </div>
 
       {/* Main layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-72 bg-white border-r flex flex-col overflow-hidden shrink-0">
-          <div className="px-3 py-2 border-b bg-gray-50">
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-              {searchQuery ? `${filteredSystems.length} results` : "All Systems"}
-            </p>
-          </div>
-          <ScrollArea className="flex-1">
-            {filteredSystems.length === 0 ? (
-              <div className="p-4 text-center text-sm text-gray-400">
-                {searchQuery ? "No systems match your search." : "No systems yet. Click Add System to get started."}
-              </div>
-            ) : (
-              <div className="divide-y">
-                {filteredSystems.map(system => (
-                  <button
-                    key={system.id}
-                    onClick={() => {
-                      setSelectedSystem(system);
-                      setShowHistory(false);
-                      map.current?.flyTo({ center: [system.longitude, system.latitude], zoom: 9, duration: 800 });
-                    }}
-                    className={`w-full text-left px-3 py-3 hover:bg-blue-50 transition-colors ${selectedSystem?.id === system.id ? "bg-blue-50 border-l-2 border-blue-600" : ""}`}
-                  >
-                    <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 rounded-full bg-blue-600 mt-1.5 shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">{system.systemName}</p>
-                        <p className="text-xs text-gray-500 truncate">{system.vendor}</p>
-                        <p className="text-xs text-gray-400 truncate">{system.organization} · {system.city}{system.state ? `, ${system.state}` : ""}</p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
+      <div className="flex flex-1 overflow-hidden relative">
+
+        {/* Desktop sidebar — hidden on mobile */}
+        <div className="hidden md:flex w-72 bg-white border-r flex-col overflow-hidden shrink-0">
+          {sidebarContent}
         </div>
+
+        {/* Mobile sidebar overlay */}
+        {showSidebar && (
+          <div className="md:hidden absolute inset-0 z-30 flex">
+            <div
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setShowSidebar(false)}
+            />
+            <div className="relative w-72 max-w-[85vw] bg-white flex flex-col h-full shadow-xl z-10">
+              {sidebarContent}
+            </div>
+          </div>
+        )}
 
         {/* Map */}
         <div className="flex-1 relative">
           <div ref={mapContainer} className="absolute inset-0" />
 
-          {/* Detail panel */}
+          {/* Mobile: toggle sidebar button */}
+          <button
+            className="md:hidden absolute top-3 left-3 z-10 bg-white rounded-lg shadow-md border p-2 text-gray-600 hover:text-blue-600 transition-colors"
+            onClick={() => setShowSidebar(true)}
+            aria-label="Show system list"
+          >
+            <List className="h-5 w-5" />
+          </button>
+
+          {/* Desktop: detail panel (floating top-right card) */}
           {selectedSystem && (
-            <div className="absolute top-3 right-3 w-80 bg-white rounded-xl shadow-xl border overflow-hidden z-10">
+            <div className="hidden md:block absolute top-3 right-3 w-80 bg-white rounded-xl shadow-xl border overflow-hidden z-10">
               <div className="bg-blue-600 px-4 py-3 flex items-start justify-between">
                 <div className="min-w-0">
                   <h2 className="text-white font-bold text-base truncate">{selectedSystem.systemName}</h2>
@@ -399,106 +522,9 @@ export default function MapPage() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-
-              <div className="p-4 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-start gap-2">
-                    <Users className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wide">Department</p>
-                      <p className="text-sm font-medium text-gray-800">{selectedSystem.department}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Building2 className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wide">Organisation</p>
-                      <p className="text-sm font-medium text-gray-800">{selectedSystem.organization}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <MapPinned className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">Location</p>
-                    <p className="text-sm font-medium text-gray-800">
-                      {selectedSystem.city}{selectedSystem.state ? `, ${selectedSystem.state}` : ""}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <Cpu className="h-3.5 w-3.5 text-gray-400 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">System / Vendor</p>
-                    <p className="text-sm font-medium text-gray-800">{selectedSystem.systemName} by {selectedSystem.vendor}</p>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between text-xs text-gray-400">
-                  <span>Added {formatDate(selectedSystem.createdAt)}</span>
-                </div>
-                {selectedSystem.updatedAt !== selectedSystem.createdAt && (
-                  <div className="text-xs text-gray-400">
-                    Updated {formatDate(selectedSystem.updatedAt)}
-                  </div>
-                )}
-
-                <div className="flex gap-2 pt-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1 gap-1.5 text-xs"
-                    onClick={() => {
-                      setShowHistory(!showHistory);
-                    }}
-                  >
-                    <Clock className="h-3.5 w-3.5" />
-                    History
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="flex-1 gap-1.5 text-xs"
-                    onClick={() => openEditForm(selectedSystem)}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Update
-                  </Button>
-                </div>
-
-                {showHistory && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <div className="bg-gray-50 px-3 py-2 border-b">
-                      <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Change History</p>
-                    </div>
-                    {history.length === 0 ? (
-                      <p className="text-xs text-gray-400 p-3">No previous versions recorded.</p>
-                    ) : (
-                      <ScrollArea className="max-h-48">
-                        <div className="divide-y">
-                          {history.map((entry, idx) => (
-                            <div key={entry.id} className="p-3 text-xs">
-                              <div className="flex items-center justify-between mb-1">
-                                <Badge variant="outline" className="text-xs py-0">v{history.length - idx}</Badge>
-                                <span className="text-gray-400">{formatDate(entry.changedAt)}</span>
-                              </div>
-                              <p className="text-gray-700 font-medium">{entry.systemName} · {entry.vendor}</p>
-                              <p className="text-gray-500">{entry.department} · {entry.organization}</p>
-                              <p className="text-gray-500">{entry.city}{entry.state ? `, ${entry.state}` : ""}</p>
-                              {entry.changeNote && (
-                                <p className="mt-1 text-gray-500 italic">"{entry.changeNote}"</p>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </ScrollArea>
-                    )}
-                  </div>
-                )}
-              </div>
+              <ScrollArea className="max-h-[calc(100vh-14rem)]">
+                {detailContent}
+              </ScrollArea>
             </div>
           )}
 
@@ -507,15 +533,36 @@ export default function MapPage() {
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg border px-6 py-4 text-center max-w-xs z-10">
               <MapPin className="h-8 w-8 text-blue-600 mx-auto mb-2" />
               <p className="text-sm font-semibold text-gray-800">No systems mapped yet</p>
-              <p className="text-xs text-gray-500 mt-1">Click "Add System" to record a healthcare digital system and pin it to the map.</p>
+              <p className="text-xs text-gray-500 mt-1">Tap "Add" to record a healthcare digital system and pin it to the map.</p>
             </div>
           )}
         </div>
       </div>
 
+      {/* Mobile: bottom sheet detail panel */}
+      {selectedSystem && (
+        <div className="md:hidden absolute bottom-0 left-0 right-0 z-20 bg-white rounded-t-2xl shadow-2xl border-t max-h-[70vh] flex flex-col">
+          <div className="bg-blue-600 px-4 py-3 rounded-t-2xl flex items-start justify-between">
+            <div className="min-w-0">
+              <h2 className="text-white font-bold text-base truncate">{selectedSystem.systemName}</h2>
+              <p className="text-blue-100 text-sm">{selectedSystem.vendor}</p>
+            </div>
+            <button
+              onClick={() => setSelectedSystem(null)}
+              className="text-blue-200 hover:text-white ml-2 mt-0.5 shrink-0"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <ScrollArea className="flex-1">
+            {detailContent}
+          </ScrollArea>
+        </div>
+      )}
+
       {/* Add / Edit Dialog */}
       <Dialog open={showForm} onOpenChange={open => { if (!open) closeForm(); }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg w-[95vw]">
           <DialogHeader>
             <DialogTitle>{editingSystem ? "Update System Record" : "Add Healthcare System"}</DialogTitle>
             <DialogDescription>
@@ -526,7 +573,7 @@ export default function MapPage() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="systemName">System Name *</Label>
                 <Input
@@ -547,7 +594,7 @@ export default function MapPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="department">Department *</Label>
                 <Input
@@ -568,7 +615,7 @@ export default function MapPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="city">City / Town *</Label>
                 <Input
@@ -594,7 +641,10 @@ export default function MapPage() {
 
             {editingSystem && (
               <div className="space-y-1.5">
-                <Label htmlFor="changeNote">Reason for update (optional)</Label>
+                <Label htmlFor="changeNote">
+                  Reason for update
+                  <span className="ml-1 text-xs text-gray-400 font-normal">(helps others understand what changed)</span>
+                </Label>
                 <Input
                   id="changeNote"
                   placeholder="e.g. Vendor name corrected"
