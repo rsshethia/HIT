@@ -419,8 +419,7 @@ export default function MapPage() {
           {history.length === 0 ? (
             <p className="text-xs text-gray-400 p-3">No previous versions recorded.</p>
           ) : (
-            <div className="overflow-y-auto max-h-52">
-              <div className="divide-y">
+            <div className="divide-y">
                 {history.map((entry, idx) => (
                   <div key={entry.id} className="p-3 text-xs">
                     <div className="flex items-center justify-between mb-1">
@@ -438,7 +437,6 @@ export default function MapPage() {
                     </p>
                   </div>
                 ))}
-              </div>
             </div>
           )}
         </div>
