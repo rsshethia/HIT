@@ -89,12 +89,35 @@ function generateCaptcha() {
 
 async function geocodeCity(city: string, state: string): Promise<{ lat: number; lng: number } | null> {
   const query = state ? `${city}, ${state}, Australia` : `${city}, Australia`;
-  const res = await fetch(`/api/geocode?query=${encodeURIComponent(query)}`);
-  if (!res.ok) return null;
-  const data = await res.json();
-  if (!data.features?.length) return null;
-  const [lng, lat] = data.features[0].center;
-  return { lat, lng };
+
+  // Try server-side proxy first
+  try {
+    const res = await fetch(`/api/geocode?query=${encodeURIComponent(query)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.features?.length) {
+        const [lng, lat] = data.features[0].center;
+        return { lat, lng };
+      }
+    }
+  } catch {
+    // proxy unavailable — fall through to client-side
+  }
+
+  // Fallback: call MapBox directly using the token baked into the client bundle at build time
+  const clientToken = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined;
+  if (!clientToken) return null;
+  try {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?country=AU&limit=1&access_token=${clientToken}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.features?.length) return null;
+    const [lng, lat] = data.features[0].center;
+    return { lat, lng };
+  } catch {
+    return null;
+  }
 }
 
 interface SystemFormData {

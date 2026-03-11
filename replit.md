@@ -101,9 +101,11 @@ Healthcare Integration Tools (HIT) is a comprehensive web application designed t
 - **Port Configuration**: Internal port 5000, external port 80
 
 ### Database Setup
-- **Provider**: Neon serverless PostgreSQL via DATABASE_URL environment variable
-- **Schema Management**: Drizzle migrations in ./migrations directory
-- **Schema Definition**: Shared schema in ./shared/schema.ts
+- **Provider**: Replit-managed PostgreSQL (node-postgres `pg` driver via `drizzle-orm/node-postgres`)
+- **DB Client**: `server/db.ts` — Drizzle ORM with `pg.Pool` connected via `DATABASE_URL`
+- **Schema Management**: `npx drizzle-kit push` (direct push, no migration files needed)
+- **Schema Definition**: Shared schema in `./shared/schema.ts`
+- **Persistence**: Map system records (`map_systems`, `map_system_history`) stored in PostgreSQL. Users and diagrams remain in-memory.
 
 ### Build Output
 - **Client**: Built to ./dist/public for static serving
@@ -120,6 +122,7 @@ Changelog:
 - December 18, 2025. Created HL7 SQL Builder tool - interactive stored procedure generator for parsing RAW HL7 messages with support for SQL Server, PostgreSQL, and MySQL. Features segment/field selector with 9 HL7 segments (MSH, EVN, PID, PV1, PV2, NK1, DG1, IN1, AL1) and dynamic SQL generation
 - February 16, 2026. Added MessageTrace tool - a downloadable PowerShell script (Search-HL7Message.ps1) for searching HL7 message archives by Patient ID (PID-3), Visit Number (PV1-19), or Location (PV1-3). Features documentation page with overview, usage examples, reference guide, and script viewer. Placed under Featured category
 - March 11, 2026. Added Healthcare Systems Map page - interactive MapBox-powered map of digital healthcare systems across Australia. Community-contributed records with ADD/UPDATE forms, math CAPTCHA for human verification, MapBox Geocoding for city-to-coordinates, version history for every record, and sidebar list with search. Uses VITE_MAPBOX_TOKEN secret.
+- March 11, 2026. Migrated Healthcare Systems Map data to PostgreSQL (Drizzle ORM, node-postgres driver). DatabaseStorage class extends MemStorage and overrides the 5 map methods with Drizzle queries. Fixed geocoding in production: dual-path approach — server proxy tries VITE_MAPBOX_TOKEN/MAPBOX_TOKEN env vars first; client falls back to baked-in import.meta.env.VITE_MAPBOX_TOKEN if proxy returns non-2xx.
 
 
 ## User Preferences

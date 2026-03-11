@@ -1,9 +1,12 @@
 import {
   users, type User, type InsertUser,
   type Diagram, type InsertDiagram,
+  mapSystems, mapSystemHistory,
   type MapSystem, type InsertMapSystem,
-  type MapSystemHistory, type InsertMapSystemHistory,
+  type MapSystemHistory,
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -24,8 +27,8 @@ export interface IStorage {
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private diagrams: Map<number, Diagram>;
-  private mapSystems: Map<number, MapSystem>;
-  private mapSystemHistory: Map<number, MapSystemHistory>;
+  private _mapSystems: Map<number, MapSystem>;
+  private _mapSystemHistory: Map<number, MapSystemHistory>;
   currentId: number;
   currentDiagramId: number;
   currentMapSystemId: number;
@@ -34,8 +37,8 @@ export class MemStorage implements IStorage {
   constructor() {
     this.users = new Map();
     this.diagrams = new Map();
-    this.mapSystems = new Map();
-    this.mapSystemHistory = new Map();
+    this._mapSystems = new Map();
+    this._mapSystemHistory = new Map();
     this.currentId = 1;
     this.currentDiagramId = 1;
     this.currentMapSystemId = 1;
@@ -75,27 +78,26 @@ export class MemStorage implements IStorage {
   }
 
   async getMapSystems(): Promise<MapSystem[]> {
-    return Array.from(this.mapSystems.values()).sort((a, b) =>
+    return Array.from(this._mapSystems.values()).sort((a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
 
   async getMapSystem(id: number): Promise<MapSystem | undefined> {
-    return this.mapSystems.get(id);
+    return this._mapSystems.get(id);
   }
 
   async createMapSystem(data: InsertMapSystem): Promise<MapSystem> {
     const id = this.currentMapSystemId++;
     const system: MapSystem = { ...data, id };
-    this.mapSystems.set(id, system);
+    this._mapSystems.set(id, system);
     return system;
   }
 
   async updateMapSystem(id: number, data: InsertMapSystem, changeNote: string): Promise<MapSystem | undefined> {
-    const existing = this.mapSystems.get(id);
+    const existing = this._mapSystems.get(id);
     if (!existing) return undefined;
 
-    // Archive current version to history before applying the update
     const historyId = this.currentMapSystemHistoryId++;
     const historyEntry: MapSystemHistory = {
       id: historyId,
@@ -112,19 +114,72 @@ export class MemStorage implements IStorage {
       changeNote,
       changedAt: new Date().toISOString(),
     };
-    this.mapSystemHistory.set(historyId, historyEntry);
+    this._mapSystemHistory.set(historyId, historyEntry);
 
-    // Apply update
     const updated: MapSystem = { ...existing, ...data, id };
-    this.mapSystems.set(id, updated);
+    this._mapSystems.set(id, updated);
     return updated;
   }
 
   async getMapSystemHistory(systemId: number): Promise<MapSystemHistory[]> {
-    return Array.from(this.mapSystemHistory.values())
+    return Array.from(this._mapSystemHistory.values())
       .filter(h => h.systemId === systemId)
       .sort((a, b) => new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime());
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage extends MemStorage {
+  async getMapSystems(): Promise<MapSystem[]> {
+    return db.select().from(mapSystems).orderBy(desc(mapSystems.createdAt));
+  }
+
+  async getMapSystem(id: number): Promise<MapSystem | undefined> {
+    const rows = await db.select().from(mapSystems).where(eq(mapSystems.id, id));
+    return rows[0];
+  }
+
+  async createMapSystem(data: InsertMapSystem): Promise<MapSystem> {
+    const rows = await db.insert(mapSystems).values(data).returning();
+    return rows[0];
+  }
+
+  async updateMapSystem(id: number, data: InsertMapSystem, changeNote: string): Promise<MapSystem | undefined> {
+    const existing = await this.getMapSystem(id);
+    if (!existing) return undefined;
+
+    // Archive the current snapshot to history
+    await db.insert(mapSystemHistory).values({
+      systemId: existing.id,
+      systemName: existing.systemName,
+      vendor: existing.vendor,
+      systemType: existing.systemType,
+      department: existing.department,
+      organization: existing.organization,
+      city: existing.city,
+      state: existing.state,
+      latitude: existing.latitude,
+      longitude: existing.longitude,
+      changeNote,
+      changedAt: new Date().toISOString(),
+    });
+
+    // Apply the update
+    const now = new Date().toISOString();
+    const rows = await db
+      .update(mapSystems)
+      .set({ ...data, updatedAt: now })
+      .where(eq(mapSystems.id, id))
+      .returning();
+    return rows[0];
+  }
+
+  async getMapSystemHistory(systemId: number): Promise<MapSystemHistory[]> {
+    return db
+      .select()
+      .from(mapSystemHistory)
+      .where(eq(mapSystemHistory.systemId, systemId))
+      .orderBy(desc(mapSystemHistory.changedAt));
+  }
+}
+
+export const storage = new DatabaseStorage();

@@ -14,7 +14,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/geocode", async (req, res) => {
     const query = req.query.query as string;
     if (!query) return res.status(400).json({ message: "query param required" });
-    const token = process.env.VITE_MAPBOX_TOKEN;
+    const token = process.env.VITE_MAPBOX_TOKEN || process.env.MAPBOX_TOKEN;
     if (!token) return res.status(500).json({ message: "Geocoding not configured" });
     try {
       const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?country=AU&limit=1&access_token=${token}`;
