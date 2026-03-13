@@ -54,6 +54,7 @@ const SYSTEM_TYPES = [
   "Insurance Verification System",
   "Integration Engine (e.g., Rhapsody Integration Engine)",
   "Laboratory Information System (LIS)",
+  "Learning Management System (LMS)",
   "Master Patient Index (MPI)",
   "Maternity / Obstetrics System",
   "Medication Management System",
