@@ -9,6 +9,6 @@ Clinical, Business and Technical.
 Helping each cohort to understand, evaluate and improve the integration.
 
 WHY
-It is always good to learn new by documenting and creating artefacts from past experiences and acquired knowledge.
+It is always good to learn new by documenting and creating artefacts from past experiences and acquired knowledge. 
 
 
