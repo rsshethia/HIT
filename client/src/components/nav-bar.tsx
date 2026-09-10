@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
 
 interface NavChild {
   label: string;
@@ -30,26 +29,19 @@ const NAV_GROUPS: NavGroup[] = [
     children: [
       { label: "SQL Builder", href: "/hl7-sql-builder", desc: "HL7 parse stored procedures" },
       { label: "Segment Mapper", href: "/hl7-segment-mapper", desc: "Segments ↔ message graph" },
+      { label: "De-Identify", href: "/hl7-deidentify", desc: "Pseudonymize PHI, keep journeys" },
       { label: "MessageTrace", href: "/message-trace", desc: "PowerShell archive search" },
-    ],
-  },
-  {
-    label: "Learn",
-    icon: "school",
-    children: [
-      { label: "HL7 Flow Game", href: "/hl7-flow-game", desc: "8-bit ADT message game" },
-      { label: "Clinical Play", href: "/clinical-integration-play", desc: "Message sequencing scenarios" },
-      { label: "Visualizations", href: "/visualizations", desc: "D3 chart demos" },
     ],
   },
 ];
 
 const DIRECT_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "Resources", href: "/resources" },
   { label: "About", href: "/about" },
 ];
 
 export default function NavBar() {
-  const [, setLocation] = useLocation();
   const [location] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -59,11 +51,22 @@ export default function NavBar() {
   const isGroupActive = (group: NavGroup) =>
     group.children.some((child) => location === child.href);
 
-  // Close menus on navigation
+  // Close menus on navigation or Escape
   useEffect(() => {
     setOpenDropdown(null);
     setIsMenuOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpenDropdown(null);
+        setOpenMobileGroup(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -73,6 +76,12 @@ export default function NavBar() {
     `inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${active
       ? "border-primary text-gray-900"
       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+    }`;
+
+  const mobileLinkClass = (active: boolean) =>
+    `block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${active
+      ? "border-primary text-primary bg-primary-50"
+      : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
     }`;
 
   return (
@@ -89,9 +98,15 @@ export default function NavBar() {
               </Link>
             </div>
             <div className="hidden md:ml-6 md:flex md:space-x-4 lg:space-x-6">
-              <Link href="/" className={desktopLinkClass(isActive("/"))}>
-                Home
-              </Link>
+              {DIRECT_LINKS.slice(0, 1).map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={desktopLinkClass(isActive(link.href))}
+                >
+                  {link.label}
+                </Link>
+              ))}
 
               {NAV_GROUPS.map((group) => (
                 <div
@@ -105,6 +120,7 @@ export default function NavBar() {
                       setOpenDropdown(openDropdown === group.label ? null : group.label)
                     }
                     aria-expanded={openDropdown === group.label}
+                    aria-haspopup="true"
                     className={`${desktopLinkClass(isGroupActive(group))} gap-1`}
                   >
                     {group.label}
@@ -137,7 +153,7 @@ export default function NavBar() {
                 </div>
               ))}
 
-              {DIRECT_LINKS.map((link) => (
+              {DIRECT_LINKS.slice(1).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -149,21 +165,11 @@ export default function NavBar() {
             </div>
           </div>
 
-          <div className="hidden md:ml-6 md:flex md:items-center">
-            <Button
-              variant="outline"
-              onClick={() => setLocation("/resources")}
-              size="sm"
-              className="inline-flex items-center"
-            >
-              <span className="material-icons mr-1 text-sm">apps</span>
-              Tools & Resources
-            </Button>
-          </div>
-
           <div className="-mr-2 flex items-center md:hidden">
             <button
               onClick={toggleMenu}
+              aria-expanded={isMenuOpen}
+              aria-label="Toggle navigation menu"
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
             >
               <span className="sr-only">Open main menu</span>
@@ -176,16 +182,16 @@ export default function NavBar() {
       {/* Mobile menu */}
       <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden absolute w-full bg-white shadow-lg z-50 max-h-[calc(100vh-4rem)] overflow-y-auto`}>
         <div className="pt-2 pb-3 space-y-1">
-          <Link
-            href="/"
-            onClick={() => setIsMenuOpen(false)}
-            className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${isActive("/")
-              ? "border-primary text-primary bg-primary-50"
-              : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-              }`}
-          >
-            Home
-          </Link>
+          {DIRECT_LINKS.slice(0, 1).map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setIsMenuOpen(false)}
+              className={mobileLinkClass(isActive(link.href))}
+            >
+              {link.label}
+            </Link>
+          ))}
 
           {NAV_GROUPS.map((group) => (
             <div key={group.label}>
@@ -193,6 +199,7 @@ export default function NavBar() {
                 onClick={() =>
                   setOpenMobileGroup(openMobileGroup === group.label ? null : group.label)
                 }
+                aria-expanded={openMobileGroup === group.label}
                 className={`w-full flex items-center justify-between pl-3 pr-4 py-2 border-l-4 text-base font-medium ${isGroupActive(group)
                   ? "border-primary text-primary bg-primary-50"
                   : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
@@ -226,32 +233,16 @@ export default function NavBar() {
             </div>
           ))}
 
-          {DIRECT_LINKS.map((link) => (
+          {DIRECT_LINKS.slice(1).map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setIsMenuOpen(false)}
-              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${isActive(link.href)
-                ? "border-primary text-primary bg-primary-50"
-                : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                }`}
+              className={mobileLinkClass(isActive(link.href))}
             >
               {link.label}
             </Link>
           ))}
-          <div className="mt-4 px-4 pb-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setLocation("/resources");
-                setIsMenuOpen(false);
-              }}
-              className="w-full justify-center"
-            >
-              <span className="material-icons mr-1 text-sm">apps</span>
-              Explore Tools and Resources
-            </Button>
-          </div>
         </div>
       </div>
     </nav>

@@ -10,11 +10,8 @@ import LandingPage from "@/pages/landing-page";
 const NotFound = lazy(() => import("@/pages/not-found"));
 const AboutPage = lazy(() => import("@/pages/about"));
 const ResourcesPage = lazy(() => import("@/pages/resources"));
-const VisualizationsPage = lazy(() => import("@/pages/visualizations"));
-const ObservableDemoPage = lazy(() => import("@/pages/observable-demo"));
-const HL7FlowGamePage = lazy(() => import("@/pages/hl7-flow-game"));
 const HL7SegmentMapper = lazy(() => import("@/pages/hl7-segment-mapper"));
-const ClinicalIntegrationPlay = lazy(() => import("@/pages/clinical-integration-play"));
+const HL7Deidentify = lazy(() => import("@/pages/hl7-deidentify"));
 const IntegrationDiagramPage = lazy(() => import("@/pages/integration-diagram"));
 const IntegrationArchitect = lazy(() => import("@/pages/integration-architect"));
 const HL7SQLBuilder = lazy(() => import("@/pages/hl7-sql-builder"));
@@ -38,11 +35,8 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/about" component={AboutPage} />
       <Route path="/resources" component={ResourcesPage} />
-      <Route path="/visualizations" component={VisualizationsPage} />
-      <Route path="/observable-demo" component={ObservableDemoPage} />
-      <Route path="/hl7-flow-game" component={HL7FlowGamePage} />
       <Route path="/hl7-segment-mapper" component={HL7SegmentMapper} />
-      <Route path="/clinical-integration-play" component={ClinicalIntegrationPlay} />
+      <Route path="/hl7-deidentify" component={HL7Deidentify} />
       <Route path="/integration-diagram" component={IntegrationDiagramPage} />
       <Route path="/integration-architect" component={IntegrationArchitect} />
       <Route path="/hl7-sql-builder" component={HL7SQLBuilder} />
