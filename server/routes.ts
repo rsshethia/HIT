@@ -29,13 +29,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Diagram Routes
   app.get("/api/diagrams", async (_req, res) => {
-    const diagrams = await storage.getDiagrams();
-    res.json(diagrams);
+    try {
+      const diagrams = await storage.getDiagrams();
+      res.json(diagrams);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to load diagrams" });
+    }
+  });
+
+  app.get("/api/diagrams/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
+    try {
+      const diagram = await storage.getDiagram(id);
+      if (!diagram) return res.status(404).json({ message: "Diagram not found" });
+      res.json(diagram);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to load diagram" });
+    }
   });
 
   app.post("/api/diagrams", async (req, res) => {
     try {
-      const diagram = insertDiagramSchema.parse(req.body);
+      // Server stamps createdAt so ordering is reliable (client clocks vary)
+      const diagram = insertDiagramSchema.parse({
+        ...req.body,
+        createdAt: new Date().toISOString(),
+      });
       const created = await storage.createDiagram(diagram);
       res.status(201).json(created);
     } catch (error) {
@@ -46,8 +66,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/diagrams/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     if (isNaN(id)) return res.status(400).json({ message: "Invalid ID" });
-    await storage.deleteDiagram(id);
-    res.status(204).send();
+    try {
+      const deleted = await storage.deleteDiagram(id);
+      if (!deleted) return res.status(404).json({ message: "Diagram not found" });
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete diagram" });
+    }
   });
 
   // Map System Routes

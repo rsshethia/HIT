@@ -1,6 +1,6 @@
 import {
   users, type User, type InsertUser,
-  type Diagram, type InsertDiagram,
+  diagrams, type Diagram, type InsertDiagram,
   mapSystems, mapSystemHistory,
   type MapSystem, type InsertMapSystem,
   type MapSystemHistory,
@@ -14,8 +14,9 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
 
   getDiagrams(): Promise<Diagram[]>;
+  getDiagram(id: number): Promise<Diagram | undefined>;
   createDiagram(diagram: InsertDiagram): Promise<Diagram>;
-  deleteDiagram(id: number): Promise<void>;
+  deleteDiagram(id: number): Promise<boolean>;
 
   getMapSystems(): Promise<MapSystem[]>;
   getMapSystem(id: number): Promise<MapSystem | undefined>;
@@ -66,6 +67,10 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getDiagram(id: number): Promise<Diagram | undefined> {
+    return this.diagrams.get(id);
+  }
+
   async createDiagram(insertDiagram: InsertDiagram): Promise<Diagram> {
     const id = this.currentDiagramId++;
     const diagram: Diagram = { ...insertDiagram, id };
@@ -73,8 +78,8 @@ export class MemStorage implements IStorage {
     return diagram;
   }
 
-  async deleteDiagram(id: number): Promise<void> {
-    this.diagrams.delete(id);
+  async deleteDiagram(id: number): Promise<boolean> {
+    return this.diagrams.delete(id);
   }
 
   async getMapSystems(): Promise<MapSystem[]> {
@@ -129,6 +134,25 @@ export class MemStorage implements IStorage {
 }
 
 export class DatabaseStorage extends MemStorage {
+  async getDiagrams(): Promise<Diagram[]> {
+    return db.select().from(diagrams).orderBy(desc(diagrams.createdAt));
+  }
+
+  async getDiagram(id: number): Promise<Diagram | undefined> {
+    const rows = await db.select().from(diagrams).where(eq(diagrams.id, id));
+    return rows[0];
+  }
+
+  async createDiagram(insertDiagram: InsertDiagram): Promise<Diagram> {
+    const rows = await db.insert(diagrams).values(insertDiagram).returning();
+    return rows[0];
+  }
+
+  async deleteDiagram(id: number): Promise<boolean> {
+    const rows = await db.delete(diagrams).where(eq(diagrams.id, id)).returning({ id: diagrams.id });
+    return rows.length > 0;
+  }
+
   async getMapSystems(): Promise<MapSystem[]> {
     return db.select().from(mapSystems).orderBy(desc(mapSystems.createdAt));
   }

@@ -1,30 +1,42 @@
+import { Suspense, lazy } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import NotFound from "@/pages/not-found";
-import Home from "@/pages/home";
-import Results from "@/pages/results";
 import LandingPage from "@/pages/landing-page";
-import AboutPage from "@/pages/about";
-import ResourcesPage from "@/pages/resources";
-import ReferenceGuidesPage from "@/pages/reference-guides";
-import VisualizationsPage from "@/pages/visualizations";
-import ObservableDemoPage from "@/pages/observable-demo";
-import GuidesPage from "@/pages/guides";
-import HL7FlowGamePage from "@/pages/hl7-flow-game";
-import HL7SegmentMapper from "@/pages/hl7-segment-mapper";
-import ClinicalIntegrationPlay from "@/pages/clinical-integration-play";
-import SheetToBookletPage from "@/pages/sheet-to-booklet";
-import IntegrationDiagramPage from "@/pages/integration-diagram";
-import IntegrationArchitect from "@/pages/integration-architect";
-import HL7SQLBuilder from "@/pages/hl7-sql-builder";
-import MessageTracePage from "@/pages/message-trace";
-import MapPage from "@/pages/map";
+
+// Route-level code splitting: heavy deps (tldraw, mapbox-gl, d3, jspdf)
+// only load when the user visits that tool, keeping the landing bundle lean.
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Home = lazy(() => import("@/pages/home"));
+const Results = lazy(() => import("@/pages/results"));
+const AboutPage = lazy(() => import("@/pages/about"));
+const ResourcesPage = lazy(() => import("@/pages/resources"));
+const ReferenceGuidesPage = lazy(() => import("@/pages/reference-guides"));
+const VisualizationsPage = lazy(() => import("@/pages/visualizations"));
+const ObservableDemoPage = lazy(() => import("@/pages/observable-demo"));
+const GuidesPage = lazy(() => import("@/pages/guides"));
+const HL7FlowGamePage = lazy(() => import("@/pages/hl7-flow-game"));
+const HL7SegmentMapper = lazy(() => import("@/pages/hl7-segment-mapper"));
+const ClinicalIntegrationPlay = lazy(() => import("@/pages/clinical-integration-play"));
+const SheetToBookletPage = lazy(() => import("@/pages/sheet-to-booklet"));
+const IntegrationDiagramPage = lazy(() => import("@/pages/integration-diagram"));
+const IntegrationArchitect = lazy(() => import("@/pages/integration-architect"));
+const HL7SQLBuilder = lazy(() => import("@/pages/hl7-sql-builder"));
+const MessageTracePage = lazy(() => import("@/pages/message-trace"));
+const MapPage = lazy(() => import("@/pages/map"));
 
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
 import { DevHeader } from "@/components/dev-header";
+
+function PageFallback() {
+  return (
+    <div className="flex items-center justify-center py-24 text-sm text-gray-500">
+      Loading…
+    </div>
+  );
+}
 
 function Router() {
   return (
@@ -59,7 +71,9 @@ function App() {
         <DevHeader />
         <NavBar />
         <main className="flex-grow">
-          <Router />
+          <Suspense fallback={<PageFallback />}>
+            <Router />
+          </Suspense>
         </main>
         <Footer />
       </div>
