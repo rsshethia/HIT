@@ -28,8 +28,8 @@ const NAV_GROUPS: NavGroup[] = [
     icon: "terminal",
     children: [
       { label: "SQL Builder", href: "/hl7-sql-builder", desc: "HL7 parse stored procedures" },
+      { label: "De-Identify SQL", href: "/hl7-deidentify-sql", desc: "Pseudonymize PHI in your DB" },
       { label: "Segment Mapper", href: "/hl7-segment-mapper", desc: "Segments ↔ message graph" },
-      { label: "De-Identify", href: "/hl7-deidentify", desc: "Pseudonymize PHI, keep journeys" },
       { label: "MessageTrace", href: "/message-trace", desc: "PowerShell archive search" },
     ],
   },

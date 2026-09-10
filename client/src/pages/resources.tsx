@@ -44,9 +44,9 @@ export default function ResourcesPage() {
       isInternalLink: true
     },
     {
-      title: "HL7 De-Identify",
-      description: "Replace patient demographics with consistent fictional identifiers while keeping journeys, visits, and intervals intact. Runs entirely in your browser — safe to use before sharing data externally for research.",
-      link: "/hl7-deidentify",
+      title: "HL7 De-Identify SQL",
+      description: "Generate stored procedures that pseudonymize PHI inside your own database. Point at your HL7 table and column — consistent fictional IDs keep journeys linkable. Mapping tables stay internal.",
+      link: "/hl7-deidentify-sql",
       category: "Featured",
       isInternalLink: true
     },

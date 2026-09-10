@@ -32,7 +32,7 @@ interface IdentifierOption {
   description: string;
 }
 
-interface HL7Field {
+export interface HL7Field {
   id: string;
   position: string;
   name: string;
@@ -44,7 +44,7 @@ interface HL7Field {
   identifierOptions?: IdentifierOption[];
 }
 
-interface HL7Segment {
+export interface HL7Segment {
   id: string;
   name: string;
   description: string;
@@ -104,7 +104,7 @@ const FIELD_VALUE_COMPONENTS: Record<string, number> = {
   'PID-14': 1,
 };
 
-const HL7_SEGMENTS: HL7Segment[] = [
+export const HL7_SEGMENTS: HL7Segment[] = [
   {
     id: "MSH",
     name: "MSH - Message Header",
