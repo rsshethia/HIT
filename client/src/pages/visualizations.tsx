@@ -174,27 +174,6 @@ export default function VisualizationsPage() {
             </TabsContent>
           </Tabs>
 
-          <div className="mt-12 p-6 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Integration with Assessment Results</h3>
-            <p className="mb-4">
-              These D3.js components can be integrated with the assessment tool to provide visual feedback on maturity
-              scores and help organizations understand their integration strengths and weaknesses at a glance.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/assessment">
-                <Button className="w-full sm:w-auto">
-                  <span className="material-icons mr-2">assessment</span>
-                  Start Assessment
-                </Button>
-              </Link>
-              <Link href="/results">
-                <Button variant="outline" className="w-full sm:w-auto">
-                  <span className="material-icons mr-2">bar_chart</span>
-                  View Sample Results
-                </Button>
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </div>

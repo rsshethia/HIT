@@ -17,10 +17,10 @@ export default function AboutPage() {
             </p>
             <div className="mt-6 flex items-center text-sm text-gray-500">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
-                v 0.13.9
+                v 0.16.9
               </span>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Updated: April 11, 2026
+                Updated: September 11, 2026
               </span>
             </div>
           </div>
@@ -110,9 +110,9 @@ export default function AboutPage() {
                   className="w-full sm:w-auto inline-flex items-center justify-center h-14"
                   size="lg"
                 >
-                  <Link href="/assessment">
-                    <span className="material-icons mr-2">assessment</span>
-                    Start the Assessment
+                  <Link href="/integration-architect">
+                    <span className="material-icons mr-2">account_tree</span>
+                    Try the Diagram Tools
                   </Link>
                 </Button>
               </div>

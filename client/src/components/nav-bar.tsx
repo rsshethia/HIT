@@ -17,21 +17,11 @@ interface NavGroup {
 // Every internal tool, grouped by workflow. Single source of truth for nav.
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: "Assess",
-    icon: "fact_check",
-    children: [
-      { label: "Maturity Assessment", href: "/assessment", desc: "Score your integration capability" },
-      { label: "Best Practice Guides", href: "/guides", desc: "Org, system & interface guidance" },
-      { label: "Reference Guides", href: "/reference-guides", desc: "HL7 message quick reference" },
-    ],
-  },
-  {
     label: "Diagram",
     icon: "account_tree",
     children: [
       { label: "Integration Architect", href: "/integration-architect", desc: "PlantUML diagrams + save & export" },
       { label: "Diagram Whiteboard", href: "/integration-diagram", desc: "Freeform tldraw canvas" },
-      { label: "Sheet to Booklet", href: "/sheet-to-booklet", desc: "CSV docs to PDF booklets" },
     ],
   },
   {
@@ -55,8 +45,7 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 const DIRECT_LINKS = [
-  { label: "Systems Map", href: "/map", shortLabel: "Map" },
-  { label: "About", href: "/about", shortLabel: "About" },
+  { label: "About", href: "/about" },
 ];
 
 export default function NavBar() {
@@ -154,10 +143,7 @@ export default function NavBar() {
                   href={link.href}
                   className={desktopLinkClass(isActive(link.href))}
                 >
-                  <span className="lg:hidden">{link.shortLabel}</span>
-                  <span className="hidden lg:inline">
-                    {link.label === "Systems Map" ? "Healthcare Systems Map" : link.label}
-                  </span>
+                  {link.label}
                 </Link>
               ))}
             </div>
@@ -250,7 +236,7 @@ export default function NavBar() {
                 : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
                 }`}
             >
-              {link.label === "Systems Map" ? "Healthcare Systems Map" : link.label}
+              {link.label}
             </Link>
           ))}
           <div className="mt-4 px-4 pb-2">

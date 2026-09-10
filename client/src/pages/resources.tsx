@@ -52,27 +52,6 @@ export default function ResourcesPage() {
       category: "Tools"
     },
     {
-      title: "Maturity Assessment Tool",
-      description: "Evaluate your organization's integration maturity across critical domains and receive personalized recommendations for improvement.",
-      link: "/assessment",
-      category: "Education",
-      isInternalLink: true
-    },
-    {
-      title: "Mini Reference Guides",
-      description: "Quick reference guides for common HL7 message types including ADT, SIU, ORM, and ORU messages used in healthcare integration.",
-      link: "/reference-guides",
-      category: "Education",
-      isInternalLink: true
-    },
-    {
-      title: "D3.js Data Visualizations",
-      description: "Interactive visualization components for assessment data. Explore pie charts, bar charts, and radar diagrams for visualizing integration metrics and assessment results.",
-      link: "/visualizations",
-      category: "Education",
-      isInternalLink: true
-    },
-    {
       title: "HL7 Flow",
       description: "An interactive 8-bit style game that visualizes HL7 ADT message flow between hospital systems when patients are admitted, transferred, and discharged.",
       link: "/hl7-flow-game",
@@ -91,13 +70,6 @@ export default function ResourcesPage() {
       description: "An interactive force-directed graph visualization showing the relationships between HL7 segments and message types like ADT, ORU, ORM, and SIU.",
       link: "/hl7-segment-mapper",
       category: "Education",
-      isInternalLink: true
-    },
-    {
-      title: "Sheet to Booklet",
-      description: "Transform complex integration documentation into comprehensive, professional booklets. Designed specifically for Integration Architects to create structured documentation from spreadsheets and data sources.",
-      link: "/sheet-to-booklet",
-      category: "Documentation",
       isInternalLink: true
     },
     {
@@ -125,13 +97,6 @@ export default function ResourcesPage() {
       title: "MessageTrace",
       description: "MessageTrace is a lightweight PowerShell tool for healthcare IT professionals to rapidly locate HL7 messages in production archives. Search by patient ID, visit number, or location across thousands of files in seconds. No database setup, no external dependencies — just pure PowerShell efficiency for critical incident response.",
       link: "/message-trace",
-      category: "Featured",
-      isInternalLink: true
-    },
-    {
-      title: "Healthcare Systems Map",
-      description: "An interactive map of digital healthcare systems deployed across Australia. Browse by organisation, vendor, department, and location. Community-contributed records with full version history — see which systems are being used where across the country.",
-      link: "/map",
       category: "Featured",
       isInternalLink: true
     },
