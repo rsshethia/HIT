@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -68,6 +69,7 @@ function ScriptBlock({ title, script, filename, onCopy }: { title: string; scrip
 }
 
 export default function HL7CatchmentKit() {
+  usePageMeta("/hl7-catchment-kit");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [cfg, setCfg] = useState<GeoKitConfig>(DEFAULT_GEOKIT_CONFIG);

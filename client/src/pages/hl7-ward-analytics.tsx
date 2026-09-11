@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -66,6 +67,7 @@ function ScriptBlock({ title, script, filename, onCopy }: { title: string; scrip
 const GROUPS = ["Flow & capacity", "People", "Throughput & discharge"] as const;
 
 export default function HL7WardAnalytics() {
+  usePageMeta("/hl7-ward-analytics");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [cfg, setCfg] = useState<WardConfig>(DEFAULT_WARD_CONFIG);

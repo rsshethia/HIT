@@ -77,6 +77,24 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
+  // Dynamic rendering for crawlers / AI-agent fetchers: serve the prerendered
+  // snapshot (identical titles, summaries, links as the SPA) when present.
+  // Humans and all other traffic fall through to the SPA untouched.
+  const botPattern =
+    /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|linkedinbot|gptbot|chatgpt-user|claudebot|anthropic|perplexity|cohere|bytespider|applebot|semrushbot|ahrefsbot|mj12bot/i;
+  const snapshotDir = path.resolve(distPath, "__snapshots");
+  app.get("*", (req, res, next) => {
+    const ua = req.get("user-agent") ?? "";
+    if (!botPattern.test(ua)) return next();
+    const slug =
+      req.path === "/" ? "index" : req.path.replace(/\/$/, "").replace(/^\//, "").replace(/\//g, "-");
+    if (!/^[a-z0-9-]+$/i.test(slug)) return next();
+    const file = path.resolve(snapshotDir, `${slug}.html`);
+    if (!file.startsWith(snapshotDir) || !fs.existsSync(file)) return next();
+    res.status(200).set({ "Content-Type": "text/html; charset=utf-8" });
+    res.sendFile(file);
+  });
+
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));

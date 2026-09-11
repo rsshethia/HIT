@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dev.healthcareintegrationtools.com/sitemap.xml
+
+# Agent-readable site map (llmstxt.org convention)
+# See: https://dev.healthcareintegrationtools.com/llms.txt

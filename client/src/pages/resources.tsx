@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Link } from "wouter";
 
 export default function ResourcesPage() {
+  usePageMeta("/resources");
   const resources = [
     {
       title: "HL7 FHIR",

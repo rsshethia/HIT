@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react';
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Tldraw, Editor, createShapeId, TLGeoShape } from 'tldraw';
 import 'tldraw/tldraw.css';
 import { Pen, Download, Save, FileText, Network, Layout, RefreshCw } from 'lucide-react';
 
 export default function IntegrationDiagramPage() {
+  usePageMeta("/integration-diagram");
   const [showTemplates, setShowTemplates] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const editorRef = useRef<Editor | null>(null);

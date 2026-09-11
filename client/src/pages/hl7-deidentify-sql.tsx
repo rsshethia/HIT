@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -161,6 +162,7 @@ const FAQ_ITEMS: { q: string; a: string }[] = [
 ];
 
 export default function HL7DeidentifySQL() {
+  usePageMeta("/hl7-deidentify-sql");
   const { toast } = useToast();
   const [selectedRules, setSelectedRules] = useState<Set<string>>(new Set(ALL_RULE_FIELDS));
   const [sourceTable, setSourceTable] = useState('HL7_RAW_Messages');

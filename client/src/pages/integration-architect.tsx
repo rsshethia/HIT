@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -797,6 +798,7 @@ interface SavedDiagram {
 }
 
 export default function IntegrationArchitect() {
+  usePageMeta("/integration-architect");
   const { toast } = useToast();
   const [code, setCode] = useState(TEMPLATE_LIBRARY[1].items[0].code); // Default to System Integration
   const [imageUrl, setImageUrl] = useState('');

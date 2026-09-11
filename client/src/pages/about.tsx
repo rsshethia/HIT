@@ -1,7 +1,9 @@
 import { Link } from "wouter";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Button } from "@/components/ui/button";
 
 export default function AboutPage() {
+  usePageMeta("/about");
   return (
     <div className="bg-neutral-50 min-h-[calc(100vh-4rem)]">
       <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:py-20 lg:px-8">

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -265,6 +266,7 @@ export const HL7_SEGMENTS: HL7Segment[] = [
 ];
 
 export default function HL7SQLBuilder() {
+  usePageMeta("/hl7-sql-builder");
   const { toast } = useToast();
   const [selectedFields, setSelectedFields] = useState<Set<string>>(new Set());
   const [fieldConfigs, setFieldConfigs] = useState<Record<string, FieldConfig>>({});

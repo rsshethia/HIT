@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://dev.healthcareintegrationtools.com/</loc><lastmod>2026-09-11</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/resources</loc><lastmod>2026-09-11</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/hl7-sql-builder</loc><lastmod>2026-09-11</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/hl7-deidentify-sql</loc><lastmod>2026-09-11</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/hl7-catchment-kit</loc><lastmod>2026-09-11</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/hl7-ward-analytics</loc><lastmod>2026-09-11</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/hl7-segment-mapper</loc><lastmod>2026-09-11</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/integration-architect</loc><lastmod>2026-09-11</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/integration-diagram</loc><lastmod>2026-09-11</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/message-trace</loc><lastmod>2026-09-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://dev.healthcareintegrationtools.com/about</loc><lastmod>2026-09-11</lastmod><changefreq>yearly</changefreq><priority>0.5</priority></url>
+</urlset>

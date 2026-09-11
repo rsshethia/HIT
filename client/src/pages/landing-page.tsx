@@ -1,8 +1,10 @@
 import { useLocation } from "wouter";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function LandingPage() {
+  usePageMeta("/");
   const [, setLocation] = useLocation();
 
   return (

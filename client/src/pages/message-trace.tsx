@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -90,6 +91,7 @@ const PARAMETERS = [
 ];
 
 export default function MessageTracePage() {
+  usePageMeta("/message-trace");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [activeExample, setActiveExample] = useState(0);

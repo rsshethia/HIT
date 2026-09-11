@@ -1,0 +1,26 @@
+# HIT - Health Integration Tools
+
+> Free tools for healthcare integration teams: HL7 SQL generation, PHI
+> de-identification, patient catchment mapping, ward analytics, message
+> tracing, and integration diagramming. Everything runs locally in the
+> user's own environment; patient data never leaves their systems.
+
+## Tools
+
+- [HL7 SQL Builder](https://dev.healthcareintegrationtools.com/hl7-sql-builder): Generate SQL Server, PostgreSQL, and MySQL stored procedures that parse RAW HL7 ADT messages (MSH, EVN, PID, PV1, DG1, OBX) into queryable tables, including the fn_GetHL7Field parse helper.
+- [HL7 De-Identify SQL](https://dev.healthcareintegrationtools.com/hl7-deidentify-sql): Generate stored procedures that pseudonymize HL7 PHI in place — stable fictional MRNs, per-patient date shifts, fake names/addresses, digit-shifted phones. Safe Harbor preset.
+- [Catchment Kit: PID-11 to SA2](https://dev.healthcareintegrationtools.com/hl7-catchment-kit): Turn patient street addresses into Australian SA2 statistical boundaries inside SQL Server using G-NAF Core and ABS ASGS data. Fully offline one-click DBA kit.
+- [Ward Analytics: PID x PV1](https://dev.healthcareintegrationtools.com/hl7-ward-analytics): Twelve copy-paste analytics questions answered from RAW HL7 ADT messages — ward/room/bed length of stay, turnover, live census, ED boarding, after-hours activity, transfers, average age, long-stay outliers, 28-day returns, doctor census, before-noon discharges, discharge disposition. SQL Server, PostgreSQL, MySQL.
+- [HL7 Segment Mapper](https://dev.healthcareintegrationtools.com/hl7-segment-mapper): Interactive graph of HL7 segment-to-message relationships across ADT, ORU, ORM, and SIU.
+- [Integration Architect](https://dev.healthcareintegrationtools.com/integration-architect): AI-assisted PlantUML diagrams for healthcare integration flows, saved locally with professional export.
+- [Integration Diagram Whiteboard](https://dev.healthcareintegrationtools.com/integration-diagram): Freeform canvas for sketching healthcare system connections.
+- [MessageTrace](https://dev.healthcareintegrationtools.com/message-trace): Dependency-free PowerShell search across archived HL7 files by patient ID (PID-3), visit number (PV1-19), or location (PV1-3).
+
+## Resources
+
+- [Integration Resources](https://dev.healthcareintegrationtools.com/resources): HL7 FHIR, DICOM, and all HIT tools in one directory.
+- [About HIT](https://dev.healthcareintegrationtools.com/about): What HIT is and who it serves (clinical, business, technical).
+
+## Full content
+
+- [llms-full.txt](https://dev.healthcareintegrationtools.com/llms-full.txt): Complete plain-text dump of every tool guide on this site, for agents that prefer a single ingestible file.

@@ -10,8 +10,10 @@ import {
   X
 } from 'lucide-react';
 import { messageTypes, allSegments } from "@/data/hl7-data";
+import { usePageMeta } from "@/hooks/use-page-meta";
 
 const HL7SegmentMapper = () => {
+  usePageMeta("/hl7-segment-mapper");
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [filterValue, setFilterValue] = useState(0);
