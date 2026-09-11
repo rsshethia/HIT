@@ -58,6 +58,13 @@ export default function ResourcesPage() {
       isInternalLink: true
     },
     {
+      title: "Ward Analytics: PID × PV1",
+      description: "Twelve copy-paste questions answered from your RAW HL7 — ward LOS, turnover, live census, boarding, readmissions and more. One foundation mart, thin views, scheduled refresh. SQL Server, PostgreSQL and MySQL.",
+      link: "/hl7-ward-analytics",
+      category: "Featured",
+      isInternalLink: true
+    },
+    {
       title: "MessageTrace",
       description: "MessageTrace is a lightweight PowerShell tool for healthcare IT professionals to rapidly locate HL7 messages in production archives. Search by patient ID, visit number, or location across thousands of files in seconds. No database setup, no external dependencies — just pure PowerShell efficiency for critical incident response.",
       link: "/message-trace",

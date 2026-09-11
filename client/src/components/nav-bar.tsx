@@ -30,6 +30,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: "SQL Builder", href: "/hl7-sql-builder", desc: "HL7 parse stored procedures" },
       { label: "De-Identify SQL", href: "/hl7-deidentify-sql", desc: "Pseudonymize PHI in your DB" },
       { label: "Catchment Kit", href: "/hl7-catchment-kit", desc: "PID-11 address → SA2 in SQL" },
+      { label: "Ward Analytics", href: "/hl7-ward-analytics", desc: "PID × PV1 questions in SQL" },
       { label: "Segment Mapper", href: "/hl7-segment-mapper", desc: "Segments ↔ message graph" },
       { label: "MessageTrace", href: "/message-trace", desc: "PowerShell archive search" },
     ],
