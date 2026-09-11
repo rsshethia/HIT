@@ -2,7 +2,7 @@ import React from "react";
 
 export function DevHeader() {
   // Version information
-  const version = "0.16.9";
+  const version = "0.17.2";
   const lastUpdated = "September 11, 2026";
 
   return (

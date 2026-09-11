@@ -51,6 +51,13 @@ export default function ResourcesPage() {
       isInternalLink: true
     },
     {
+      title: "Catchment Kit: PID-11 → SA2",
+      description: "One-click SQL kit that turns patient street address into SA2 catchment codes inside your own SQL Server — offline, no PHI leaves the database. Maps by service, visit type, or attending doctor.",
+      link: "/hl7-catchment-kit",
+      category: "Featured",
+      isInternalLink: true
+    },
+    {
       title: "MessageTrace",
       description: "MessageTrace is a lightweight PowerShell tool for healthcare IT professionals to rapidly locate HL7 messages in production archives. Search by patient ID, visit number, or location across thousands of files in seconds. No database setup, no external dependencies — just pure PowerShell efficiency for critical incident response.",
       link: "/message-trace",

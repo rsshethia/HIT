@@ -84,6 +84,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ content });
   });
 
+  // GeoKit SA2 sample downloads (tiny synthetic CSVs for 5-min trial)
+  const geoKitFiles: Record<string, string> = {
+    "sample-GNAF-1000.csv": "sample-GNAF-1000.csv",
+    "sample-MB-to-SA.csv": "sample-MB-to-SA.csv",
+  };
+  app.get("/api/downloads/geo-kit/:name", (req, res) => {
+    const mapped = geoKitFiles[req.params.name];
+    if (!mapped) return res.status(404).json({ message: "Unknown kit file" });
+    const candidates = [
+      path.resolve(import.meta.dirname, "../client/public", mapped),
+      path.resolve(import.meta.dirname, "public", mapped),
+    ];
+    const filePath = candidates.find(p => fs.existsSync(p));
+    if (!filePath) return res.status(404).json({ message: "Kit file not found" });
+    res.setHeader("Content-Disposition", `attachment; filename="${mapped}"`);
+    res.setHeader("Content-Type", "text/csv");
+    res.sendFile(filePath);
+  });
+
   const server = createServer(app);
   return server;
 }

@@ -15,6 +15,7 @@ const IntegrationDiagramPage = lazy(() => import("@/pages/integration-diagram"))
 const IntegrationArchitect = lazy(() => import("@/pages/integration-architect"));
 const HL7SQLBuilder = lazy(() => import("@/pages/hl7-sql-builder"));
 const HL7DeidentifySQL = lazy(() => import("@/pages/hl7-deidentify-sql"));
+const HL7CatchmentKit = lazy(() => import("@/pages/hl7-catchment-kit"));
 const MessageTracePage = lazy(() => import("@/pages/message-trace"));
 
 import NavBar from "@/components/nav-bar";
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/integration-architect" component={IntegrationArchitect} />
       <Route path="/hl7-sql-builder" component={HL7SQLBuilder} />
       <Route path="/hl7-deidentify-sql" component={HL7DeidentifySQL} />
+      <Route path="/hl7-catchment-kit" component={HL7CatchmentKit} />
       <Route path="/message-trace" component={MessageTracePage} />
       <Route component={NotFound} />
     </Switch>
