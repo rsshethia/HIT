@@ -17,6 +17,9 @@ const HL7SQLBuilder = lazy(() => import("@/pages/hl7-sql-builder"));
 const HL7DeidentifySQL = lazy(() => import("@/pages/hl7-deidentify-sql"));
 const HL7CatchmentKit = lazy(() => import("@/pages/hl7-catchment-kit"));
 const HL7WardAnalytics = lazy(() => import("@/pages/hl7-ward-analytics"));
+const V2ToFhirConverter = lazy(() => import("@/pages/v2-to-fhir-converter"));
+const Hl7DataQualityAuditor = lazy(() => import("@/pages/hl7-data-quality-auditor"));
+const PriorAuthReadiness = lazy(() => import("@/pages/prior-auth-readiness"));
 const MessageTracePage = lazy(() => import("@/pages/message-trace"));
 
 import NavBar from "@/components/nav-bar";
@@ -38,6 +41,9 @@ function Router() {
       <Route path="/about" component={AboutPage} />
       <Route path="/resources" component={ResourcesPage} />
       <Route path="/hl7-segment-mapper" component={HL7SegmentMapper} />
+      <Route path="/v2-to-fhir-converter" component={V2ToFhirConverter} />
+      <Route path="/hl7-data-quality-auditor" component={Hl7DataQualityAuditor} />
+      <Route path="/prior-auth-readiness" component={PriorAuthReadiness} />
       <Route path="/integration-diagram" component={IntegrationDiagramPage} />
       <Route path="/integration-architect" component={IntegrationArchitect} />
       <Route path="/hl7-sql-builder" component={HL7SQLBuilder} />

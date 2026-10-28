@@ -28,6 +28,9 @@ const NAV_GROUPS: NavGroup[] = [
     icon: "terminal",
     children: [
       { label: "SQL Builder", href: "/hl7-sql-builder", desc: "HL7 parse stored procedures" },
+      { label: "V2 → FHIR Converter", href: "/v2-to-fhir-converter", desc: "ADT/ORU to FHIR R4 Bundle" },
+      { label: "Data-Quality Auditor", href: "/hl7-data-quality-auditor", desc: "Feed health score + audit SQL" },
+      { label: "Prior-Auth Readiness", href: "/prior-auth-readiness", desc: "CMS 2026 FHIR readiness check" },
       { label: "De-Identify SQL", href: "/hl7-deidentify-sql", desc: "Pseudonymize PHI in your DB" },
       { label: "Catchment Kit", href: "/hl7-catchment-kit", desc: "PID-11 address → SA2 in SQL" },
       { label: "Ward Analytics", href: "/hl7-ward-analytics", desc: "PID × PV1 questions in SQL" },

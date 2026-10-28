@@ -6,6 +6,27 @@ export default function ResourcesPage() {
   usePageMeta("/resources");
   const resources = [
     {
+      title: "V2 → FHIR Converter",
+      description: "Paste synthetic ADT or ORU messages and get a FHIR R4 Bundle (US Core / AU Core): field-level map, unmapped list, copy/download. Runs in your browser.",
+      link: "/v2-to-fhir-converter",
+      category: "Featured",
+      isInternalLink: true
+    },
+    {
+      title: "HL7 Data-Quality Auditor",
+      description: "One-click feed health score (0-100) across completeness, validity, consistency, and duplicates — plus read-only audit SQL for SQL Server, PostgreSQL, and MySQL.",
+      link: "/hl7-data-quality-auditor",
+      category: "Featured",
+      isInternalLink: true
+    },
+    {
+      title: "Prior-Auth Readiness Checker",
+      description: "Twelve questions across FHIR APIs, data readiness, and Da Vinci workflow. Deadline-mapped action plan plus a sample PAS Claim skeleton. CMS-0057-F, educational.",
+      link: "/prior-auth-readiness",
+      category: "Featured",
+      isInternalLink: true
+    },
+    {
       title: "HL7 FHIR",
       description: "Fast Healthcare Interoperability Resources (FHIR) is a standard for healthcare data exchange, published by HL7.",
       link: "https://www.hl7.org/fhir/",

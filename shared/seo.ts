@@ -42,10 +42,10 @@ export const ROUTE_META: RouteMeta[] = [
     path: "/resources",
     title: "Healthcare Integration Resources - HL7, FHIR, DICOM & Tools",
     description:
-      "Curated healthcare integration resources: HL7 FHIR, DICOM, segment mapper, SQL builders, de-identification, catchment mapping, ward analytics, and MessageTrace.",
+      "Curated healthcare integration resources: HL7 FHIR, DICOM, V2-to-FHIR converter, data-quality auditor, prior-auth readiness, de-identification, catchment and ward analytics.",
     h1: "Integration Resources",
     summary:
-      "Curated standards (HL7 FHIR, DICOM) and interactive HIT tools: HL7 SQL Builder, HL7 De-Identify SQL, Catchment Kit (PID-11 to SA2), Ward Analytics (PID x PV1), HL7 Segment Mapper, Integration Architect, and MessageTrace archive search.",
+      "Curated standards (HL7 FHIR, DICOM) and interactive HIT tools: V2 to FHIR Converter, HL7 Data-Quality Auditor, Prior-Auth Readiness Checker, HL7 SQL Builder, HL7 De-Identify SQL, Catchment Kit (PID-11 to SA2), Ward Analytics (PID x PV1), HL7 Segment Mapper, Integration Architect, and MessageTrace archive search.",
     schema: "WebPage",
   },
   {
@@ -124,6 +124,54 @@ export const ROUTE_META: RouteMeta[] = [
     summary:
       "A freeform drawing canvas for documenting healthcare system connections and data flows between EMRs, laboratories, pharmacies, and billing systems.",
     schema: "SoftwareApplication",
+  },
+  {
+    path: "/v2-to-fhir-converter",
+    title: "V2 to FHIR Converter - Free HL7 to FHIR R4 Bundle Tool",
+    description:
+      "Paste HL7v2 ADT or ORU and get a FHIR R4 Bundle (US Core / AU Core). Free, runs in your browser, no PHI uploaded.",
+    h1: "V2 to FHIR Converter",
+    summary:
+      "Convert HL7v2 ADT and ORU messages into FHIR R4 Bundles with Patient, Encounter, and Observation resources. Choose Base R4, US Core, or AU Core profiles, see field-level mappings and unmapped segments, then copy or download the JSON. Everything runs locally in your browser.",
+    schema: "SoftwareApplication",
+    steps: [
+      "Paste an ADT or ORU message or load a sample",
+      "Choose Base R4, US Core, or AU Core",
+      "Review the field-level map and unmapped list",
+      "Copy or download the FHIR JSON Bundle",
+    ],
+  },
+  {
+    path: "/hl7-data-quality-auditor",
+    title: "HL7 Data Quality Auditor - Free ADT Feed Health Check",
+    description:
+      "Audit HL7 ADT feeds for missing IDs, duplicates, and bad dates. Free health score + SQL for SQL Server, PostgreSQL, MySQL.",
+    h1: "HL7 Data-Quality Auditor",
+    summary:
+      "Check HL7v2 ADT feed quality before analytics or FHIR migration: completeness, validity, consistency, and duplicates across MSH, PID, PV1, DG1, and OBX. Get a 0-100 health score, an issue table, and runnable audit SQL for SQL Server, PostgreSQL, or MySQL. All processing stays in your browser or database.",
+    schema: "SoftwareApplication",
+    steps: [
+      "Paste messages or generate audit SQL for your database",
+      "Run the completeness, validity, and duplicate checks",
+      "Review the 0-100 score and severity-ranked issues",
+      "Export the Markdown report or CSV and fix at source",
+    ],
+  },
+  {
+    path: "/prior-auth-readiness",
+    title: "Prior Auth Readiness Checker - Free CMS 2026 FHIR Guide",
+    description:
+      "Check CMS prior-auth readiness: FHIR APIs, Da Vinci PAS, 72hr/7-day rules. Free score + action plan. Educational only.",
+    h1: "Prior-Auth Readiness Checker",
+    summary:
+      "Assess readiness for the CMS Interoperability and Prior Authorization rule: FHIR Patient and Provider Access APIs, Payer-to-Payer exchange, and Da Vinci PAS/CRD/DTR workflows. Answer 12 questions, optionally attach a FHIR Bundle, and get a score plus a prioritised action plan. Free, educational, runs in your browser.",
+    schema: "SoftwareApplication",
+    steps: [
+      "Answer the 12 readiness questions",
+      "Optionally attach a FHIR Bundle from the V2 converter",
+      "Review your score and deadline-mapped actions",
+      "Copy the action plan and sample Claim skeleton",
+    ],
   },
   {
     path: "/message-trace",

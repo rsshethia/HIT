@@ -19,10 +19,10 @@ export default function AboutPage() {
             </p>
             <div className="mt-6 flex items-center text-sm text-gray-500">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
-                v 0.17.2
+                v 0.19.2
               </span>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Updated: September 11, 2026
+                Updated: October 26, 2026
               </span>
             </div>
           </div>
