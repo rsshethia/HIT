@@ -19,4 +19,5 @@
 
 - **Founder learning:** read each pack's `B. Education sheet` then answer `D. Checkpoint` aloud.
 - **Builder agent:** follow `sdlc-cycle.md`, implement `A. Internal brief` v1 scope, paste `SEO draft` into `shared/seo.ts`, execute `C. Test kit` at G4.
+- **Promo:** `linkedin-posts.md` — one ready-to-paste LinkedIn post per tool (post in order 2 → 1 → 3).
 - **Future reference:** cite `2026-10-28 / <slug>`; append (never rewrite) the decision log when scope changes.

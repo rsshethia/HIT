@@ -82,3 +82,11 @@ Built in one batch, SDLC G1–G3 complete:
   `shared/seo.ts` 3 new `ROUTE_META` entries (+ `/resources` summary refreshed).
 - Shell runner unavailable in this environment — run `npm run check` and `npm run build`
   (confirm 3 new files under `dist/public/__snapshots/`) before release (SDLC G4).
+
+## 8. Session note — 2026-10-28 (paused, to continue)
+
+- Decision log, SDLC cycle, 3 feature packs, and LinkedIn posts all saved under `docs/roadmap/`.
+- All 3 tools built + wired (routes, nav, resources, SEO). Type errors fixed as reported:
+  line-143 ternary syntax, Set-spread target issue (2 files), `allowedHosts` widening in `server/vite.ts`.
+- Still open: founder runs `npm run check` + `npm run build` (shell broken in build env),
+  executes the 3 test kits (SDLC G4), then release + learn notes (G5/G6).
