@@ -25,7 +25,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Database, FileCode, Table, Play, RefreshCw, Filter, Settings2 } from 'lucide-react';
+import { Copy, Database, FileCode, Table, RefreshCw, Filter, Settings2, ListChecks } from 'lucide-react';
 import { TourButton } from '@/components/tour-button';
 import { SQL_BUILDER_TOUR } from '@/data/tours';
 
@@ -936,7 +936,7 @@ DELIMITER ;
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col bg-neutral-50" data-testid="hl7-sql-builder-page">
       {/* Header */}
-      <div className="bg-white border-b px-6 py-3 flex items-center justify-between shrink-0">
+      <div className="bg-white border-b px-6 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <div className="bg-primary/10 p-2 rounded-lg">
@@ -964,7 +964,7 @@ DELIMITER ;
             </Select>
           </div>
           <Button variant="outline" size="sm" onClick={selectCommonFields} data-testid="button-select-common">
-            <Play className="h-4 w-4 mr-2" />
+            <ListChecks className="h-4 w-4 mr-2" />
             Common Fields
           </Button>
           <Button variant="outline" size="sm" onClick={clearAll} data-testid="button-clear-all">
@@ -1124,8 +1124,8 @@ DELIMITER ;
                   <span className="text-sm font-medium text-slate-300">Generated SQL</span>
                 </div>
               </div>
-              <div className="flex gap-4 mt-3">
-                <div className="flex-1">
+              <div className="flex flex-wrap gap-4 mt-3">
+                <div className="flex-1 min-w-[140px]">
                   <Label className="text-xs text-slate-400">Source Table (RAW HL7)</Label>
                   <Input 
                     value={sourceTableName}
@@ -1134,7 +1134,7 @@ DELIMITER ;
                     data-testid="input-source-table"
                   />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-[140px]">
                   <Label className="text-xs text-slate-400">Destination Table</Label>
                   <Input 
                     value={tableName}
@@ -1143,7 +1143,7 @@ DELIMITER ;
                     data-testid="input-dest-table"
                   />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-[140px]">
                   <Label className="text-xs text-slate-400">Procedure Name</Label>
                   <Input 
                     value={procedureName}
@@ -1156,6 +1156,9 @@ DELIMITER ;
             </div>
             
             <ScrollArea className="flex-grow" data-testid="sql-output-area">
+              <p className="px-4 pt-3 text-xs text-slate-500">
+                Run this against the source table in your database, then point Ward Analytics at the destination table.
+              </p>
               <pre className="p-4 text-sm font-mono text-slate-300 leading-relaxed whitespace-pre-wrap" data-testid="sql-code-preview">
                 {generateSQL}
               </pre>
