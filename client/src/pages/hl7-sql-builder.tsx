@@ -26,6 +26,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from '@/hooks/use-toast';
 import { Copy, Database, FileCode, Table, Play, RefreshCw, Filter, Settings2 } from 'lucide-react';
+import { TourButton } from '@/components/tour-button';
+import { SQL_BUILDER_TOUR } from '@/data/tours';
 
 interface IdentifierOption {
   code: string;
@@ -973,6 +975,7 @@ DELIMITER ;
             <Copy className="h-4 w-4 mr-2" />
             Copy SQL
           </Button>
+          <TourButton steps={SQL_BUILDER_TOUR} />
         </div>
       </div>
 
