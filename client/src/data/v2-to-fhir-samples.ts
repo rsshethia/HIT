@@ -71,4 +71,22 @@ export const V2_FHIR_SAMPLES: Hl7Sample[] = [
       "PV1||X|WARD9^99^Z^CITY_HOSP||||||||||||||||||||||||||||||20260313100000+1100|20260312100000+1100",
     ].join("\n"),
   },
+  {
+    id: "siu-s12",
+    label: "SIU-S12 — New appointment booking",
+    description: "Cardiology review booked: SCH timing maps to a FHIR Appointment.",
+    message: [
+      "MSH|^~\\&|SCHED|CITY_HOSP|FHIR_GW|HIT|20260310110000+1100||SIU^S12|MSG00010|P|2.5",
+      // SCH built positionally (index = field number): 7 = reason, 8 = type,
+      // 11 = timing (TQ: component 4 = start, 5 = end), 25 = filler status.
+      (() => {
+        const f = ["SCH", "APT1001", "APT1001", "", "", "", "", "FOLLOWUP^REVIEW^REASON", "ROUTINE^ROUTINE^TYPE", "", "", "^^^20260402140000+1100^20260402143000+1100"];
+        while (f.length < 25) f.push("");
+        f.push("Booked");
+        return f.join("|");
+      })(),
+      "PID|||PT10001^^^CITY_HOSP^MR||CITIZEN^ALEX^J||19900514|M",
+      "PV1||O|CARD^02^^CITY_HOSP|||||||||||||||||V20260310005",
+    ].join("\n"),
+  },
 ];

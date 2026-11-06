@@ -110,6 +110,48 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Victoria Guide Banner */}
+      <section className="py-10 bg-white border-t border-gray-100">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 rounded-lg border border-primary/20 bg-primary/5 p-6">
+            <span className="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg shrink-0">
+              <span className="material-icons text-white">map</span>
+            </span>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold text-gray-900">Victoria Digital Health Roadmap 2026–31 Guide</h2>
+              <p className="mt-1 text-sm text-gray-600">
+                Plain-English map of Victoria's digital health vision — separate tracks for doers and decision-makers, each pillar linked to the HIT tool that helps.
+              </p>
+            </div>
+            <Button variant="default" size="sm" onClick={() => setLocation("/guides/victoria")} className="shrink-0">
+              <span className="material-icons text-sm mr-1">arrow_forward</span>
+              Read the guide
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Tasmania Guide Banner */}
+      <section className="py-10 bg-white border-t border-gray-100">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 rounded-lg border border-primary/20 bg-primary/5 p-6">
+            <span className="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg shrink-0">
+              <span className="material-icons text-white">map</span>
+            </span>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold text-gray-900">Tasmania Digital Health Transformation 2022–32 Guide</h2>
+              <p className="mt-1 text-sm text-gray-600">
+                Plain-English map of Tasmania&apos;s $476M transformation — eReferrals, EMR and smart medicines, patient flow, self-scheduling portals, and a FHIR care platform. Told through Jim, Jane, Michael and Alex.
+              </p>
+            </div>
+            <Button variant="default" size="sm" onClick={() => setLocation("/guides/tasmania")} className="shrink-0">
+              <span className="material-icons text-sm mr-1">arrow_forward</span>
+              Read the guide
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Resources Section */}
       <section className="py-12 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

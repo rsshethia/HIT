@@ -53,19 +53,19 @@ const DEID_RULES: Record<string, { action: DeidAction; label: string; harbor: nu
   'EVN-5': { action: 'ID', label: 'Operator ID', harbor: 1 },
   'EVN-6': { action: 'DATE', label: 'Event Occurred', harbor: 3 },
   'PID-2': { action: 'ID', label: 'External Patient ID', harbor: 8 },
-  'PID-3': { action: 'ID', label: 'Patient ID (MRN)', harbor: 8 },
+  'PID-3': { action: 'ID', label: 'Patient ID (UR / MRN)', harbor: 8 },
   'PID-4': { action: 'ID', label: 'Alternate Patient ID', harbor: 8 },
   'PID-5': { action: 'NAME', label: 'Patient Name', harbor: 1 },
   'PID-6': { action: 'NAME', label: "Mother's Maiden Name", harbor: 1 },
   'PID-7': { action: 'DATE', label: 'Date of Birth', harbor: 3 },
   'PID-9': { action: 'NAME', label: 'Patient Alias', harbor: 1 },
   'PID-11': { action: 'ADDR', label: 'Patient Address', harbor: 2 },
-  'PID-12': { action: 'GEN', label: 'County Code', harbor: 2 },
+  'PID-12': { action: 'GEN', label: 'LGA / Region Code', harbor: 2 },
   'PID-13': { action: 'PHONE', label: 'Home Phone', harbor: 4 },
   'PID-14': { action: 'PHONE', label: 'Business Phone', harbor: 4 },
   'PID-18': { action: 'ID', label: 'Account Number', harbor: 10 },
-  'PID-19': { action: 'ID', label: 'SSN', harbor: 7 },
-  'PID-20': { action: 'ID', label: "Driver's License", harbor: 11 },
+  'PID-19': { action: 'ID', label: 'Medicare / IHI Number', harbor: 7 },
+  'PID-20': { action: 'ID', label: "Licence / Alternate ID", harbor: 11 },
   'PV1-5': { action: 'ID', label: 'Preadmit Number', harbor: 18 },
   'PV1-7': { action: 'NAME', label: 'Attending Doctor', harbor: 1 },
   'PV1-8': { action: 'NAME', label: 'Referring Doctor', harbor: 1 },
@@ -112,7 +112,7 @@ const ALL_RULE_FIELDS = Object.keys(DEID_RULES);
 const FLOW_STEPS = [
   { icon: Database, title: '1. Point', desc: 'Set source table + message column. The script only reads; it never alters your raw HL7.' },
   { icon: Play, title: '2. Run', desc: 'EXEC the procedure. Each message is processed one at a time through the same rule set.' },
-  { icon: Link2, title: '3. Map', desc: 'First sighting of a patient creates one map row: one pseudo MRN + one private date offset, reused forever.' },
+  { icon: Link2, title: '3. Map', desc: 'First sighting of a patient creates one map row: one pseudo UR + one private date offset, reused forever.' },
   { icon: Share2, title: '4. Share', desc: 'Export the dest table only. Map tables stay internal — they can re-link output to patients.' },
 ];
 
@@ -122,14 +122,14 @@ const GUIDE_BEFORE = [
 ];
 
 const GUIDE_AFTER = [
-  'PID|||DID482916^^^FAC2QV^MR||F3821^G9042||20240110|M   (same pseudo MRN in every message)',
+  'PID|||DID482916^^^FAC2QV^MR||F3821^G9042||20240110|M   (same pseudo UR in every message)',
   'PV1||I|||||||||||DID771204|||||||||||||||||||||||||||||||||20240209120000|20240212143000   (interval intact)',
 ];
 
 const FAQ_ITEMS: { q: string; a: string }[] = [
   {
     q: 'Will one patient\'s 20 messages all get the same fictional identity?',
-    a: 'Yes. The first message creates a patient-map row keyed on the salted hash of PID-3 (MRN + secret). The other 19 hit the same row and reuse its pseudo MRN, date offset, and per-value pseudonyms. Visits link too: the same PV1-19 always maps to the same pseudo visit, so admission → transfer → discharge chains stay connected.',
+    a: 'Yes. The first message creates a patient-map row keyed on the salted hash of PID-3 (UR + secret). The other 19 hit the same row and reuse its pseudo UR, date offset, and per-value pseudonyms. Visits link too: the same PV1-19 always maps to the same pseudo visit, so admission → transfer → discharge chains stay connected.',
   },
   {
     q: 'What changes from message to message?',
@@ -144,8 +144,8 @@ const FAQ_ITEMS: { q: string; a: string }[] = [
     a: 'You get a completely different, unlinkable set of fictional IDs. Same secret + same data = same output, across runs, batches and months. Use one secret per research project and keep it for the project\'s life — never ship it with the output.',
   },
   {
-    q: 'What if a message has no PID-3, or the MRN changes mid-journey?',
-    a: 'Messages without PID-3 each get their own lane (nothing to link on). If an MRN changes mid-journey (e.g. an MPI merge), the two keys form two lanes. Run de-identification after your MPI merge, or the journeys will look like two patients.',
+    q: 'What if a message has no PID-3, or the UR changes mid-journey?',
+    a: 'Messages without PID-3 each get their own lane (nothing to link on). If a UR changes mid-journey (e.g. an MPI merge), the two keys form two lanes. Run de-identification after your MPI merge, or the journeys will look like two patients.',
   },
   {
     q: 'What is NOT scrubbed?',
@@ -153,7 +153,7 @@ const FAQ_ITEMS: { q: string; a: string }[] = [
   },
   {
     q: 'How do I prove it worked (first-run test)?',
-    a: 'The script header embeds 2 synthetic messages. After EXEC: (1) both output rows share one pseudo MRN; (2) the admit→discharge interval matches the input exactly; (3) no original MRN, name or phone appears in the dest table. Only then point it at real archives.',
+    a: 'The script header embeds 2 synthetic messages. After EXEC: (1) both output rows share one pseudo UR; (2) the admit→discharge interval matches the input exactly; (3) no original UR, name or phone appears in the dest table. Only then point it at real archives.',
   },
   {
     q: 'Can anyone reverse the fictional IDs?',
@@ -954,7 +954,7 @@ DELIMITER ;
         <div className="flex items-center gap-3">
           <div>
             <h1 className="font-bold text-lg text-gray-900">HL7 De-Identify</h1>
-            <p className="text-xs text-gray-500">Generate SQL that pseudonymizes PHI in your own database</p>
+            <p className="text-xs text-gray-500">Generate SQL that de-identifies health information in your own database (Privacy Act 1988 / OAIC-aligned)</p>
           </div>
         </div>
 
@@ -974,7 +974,7 @@ DELIMITER ;
           </div>
           <Button variant="outline" size="sm" onClick={selectSafeHarbor}>
             <ShieldCheck className="h-4 w-4 mr-2" />
-            Safe Harbor preset
+            OAIC-aligned preset
           </Button>
           <Button variant="outline" size="sm" onClick={clearAll}>
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -1053,6 +1053,9 @@ DELIMITER ;
                       placeholder="Min 8 chars, per-project, never shipped with output"
                       className="h-8 font-mono"
                     />
+                    {!secret.trim() && (
+                      <p className="text-xs text-amber-700 mt-1">No secret set — the script will use a placeholder every user shares. Set a per-project passphrase before running on real data.</p>
+                    )}
                   </div>
                 </div>
 
@@ -1093,7 +1096,7 @@ DELIMITER ;
                                 <Badge variant="outline" className="ml-2 text-[10px] px-1 py-0">
                                   {ACTION_LABEL[DEID_RULES[f.id].action]}
                                 </Badge>
-                                <span className="block text-gray-400">Safe Harbor {DEID_RULES[f.id].harbor}</span>
+                                <span className="block text-gray-400">OAIC type {DEID_RULES[f.id].harbor} · Privacy Act 1988</span>
                               </span>
                             </label>
                           ))}
@@ -1178,7 +1181,7 @@ DELIMITER ;
                     <tr className="bg-gray-50 text-left text-gray-500">
                       <th className="px-3 py-2 font-medium">Field</th>
                       <th className="px-3 py-2 font-medium">Action</th>
-                      <th className="px-3 py-2 font-medium">Safe Harbor</th>
+                      <th className="px-3 py-2 font-medium">OAIC type</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -1,5 +1,5 @@
 // Lightweight client-side HL7v2 parser shared by the V2→FHIR Converter and
-// the Data-Quality Auditor. No dependencies, no network calls, no PHI storage.
+// the Data-Quality Auditor. No dependencies, no network calls, no health-information storage.
 // Synthetic test messages only — never paste real patient data.
 
 export interface ParsedSegment {

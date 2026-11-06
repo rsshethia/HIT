@@ -365,7 +365,7 @@ export function buildLoaderPs1(cfg: GeoKitConfig): string {
   const gpath = cfg.gnafPath || (mode === "PerState" ? "C:\\GeoKit\\gnaf-states" : "C:\\GeoKit\\GNAF_CORE.psv");
   const L: string[] = [
     "# GeoKit SA2 — 03 reference-data loader (production, idempotent, re-runnable)",
-    "# Run from an admin workstation with DB access. PUBLIC data in, never PHI out.",
+    "# Run from an admin workstation with DB access. PUBLIC data in, never patient data out.",
     "# Expects script 02 (create tables) already run. Re-run quarterly: MERGE keeps it idempotent.",
     "#",
     "# G-NAF Core source : single national pipe-separated PSV, or a folder of per-state",

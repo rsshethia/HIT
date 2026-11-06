@@ -60,9 +60,9 @@ interface FieldConfig {
 
 const IDENTIFIER_TYPES = {
   patientId: [
-    { code: 'MR', name: 'Medical Record', description: 'Medical Record Number' },
-    { code: 'SS', name: 'Social Security', description: 'Social Security Number' },
-    { code: 'DL', name: 'Driver License', description: "Driver's License" },
+    { code: 'MR', name: 'Medical Record / UR', description: 'Medical Record Number / UR Number (hospital MRN)' },
+    { code: 'MC', name: 'Medicare', description: 'Medicare number (PID-3, type MC)' },
+    { code: 'IHI', name: 'IHI', description: 'Individual Healthcare Identifier' },
     { code: 'PI', name: 'Patient Internal', description: 'Patient Internal Identifier' },
     { code: 'PT', name: 'Patient External', description: 'Patient External Identifier' },
     { code: 'AN', name: 'Account Number', description: 'Account Number' },
@@ -142,7 +142,7 @@ export const HL7_SEGMENTS: HL7Segment[] = [
     fields: [
       { id: "PID-1", position: "PID-1", name: "Set ID", dataType: "INT", maxLength: 0, description: "Sequence number" },
       { id: "PID-2", position: "PID-2", name: "External Patient ID", dataType: "VARCHAR", maxLength: 50, description: "External patient identifier" },
-      { id: "PID-3", position: "PID-3", name: "Patient ID (MRN)", dataType: "VARCHAR", maxLength: 50, description: "Medical Record Number", repeating: true, identifierComponent: 5, identifierOptions: IDENTIFIER_TYPES.patientId },
+      { id: "PID-3", position: "PID-3", name: "Patient ID (UR / MRN)", dataType: "VARCHAR", maxLength: 50, description: "UR Number / Medical Record Number; filter by type: MR, MC (Medicare), IHI", repeating: true, identifierComponent: 5, identifierOptions: IDENTIFIER_TYPES.patientId },
       { id: "PID-4", position: "PID-4", name: "Alternate Patient ID", dataType: "VARCHAR", maxLength: 50, description: "Alternate patient identifier" },
       { id: "PID-5", position: "PID-5", name: "Patient Name", dataType: "VARCHAR", maxLength: 100, description: "Full patient name", repeating: true, identifierComponent: 7, identifierOptions: IDENTIFIER_TYPES.patientName },
       { id: "PID-6", position: "PID-6", name: "Mother's Maiden Name", dataType: "VARCHAR", maxLength: 50, description: "Mother's maiden name" },
@@ -151,15 +151,15 @@ export const HL7_SEGMENTS: HL7Segment[] = [
       { id: "PID-9", position: "PID-9", name: "Patient Alias", dataType: "VARCHAR", maxLength: 100, description: "Patient alias/nickname" },
       { id: "PID-10", position: "PID-10", name: "Race", dataType: "VARCHAR", maxLength: 20, description: "Patient race" },
       { id: "PID-11", position: "PID-11", name: "Patient Address", dataType: "VARCHAR", maxLength: 200, description: "Patient home address", repeating: true, identifierComponent: 7, identifierOptions: IDENTIFIER_TYPES.address },
-      { id: "PID-12", position: "PID-12", name: "County Code", dataType: "VARCHAR", maxLength: 20, description: "County of residence" },
+      { id: "PID-12", position: "PID-12", name: "LGA / Region Code", dataType: "VARCHAR", maxLength: 20, description: "Local Government Area or region of residence (AU: postcode + SA2 used for catchments)" },
       { id: "PID-13", position: "PID-13", name: "Home Phone", dataType: "VARCHAR", maxLength: 30, description: "Home phone number", repeating: true, identifierComponent: 2, identifierOptions: IDENTIFIER_TYPES.phone },
       { id: "PID-14", position: "PID-14", name: "Business Phone", dataType: "VARCHAR", maxLength: 30, description: "Business phone number", repeating: true, identifierComponent: 2, identifierOptions: IDENTIFIER_TYPES.phone },
       { id: "PID-15", position: "PID-15", name: "Primary Language", dataType: "VARCHAR", maxLength: 20, description: "Primary language" },
       { id: "PID-16", position: "PID-16", name: "Marital Status", dataType: "VARCHAR", maxLength: 10, description: "Marital status code" },
       { id: "PID-17", position: "PID-17", name: "Religion", dataType: "VARCHAR", maxLength: 20, description: "Religion code" },
       { id: "PID-18", position: "PID-18", name: "Account Number", dataType: "VARCHAR", maxLength: 50, description: "Patient account number" },
-      { id: "PID-19", position: "PID-19", name: "SSN", dataType: "VARCHAR", maxLength: 20, description: "Social Security Number" },
-      { id: "PID-20", position: "PID-20", name: "Driver's License", dataType: "VARCHAR", maxLength: 30, description: "Driver's license number" },
+      { id: "PID-19", position: "PID-19", name: "Medicare / IHI Number", dataType: "VARCHAR", maxLength: 20, description: "Medicare number or Individual Healthcare Identifier (AU); not US SSN" },
+      { id: "PID-20", position: "PID-20", name: "Licence / Alternate ID", dataType: "VARCHAR", maxLength: 30, description: "Driver licence or alternate identifier (AU)" },
     ]
   },
   {
@@ -942,7 +942,7 @@ DELIMITER ;
             </div>
             <div>
               <h1 className="font-bold text-lg text-gray-900">HL7 SQL Builder</h1>
-              <p className="text-xs text-gray-500">Generate stored procedures to parse HL7 messages</p>
+              <p className="text-xs text-gray-500">Tick fields → get a stored procedure that parses RAW HL7 into a table. New here? Start with Common Fields.</p>
             </div>
           </div>
         </div>

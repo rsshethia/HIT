@@ -168,12 +168,14 @@ export default function PriorAuthReadiness() {
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-primary/10 rounded-lg"><FileCheck2 className="w-7 h-7 text-primary" /></div>
               <div>
-                <h1 className="text-3xl font-extrabold text-gray-900">Prior-Auth Readiness Checker</h1>
+                <h1 className="text-3xl font-extrabold text-gray-900">Prior-Auth Readiness Checker <span className="text-lg font-semibold text-red-600">(US only)</span></h1>
                 <p className="text-lg text-primary font-medium">72 hours. 7 days. Are you ready?</p>
               </div>
             </div>
             <p className="mt-3 text-gray-600 max-w-3xl">
-              Twelve questions across FHIR APIs, data readiness, and Da Vinci workflow. Get a score,
+              US-only tool for the CMS Interoperability and Prior Authorization rule (CMS-0057-F).
+              Not applicable in Australia — Australian services use Medicare, MBS/PBS claiming, My Health
+              Record and AU Core FHIR instead. Twelve questions across FHIR APIs, data readiness, and Da Vinci workflow. Get a score,
               a deadline-mapped action plan, and a sample PAS Claim skeleton. Educational aid — not legal advice.
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
@@ -200,9 +202,13 @@ export default function PriorAuthReadiness() {
           <CardContent className="pt-4 text-xs text-amber-900 flex gap-2">
             <TriangleAlert className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
-              Educational readiness aid only — not legal or compliance advice. Deadlines: 72-hour urgent /
-              7-day standard clocks and FHIR APIs from 2026-01-01; ePA APIs from 2027-01-01.
-              Confirm against current CMS guidance before acting.
+              US-only educational aid — not legal or compliance advice and not applicable in
+              Australia. Deadlines: 72-hour urgent / 7-day standard clocks and FHIR APIs from 2026-01-01; ePA APIs from 2027-01-01.
+              Confirm against current CMS guidance before acting. Australian services should use the{" "}
+              <button className="underline font-medium" onClick={() => setLocation("/guides/victoria")}>
+                Victoria Roadmap Guide
+              </button>{" "}
+              and AU Core tooling instead.
             </span>
           </CardContent>
         </Card>
@@ -246,7 +252,7 @@ export default function PriorAuthReadiness() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  <Button variant="outline" size="sm" onClick={() => setV2(V2_FHIR_SAMPLES[3].message)}>
+                  <Button variant="outline" size="sm" onClick={() => setV2(V2_FHIR_SAMPLES.find((s) => s.id === "adt-a03")?.message ?? "")}>
                     Load discharge sample
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => setV2("")}>Clear</Button>

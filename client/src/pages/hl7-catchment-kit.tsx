@@ -120,19 +120,20 @@ export default function HL7CatchmentKit() {
               </div>
             </div>
             <p className="mt-3 text-gray-600 max-w-3xl">
-              For DBAs with permission to add a table. Turns patient street address into SA2 catchment codes
+              For DBAs with permission to add a table. Turns patient street address into SA2
+              (Statistical Area 2) catchment codes
               for maps by service, visit type, or attending doctor — without leaking exact addresses.
               Everything runs <strong>offline</strong>: public G-NAF + ABS tables are imported once per quarter,
-              then a stored procedure does local JOINs only. No PHI ever calls an external API.
+              then a stored procedure does local JOINs only. No health information ever calls an external API.
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
               <Badge variant="secondary">SQL Server 2019+</Badge>
-              <Badge variant="secondary"><ShieldCheck className="w-3 h-3 mr-1" /> Offline / PHI stays local</Badge>
+              <Badge variant="secondary"><ShieldCheck className="w-3 h-3 mr-1" /> Offline / health info stays local</Badge>
               <Badge variant="secondary"><Database className="w-3 h-3 mr-1" /> 3 reference tables + 1 proc</Badge>
               <Badge variant="outline">G-NAF CC-BY 4.0 + ABS attribution required</Badge>
             </div>
           </div>
-          <Button size="lg" onClick={downloadAll} className="shrink-0 shadow-md">
+          <Button size="lg" onClick={downloadAll} className="shrink-0 shadow-md" disabled={cfg.states.length === 0} title={cfg.states.length === 0 ? "Pick at least one state first" : "Download all SQL"}>
             <Download className="w-5 h-5 mr-2" /> Download all SQL
           </Button>
         </div>
@@ -183,6 +184,9 @@ export default function HL7CatchmentKit() {
                   </label>
                 ))}
               </div>
+              {cfg.states.length === 0 && (
+                <p className="text-xs text-amber-700 mt-2">Pick at least one state — the loader imports nothing with none selected.</p>
+              )}
             </div>
             <div className="md:col-span-4">
               <Label className="text-xs">G-NAF path (file for National, folder for PerState — passed as -GnafPath)</Label>
@@ -215,7 +219,7 @@ export default function HL7CatchmentKit() {
           <ScriptBlock title="Step 2 — Create tables (ref + de-identified mart)" script={tables} filename="02_create-tables.sql" onCopy={copy} />
 
           <Card>
-            <CardHeader><CardTitle className="text-sm font-semibold">Step 3 — Reference data (the only big download; public data in, never PHI out)</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-sm font-semibold">Step 3 — Reference data (the only big download; public data in, never patient data out)</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm text-gray-600">
               <div>
                 <p className="font-medium text-gray-800">Option A — 5-minute trial (recommended first, ASGS {cfg.asgsEdition} columns):</p>

@@ -26,10 +26,10 @@ import {
 
 type Profile = "base" | "us" | "au";
 
-const PROFILES: Record<Profile, { label: string; patient: string; encounter: string; observation: string }> = {
-  base: { label: "FHIR R4 Base", patient: "http://hl7.org/fhir/StructureDefinition/Patient", encounter: "http://hl7.org/fhir/StructureDefinition/Encounter", observation: "http://hl7.org/fhir/StructureDefinition/Observation" },
-  us: { label: "US Core 6.1", patient: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient", encounter: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter", observation: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab", },
-  au: { label: "AU Core 1.0", patient: "http://hl7.org.au/fhir/core/StructureDefinition/au-core-patient", encounter: "http://hl7.org.au/fhir/core/StructureDefinition/au-core-encounter", observation: "http://hl7.org.au/fhir/core/StructureDefinition/au-core-observation", },
+const PROFILES: Record<Profile, { label: string; patient: string; encounter: string; observation: string; appointment: string }> = {
+  base: { label: "FHIR R4 Base", patient: "http://hl7.org/fhir/StructureDefinition/Patient", encounter: "http://hl7.org/fhir/StructureDefinition/Encounter", observation: "http://hl7.org/fhir/StructureDefinition/Observation", appointment: "http://hl7.org/fhir/StructureDefinition/Appointment" },
+  us: { label: "US Core 6.1", patient: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient", encounter: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter", observation: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab", appointment: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-appointment", },
+  au: { label: "AU Core 1.0", patient: "http://hl7.org.au/fhir/core/StructureDefinition/au-core-patient", encounter: "http://hl7.org.au/fhir/core/StructureDefinition/au-core-encounter", observation: "http://hl7.org.au/fhir/core/StructureDefinition/au-core-observation", appointment: "http://hl7.org.au/fhir/core/StructureDefinition/au-core-appointment", },
 };
 
 interface MapRow { v2: string; fhir: string; value: string; status: "mapped" | "unmapped" | "note"; }
@@ -42,9 +42,21 @@ interface ConvertResult {
   error?: string;
 }
 
-const HANDLED = new Set(["MSH", "EVN", "PID", "PV1", "OBX", "OBR", "ORC", "DG1", "NK1"]);
+const HANDLED = new Set(["MSH", "EVN", "PID", "PV1", "OBX", "OBR", "ORC", "DG1", "NK1", "SCH"]);
 
-function convertOne(msg: ParsedMessage, profile: Profile): ConvertResult {
+function fhirAppointmentStatus(raw: string, trigger: string): string {
+  const v = (raw ?? "").trim().toLowerCase();
+  if (/cancel/.test(v)) return "cancelled";
+  if (/noshow|no.show|did not attend/.test(v)) return "noshow";
+  if (/complet|fulfil|arrived|checked.in/.test(v)) return "fulfilled";
+  if (/pend|waitlist|request/.test(v)) return "pending";
+  if (/book|confirm|schedule/.test(v)) return "booked";
+  // S12 books, S13–S15 reschedule, S26 notifications: default to booked.
+  return /^S1[23456]/.test(trigger) ? "booked" : "proposed";
+}
+
+// Exported for reuse (e.g. referral/scheduling kits) and testing.
+export function convertOne(msg: ParsedMessage, profile: Profile): ConvertResult {
   const rows: MapRow[] = [];
   const msh = firstSegment(msg, "MSH");
   if (!msh) {
@@ -156,6 +168,31 @@ function convertOne(msg: ParsedMessage, profile: Profile): ConvertResult {
     resources.push({ resourceType: "Condition", id: "condition-1", subject: { reference: "Patient/patient-1" }, code: { ...(code ? { coding: [{ code }] } : {}), ...(text ? { text } : {}) } });
   }
 
+  // --- Appointment from SCH (SIU scheduling) ---
+  const sch = firstSegment(msg, "SCH");
+  if (sch) {
+    const placer = getField(sch, 1);
+    const reason = comp(getField(sch, 7), 2) || comp(getField(sch, 7), 1);
+    const apptType = comp(getField(sch, 8), 2) || comp(getField(sch, 8), 1);
+    const start = parseDTM(comp(getField(sch, 11), 4));
+    const end = parseDTM(comp(getField(sch, 11), 5));
+    const status = fhirAppointmentStatus(getField(sch, 25), mType);
+    rows.push({ v2: "SCH-1 → Appointment.identifier", fhir: "Appointment.identifier", value: placer || "(missing)", status: placer ? "mapped" : "unmapped" });
+    rows.push({ v2: "SCH-7/8 → Appointment.reason/serviceType", fhir: "Appointment.reasonCode/serviceType", value: [reason, apptType].filter(Boolean).join(" · ") || "(missing)", status: reason || apptType ? "mapped" : "note" });
+    rows.push({ v2: "SCH-11 → Appointment.start/end", fhir: "Appointment.start/end", value: [start, end].filter(Boolean).join(" → ") || "(missing — waitlist, not yet scheduled)", status: start ? "mapped" : "note" });
+    rows.push({ v2: "SCH-25 → Appointment.status", fhir: "Appointment.status", value: status, status: "mapped" });
+    resources.push({
+      resourceType: "Appointment", id: "appointment-1",
+      meta: { profile: [prof.appointment] },
+      status,
+      ...(placer ? { identifier: [{ value: placer }] } : {}),
+      ...((reason || apptType) ? { serviceType: [{ text: [reason, apptType].filter(Boolean).join(" · ") }] } : {}),
+      ...(start ? { start } : {}),
+      ...(end ? { end } : {}),
+      subject: { reference: "Patient/patient-1" },
+    });
+  }
+
   // --- NK1 counted, not silently dropped ---
   const nk1Count = segmentsOf(msg, "NK1").length;
   if (nk1Count) rows.push({ v2: `NK1 (${nk1Count}) → RelatedPerson`, fhir: "RelatedPerson (count only in v1)", value: `${nk1Count} contact(s) present — full RelatedPerson mapping is a v2 enhancement.`, status: "note" });
@@ -185,7 +222,7 @@ export default function V2ToFhirConverter() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [input, setInput] = useState(V2_FHIR_SAMPLES[0].message);
-  const [profile, setProfile] = useState<Profile>("base");
+  const [profile, setProfile] = useState<Profile>("au");
 
   const results = useMemo<ConvertResult[]>(() => {
     const chunks = splitMessages(input).slice(0, 10);
@@ -214,16 +251,16 @@ export default function V2ToFhirConverter() {
               <div className="p-2 bg-primary/10 rounded-lg"><ArrowRightLeft className="w-7 h-7 text-primary" /></div>
               <div>
                 <h1 className="text-3xl font-extrabold text-gray-900">V2 to FHIR Converter</h1>
-                <p className="text-lg text-primary font-medium">See your ADT data the way FHIR sees it.</p>
+                <p className="text-lg text-primary font-medium">See your ADT, results and bookings the way FHIR sees them.</p>
               </div>
             </div>
             <p className="mt-3 text-gray-600 max-w-3xl">
-              Paste a synthetic HL7v2 ADT or ORU message and get a FHIR R4 Bundle with
-              Patient, Encounter, and Observation resources. Everything runs in your browser —
+              Paste a synthetic HL7v2 ADT, ORU or SIU message and get a FHIR R4 Bundle with
+              Patient, Encounter, Observation, Condition and Appointment resources. Everything runs in your browser —
               nothing is uploaded. Do not paste real patient data.
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
-              <Badge variant="secondary">FHIR R4 · US Core · AU Core</Badge>
+              <Badge variant="secondary">FHIR R4 · AU Core · Base · US Core</Badge>
               <Badge variant="secondary"><ShieldCheck className="w-3 h-3 mr-1" /> 100% client-side</Badge>
               {first && <Badge variant="outline">{first.messageType}</Badge>}
             </div>
@@ -254,9 +291,9 @@ export default function V2ToFhirConverter() {
                 <Select value={profile} onValueChange={(v) => setProfile(v as Profile)}>
                   <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="au">AU Core 1.0 (default)</SelectItem>
                     <SelectItem value="base">FHIR R4 Base</SelectItem>
                     <SelectItem value="us">US Core 6.1</SelectItem>
-                    <SelectItem value="au">AU Core 1.0</SelectItem>
                   </SelectContent>
                 </Select>
               </CardTitle>
@@ -319,10 +356,11 @@ export default function V2ToFhirConverter() {
 
         <Card className="mt-6 border-primary/20 bg-primary/5">
           <CardContent className="pt-6 text-sm text-gray-700">
-            <strong>What v1 covers — and what it doesn't.</strong> PID→Patient, PV1→Encounter,
-            OBX→Observation, DG1→Condition stub; NK1 counted. Z-segments and GT1/IN1 pass through
-            listed as unmapped. R5/R6 output, terminology translation, and server validation are
-            future enhancements. Feed this Bundle into the Prior-Auth Readiness Checker next.
+            <strong>What v2 covers — and what it doesn&apos;t.</strong> PID→Patient, PV1→Encounter,
+            OBX→Observation, DG1→Condition stub, SCH→Appointment (SIU bookings, waitlists, status);
+            NK1 counted. Z-segments and GT1/IN1 pass through
+            listed as unmapped. Terminology translation and server validation are
+            future enhancements. Run the Data-Quality Auditor next to clean the feed before migration.
           </CardContent>
         </Card>
       </div>

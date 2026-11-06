@@ -1,56 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
-
-interface NavChild {
-  label: string;
-  href: string;
-  desc: string;
-}
-
-interface NavGroup {
-  label: string;
-  icon: string;
-  children: NavChild[];
-}
-
-// Every internal tool, grouped by workflow. Single source of truth for nav.
-const NAV_GROUPS: NavGroup[] = [
-  {
-    label: "Diagram",
-    icon: "account_tree",
-    children: [
-      { label: "Integration Architect", href: "/integration-architect", desc: "PlantUML diagrams + save & export" },
-      { label: "Diagram Whiteboard", href: "/integration-diagram", desc: "Freeform tldraw canvas" },
-    ],
-  },
-  {
-    label: "HL7",
-    icon: "terminal",
-    children: [
-      { label: "SQL Builder", href: "/hl7-sql-builder", desc: "HL7 parse stored procedures" },
-      { label: "V2 → FHIR Converter", href: "/v2-to-fhir-converter", desc: "ADT/ORU to FHIR R4 Bundle" },
-      { label: "Data-Quality Auditor", href: "/hl7-data-quality-auditor", desc: "Feed health score + audit SQL" },
-      { label: "Prior-Auth Readiness", href: "/prior-auth-readiness", desc: "CMS 2026 FHIR readiness check" },
-      { label: "De-Identify SQL", href: "/hl7-deidentify-sql", desc: "Pseudonymize PHI in your DB" },
-      { label: "Catchment Kit", href: "/hl7-catchment-kit", desc: "PID-11 address → SA2 in SQL" },
-      { label: "Ward Analytics", href: "/hl7-ward-analytics", desc: "PID × PV1 questions in SQL" },
-      { label: "Segment Mapper", href: "/hl7-segment-mapper", desc: "Segments ↔ message graph" },
-      { label: "MessageTrace", href: "/message-trace", desc: "PowerShell archive search" },
-    ],
-  },
-];
-
-const DIRECT_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "Resources", href: "/resources" },
-  { label: "About", href: "/about" },
-];
+import {
+  DIRECT_LINKS,
+  NAV_GROUPS,
+  SECTION_BY_HREF,
+  type NavGroup,
+} from "@/data/navigation";
 
 export default function NavBar() {
   const [location] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openMobileGroup, setOpenMobileGroup] = useState<string | null>(null);
+  const [filter, setFilter] = useState("");
 
   const isActive = (path: string) => location === path;
   const isGroupActive = (group: NavGroup) =>
@@ -60,6 +22,7 @@ export default function NavBar() {
   useEffect(() => {
     setOpenDropdown(null);
     setIsMenuOpen(false);
+    setFilter("");
   }, [location]);
 
   useEffect(() => {
@@ -77,8 +40,14 @@ export default function NavBar() {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const q = filter.trim().toLowerCase();
+  const matches = (label: string, desc: string) =>
+    !q || label.toLowerCase().includes(q) || desc.toLowerCase().includes(q);
+  const visibleChildren = (group: NavGroup) =>
+    group.children.filter((c) => matches(c.label, c.desc));
+
   const desktopLinkClass = (active: boolean) =>
-    `inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${active
+    `inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm ${active
       ? "border-primary text-gray-900"
       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
     }`;
@@ -89,13 +58,55 @@ export default function NavBar() {
       : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
     }`;
 
+  const renderDesktopDropdown = (group: NavGroup) => {
+    let lastSection: string | null = null;
+    return (
+      <div
+        role="menu"
+        aria-label={group.label}
+        className="absolute left-0 top-full w-72 rounded-md border border-gray-200 bg-white shadow-lg py-2 z-50"
+      >
+        {group.children.map((child) => {
+          const section = SECTION_BY_HREF[child.href];
+          const showHeading = section && section !== lastSection;
+          lastSection = section ?? lastSection;
+          return (
+            <div key={child.href}>
+              {showHeading && (
+                <p className="px-4 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                  {section}
+                </p>
+              )}
+              <Link
+                href={child.href}
+                role="menuitem"
+                className={`block px-4 py-2.5 hover:bg-gray-50 focus-visible:outline-none focus-visible:bg-primary-50 ${isActive(child.href) ? "bg-primary-50" : ""
+                  }`}
+              >
+                <span
+                  className={`block text-sm font-medium ${isActive(child.href) ? "text-primary" : "text-gray-800"
+                    }`}
+                >
+                  {child.label}
+                </span>
+                <span className="block text-xs text-gray-500 mt-0.5">
+                  {child.desc}
+                </span>
+              </Link>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
-    <nav className="bg-white shadow-sm">
+    <nav className="bg-white shadow-sm" aria-label="Primary">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="flex items-center">
+              <Link href="/" className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-sm">
                 <span className="material-icons text-primary text-3xl mr-2">device_hub</span>
                 <span className="font-bold text-xl text-gray-800 hidden md:block">
                   <span className="text-primary">HIT</span> - Health Integration Tools
@@ -113,50 +124,48 @@ export default function NavBar() {
                 </Link>
               ))}
 
-              {NAV_GROUPS.map((group) => (
-                <div
-                  key={group.label}
-                  className="relative inline-flex"
-                  onMouseEnter={() => setOpenDropdown(group.label)}
-                  onMouseLeave={() => setOpenDropdown(null)}
-                >
-                  <button
-                    onClick={() =>
-                      setOpenDropdown(openDropdown === group.label ? null : group.label)
-                    }
-                    aria-expanded={openDropdown === group.label}
-                    aria-haspopup="true"
-                    className={`${desktopLinkClass(isGroupActive(group))} gap-1`}
+              {NAV_GROUPS.map((group) =>
+                // Single-tool groups render as a direct link — a dropdown
+                // with one item adds a click without adding information.
+                group.children.length === 1 ? (
+                  <Link
+                    key={group.children[0].href}
+                    href={group.children[0].href}
+                    title={group.children[0].desc}
+                    className={desktopLinkClass(isActive(group.children[0].href))}
                   >
                     {group.label}
-                    <span className="material-icons text-base">
-                      {openDropdown === group.label ? "expand_less" : "expand_more"}
-                    </span>
-                  </button>
-                  {openDropdown === group.label && (
-                    <div className="absolute left-0 top-full w-72 rounded-md border border-gray-200 bg-white shadow-lg py-2 z-50">
-                      {group.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className={`block px-4 py-2.5 hover:bg-gray-50 ${isActive(child.href) ? "bg-primary-50" : ""
-                            }`}
-                        >
-                          <span
-                            className={`block text-sm font-medium ${isActive(child.href) ? "text-primary" : "text-gray-800"
-                              }`}
-                          >
-                            {child.label}
-                          </span>
-                          <span className="block text-xs text-gray-500 mt-0.5">
-                            {child.desc}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                  </Link>
+                ) : (
+                  <div
+                    key={group.label}
+                    className="relative inline-flex"
+                    onMouseEnter={() => setOpenDropdown(group.label)}
+                    onMouseLeave={() => setOpenDropdown(null)}
+                    onFocus={() => setOpenDropdown(group.label)}
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                        setOpenDropdown(null);
+                      }
+                    }}
+                  >
+                    <button
+                      onClick={() =>
+                        setOpenDropdown(openDropdown === group.label ? null : group.label)
+                      }
+                      aria-expanded={openDropdown === group.label}
+                      aria-haspopup="true"
+                      className={`${desktopLinkClass(isGroupActive(group))} gap-1`}
+                    >
+                      {group.label}
+                      <span className="material-icons text-base" aria-hidden="true">
+                        {openDropdown === group.label ? "expand_less" : "expand_more"}
+                      </span>
+                    </button>
+                    {openDropdown === group.label && renderDesktopDropdown(group)}
+                  </div>
+                )
+              )}
 
               {DIRECT_LINKS.slice(1).map((link) => (
                 <Link
@@ -186,67 +195,102 @@ export default function NavBar() {
 
       {/* Mobile menu */}
       <div className={`${isMenuOpen ? 'block' : 'hidden'} md:hidden absolute w-full bg-white shadow-lg z-50 max-h-[calc(100vh-4rem)] overflow-y-auto`}>
+        <div className="px-3 pt-3">
+          <label className="sr-only" htmlFor="nav-filter">Filter navigation</label>
+          <input
+            id="nav-filter"
+            type="search"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter tools…"
+            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        </div>
         <div className="pt-2 pb-3 space-y-1">
           {DIRECT_LINKS.slice(0, 1).map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setIsMenuOpen(false)}
-              className={mobileLinkClass(isActive(link.href))}
-            >
-              {link.label}
-            </Link>
+            matches(link.label, "") && (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMenuOpen(false)}
+                className={mobileLinkClass(isActive(link.href))}
+              >
+                {link.label}
+              </Link>
+            )
           ))}
 
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label}>
-              <button
-                onClick={() =>
-                  setOpenMobileGroup(openMobileGroup === group.label ? null : group.label)
-                }
-                aria-expanded={openMobileGroup === group.label}
-                className={`w-full flex items-center justify-between pl-3 pr-4 py-2 border-l-4 text-base font-medium ${isGroupActive(group)
-                  ? "border-primary text-primary bg-primary-50"
-                  : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                  }`}
-              >
-                <span className="flex items-center">
-                  <span className="material-icons mr-2 text-lg">{group.icon}</span>
-                  {group.label}
-                </span>
-                <span className="material-icons">
-                  {openMobileGroup === group.label ? 'expand_less' : 'expand_more'}
-                </span>
-              </button>
-              {openMobileGroup === group.label && (
-                <div className="bg-gray-50 py-1">
-                  {group.children.map((child) => (
-                    <Link
-                      key={child.href}
-                      href={child.href}
-                      onClick={() => setIsMenuOpen(false)}
-                      className={`block pl-11 pr-4 py-2 text-sm font-medium ${isActive(child.href)
-                        ? "text-primary"
-                        : "text-gray-600 hover:text-gray-900"
-                        }`}
-                    >
-                      {child.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+          {NAV_GROUPS.map((group) => {
+            const kids = visibleChildren(group);
+            if (!kids.length && !matches(group.label, "")) return null;
+            // Single-tool groups render as a direct link on mobile too.
+            if (group.children.length === 1 && kids.length === 1) {
+              return (
+                <Link
+                  key={kids[0].href}
+                  href={kids[0].href}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={mobileLinkClass(isActive(kids[0].href))}
+                >
+                  {group.label}: {kids[0].label}
+                </Link>
+              );
+            }
+            return (
+              <div key={group.label}>
+                <button
+                  onClick={() =>
+                    setOpenMobileGroup(openMobileGroup === group.label ? null : group.label)
+                  }
+                  aria-expanded={openMobileGroup === group.label}
+                  className={`w-full flex items-center justify-between pl-3 pr-4 py-2 border-l-4 text-base font-medium ${isGroupActive(group)
+                    ? "border-primary text-primary bg-primary-50"
+                    : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+                    }`}
+                >
+                  <span className="flex items-center">
+                    <span className="material-icons mr-2 text-lg">{group.icon}</span>
+                    {group.label}
+                    <span className="ml-2 text-xs font-normal text-gray-400">
+                      {kids.length} tool{kids.length === 1 ? "" : "s"}
+                    </span>
+                  </span>
+                  <span className="material-icons" aria-hidden="true">
+                    {openMobileGroup === group.label ? 'expand_less' : 'expand_more'}
+                  </span>
+                </button>
+                {openMobileGroup === group.label && (
+                  <div className="bg-gray-50 py-1">
+                    {kids.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`block pl-11 pr-4 py-2 text-sm font-medium ${isActive(child.href)
+                          ? "text-primary"
+                          : "text-gray-600 hover:text-gray-900"
+                          }`}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {DIRECT_LINKS.slice(1).map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setIsMenuOpen(false)}
-              className={mobileLinkClass(isActive(link.href))}
-            >
-              {link.label}
-            </Link>
+            matches(link.label, "") && (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMenuOpen(false)}
+                className={mobileLinkClass(isActive(link.href))}
+              >
+                {link.label}
+              </Link>
+            )
           ))}
         </div>
       </div>

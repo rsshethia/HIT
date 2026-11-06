@@ -1,6 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import { Button } from "@/components/ui/button";
+import { useLocation } from "wouter";
 import {
+  ArrowLeft,
   ZoomIn,
   ZoomOut,
   RefreshCw,
@@ -22,6 +25,7 @@ const HL7SegmentMapper = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchType, setSearchType] = useState<'all' | 'segments' | 'messages'>('all');
   const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(new Set());
+  const [, setLocation] = useLocation();
 
   // Function to calculate which message types contain a segment
   const getMessageTypesForSegment = (segmentId: string) => {
@@ -407,12 +411,20 @@ const HL7SegmentMapper = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <Button variant="ghost" size="sm" className="mb-4 text-gray-500" onClick={() => setLocation("/resources")}>
+        <ArrowLeft className="w-4 h-4 mr-1" /> Back to Resources
+      </Button>
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-gray-900">HL7 Segment Mapper</h1>
+        <p className="text-sm text-gray-600 mt-1">
+          New to HL7? Blue dots are segments, orange dots are message types. Click any dot to see where it belongs.
+        </p>
+      </div>
       <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
         <div className="p-4 border-b">
-          <h2 className="text-xl font-semibold text-gray-800">HL7 Segment to Message Type Relationship</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Interactive segment map</h2>
           <p className="text-sm text-gray-600 mt-1">
-            Explore how HL7 segments relate to different message types using this interactive visualization.
-            Segments are blue circles, and message types are orange circles.
+            Drag to move · scroll to zoom · click a dot for details.
           </p>
         </div>
 
@@ -625,91 +637,29 @@ const HL7SegmentMapper = () => {
                 </div>
               </div>
 
-              {/* Code Snippet Section - Only visible when a segment is selected */}
+              {/* Try it in a real message — graphs show structure, real messages show mess */}
               {selectedNode && selectedNode.type === 'segment' && (
                 <div className="mt-4 bg-white rounded-lg border shadow-sm overflow-hidden">
                   <div className="p-4 border-b">
-                    <h3 className="text-sm font-medium text-gray-800">Rhapsody Integration Code</h3>
+                    <h3 className="text-sm font-medium text-gray-800">See {selectedNode.id} in a real message</h3>
                   </div>
-                  <div className="p-4">
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-xs font-semibold mb-2 text-gray-700">Fetch value from {selectedNode.id}</h4>
-                        <pre className="bg-gray-800 text-gray-100 p-3 rounded-md text-xs overflow-x-auto whitespace-pre">
-                          {`// Example for ${selectedNode.id}-3 ${selectedNode.id === 'PID' ? '(Patient ID)' : ''}
-function get${selectedNode.id}Value(message) {
-${selectedNode.id === 'PID' ? `  // Get all PID-3 identifiers
-  var identifiers = message.getSegment("PID").getField(3);
-  
-  // Look for Medicare number (type "MC")
-  for (var i = 0; i < identifiers.size(); i++) {
-    var idType = identifiers.get(i).getComponent(5).toString();
-    if (idType === "MC") {
-      return identifiers.get(i).getComponent(1).toString();
-    }
-  }
-  return null; // No Medicare number found` : `  var segment = message.getSegment("${selectedNode.id}");
-  if (segment) {
-    return segment.getField(3).toString();
-  }
-  return null; // Segment not found or field is empty`}
-}`}
-                        </pre>
-                      </div>
-
-                      <div>
-                        <h4 className="text-xs font-semibold mb-2 text-gray-700">Transform value in {selectedNode.id}</h4>
-                        <pre className="bg-gray-800 text-gray-100 p-3 rounded-md text-xs overflow-x-auto whitespace-pre">
-                          {`// Example for ${selectedNode.id}-3 ${selectedNode.id === 'PID' ? '(Patient ID)' : ''}
-function transform${selectedNode.id}(message) {
-${selectedNode.id === 'PID' ? `  // Get the PID segment
-  var pidSegment = message.getSegment("PID");
-  if (!pidSegment) return message;
-  
-  // Get all PID-3 identifiers
-  var identifiers = pidSegment.getField(3);
-  
-  // Process Medicare numbers (type "MC")
-  for (var i = 0; i < identifiers.size(); i++) {
-    var identifier = identifiers.get(i);
-    var idType = identifier.getComponent(5).toString();
-    
-    if (idType === "MC") {
-      // Get the Medicare number
-      var mcNumber = identifier.getComponent(1).toString();
-      
-      // Apply transformation (e.g., format to standard pattern)
-      if (mcNumber && mcNumber.length === 10) {
-        // Format as XXX-XX-XXXX
-        var formattedNumber = mcNumber.substring(0, 3) + "-" +
-                             mcNumber.substring(3, 5) + "-" +
-                             mcNumber.substring(5);
-        
-        // Update the value
-        identifier.getComponent(1).setValue(formattedNumber);
-      }
-    }
-  }
-  
-  return message;` : `  var segment = message.getSegment("${selectedNode.id}");
-  if (!segment) return message;
-  
-  // Get the value from field 3
-  var fieldValue = segment.getField(3).toString();
-  
-  // Apply transformation logic
-  if (fieldValue) {
-    // Example transformation - uppercase the value
-    var transformedValue = fieldValue.toUpperCase();
-    
-    // Update the field with transformed value
-    segment.getField(3).setValue(transformedValue);
-  }
-  
-  return message;`}
-}`}
-                        </pre>
-                      </div>
+                  <div className="p-4 space-y-2">
+                    <p className="text-xs text-gray-600">
+                      Missing fields, repeats, bad dates — meet {selectedNode.id} as it actually arrives.
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      <button
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700"
+                        onClick={() => setLocation("/v2-to-fhir-converter")}
+                      >
+                        Open in V2 → FHIR Converter
+                      </button>
+                      <button
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700"
+                        onClick={() => setLocation("/hl7-data-quality-auditor")}
+                      >
+                        Check feed quality first
+                      </button>
                     </div>
                   </div>
                 </div>

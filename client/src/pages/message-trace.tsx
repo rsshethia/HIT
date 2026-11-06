@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -128,15 +128,19 @@ export default function MessageTracePage() {
   };
 
   const copyScript = async () => {
-    if (!scriptContent) {
-      const res = await fetch('/api/downloads/message-trace/content');
-      const data = await res.json();
-      setScriptContent(data.content);
-      navigator.clipboard.writeText(data.content);
-    } else {
-      navigator.clipboard.writeText(scriptContent);
+    try {
+      if (!scriptContent) {
+        const res = await fetch('/api/downloads/message-trace/content');
+        const data = await res.json();
+        setScriptContent(data.content);
+        navigator.clipboard.writeText(data.content);
+      } else {
+        navigator.clipboard.writeText(scriptContent);
+      }
+      toast({ title: 'Copied', description: 'Script copied to clipboard.' });
+    } catch {
+      toast({ title: 'Error', description: 'Failed to load script content.', variant: 'destructive' });
     }
-    toast({ title: 'Copied', description: 'Script copied to clipboard.' });
   };
 
   return (
@@ -165,7 +169,8 @@ export default function MessageTracePage() {
                 </div>
               </div>
               <p className="mt-3 text-gray-600 max-w-3xl">
-                MessageTrace is a lightweight PowerShell tool for healthcare IT professionals to rapidly locate HL7 messages in production archives. Search by patient ID, visit number, or location across thousands of files in seconds. No database setup, no external dependencies — just pure PowerShell efficiency for critical incident response.
+                Lost a message in the archive? Search thousands of stored HL7 files by patient ID,
+                visit number or ward — right on the server, no database needed. Built for 2 AM incident response.
               </p>
             </div>
             <Button size="lg" onClick={downloadScript} className="shrink-0 shadow-md">
@@ -177,7 +182,7 @@ export default function MessageTracePage() {
           <div className="flex flex-wrap gap-2 mt-5">
             <Badge variant="secondary" className="text-xs"><Terminal className="w-3 h-3 mr-1" /> PowerShell 5.1+</Badge>
             <Badge variant="secondary" className="text-xs"><HardDrive className="w-3 h-3 mr-1" /> Zero Dependencies</Badge>
-            <Badge variant="secondary" className="text-xs"><Zap className="w-3 h-3 mr-1" /> Sub-Second Search</Badge>
+            <Badge variant="secondary" className="text-xs"><Zap className="w-3 h-3 mr-1" /> Fast file search</Badge>
             <Badge variant="secondary" className="text-xs"><Monitor className="w-3 h-3 mr-1" /> Windows Server / Desktop</Badge>
             <Badge variant="outline" className="text-xs">v2.0</Badge>
           </div>

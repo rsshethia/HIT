@@ -108,20 +108,20 @@ export default function HL7WardAnalytics() {
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-primary/10 rounded-lg"><BedDouble className="w-7 h-7 text-primary" /></div>
               <div>
-                <h1 className="text-3xl font-extrabold text-gray-900">Ward Analytics: PID × PV1</h1>
+                <h1 className="text-3xl font-extrabold text-gray-900">Ward Analytics from ADT</h1>
                 <p className="text-lg text-primary font-medium">Twelve copy-paste answers from your RAW HL7.</p>
               </div>
             </div>
             <p className="mt-3 text-gray-600 max-w-3xl">
-              Pick the questions, point at your RAW HL7 table, run locally. One foundation mart is parsed once;
-              every question is a thin view on top. Freshness comes from a scheduled refresh every 5–15 minutes —
-              never analytics inside a trigger.
+              Pick the questions, point at your RAW HL7 table, run locally. Your messages are parsed
+              once into one table; every question reads from that table. Results stay fresh with a
+              scheduled refresh every 5–15 minutes — heavy work never runs inside a database trigger.
             </p>
             <div className="flex flex-wrap gap-2 mt-4">
               <Badge variant="secondary">SQL Server + PostgreSQL + MySQL 8</Badge>
-              <Badge variant="secondary"><Database className="w-3 h-3 mr-1" /> 1 mart + N views</Badge>
+              <Badge variant="secondary"><Database className="w-3 h-3 mr-1" /> Parse once, reuse everywhere</Badge>
               <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" /> Scheduled refresh</Badge>
-              <Badge variant="outline"><ShieldAlert className="w-3 h-3 mr-1" /> Row-level scripts are identified data</Badge>
+              <Badge variant="outline"><ShieldAlert className="w-3 h-3 mr-1" /> Row-level answers name patients — restrict access</Badge>
             </div>
           </div>
           <Button size="lg" onClick={downloadAll} className="shrink-0 shadow-md" disabled={selected.length === 0}>
@@ -232,8 +232,9 @@ export default function HL7WardAnalytics() {
           <ScriptBlock title="Freshness — enqueue-only trigger (optional, never analytics inline)" script={trigger} filename={`trigger-enqueue-${cfg.platform}.sql`} onCopy={copy} />
 
           <Card>
-            <CardHeader><CardTitle className="text-sm font-semibold flex items-center gap-2"><FlaskConical className="w-4 h-4" /> Worked fixture journey (sanity-check your install)</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-sm font-semibold flex items-center gap-2"><FlaskConical className="w-4 h-4" /> Test patient journey (prove your install works)</CardTitle></CardHeader>
             <CardContent>
+              <p className="text-xs text-gray-500 mb-3">Five synthetic messages. Load them, run the mart + Q1/Q9: expect one 5-day stay (4W→5E) and one 28-day-window return for MRN 1001.</p>
               <ul className="text-sm text-gray-600 space-y-1.5">
                 {WARD_FIXTURES.map((fx) => (
                   <li key={fx.label} className="flex gap-2">

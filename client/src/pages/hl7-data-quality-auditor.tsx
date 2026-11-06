@@ -113,7 +113,7 @@ function quoteIdent(p: Platform, name: string): string {
 function buildAuditSql(cfg: AuditConfig): string {
   const t = quoteIdent(cfg.platform, cfg.table);
   const c = quoteIdent(cfg.platform, cfg.column);
-  const header = `-- HIT HL7 Data-Quality Audit — ${cfg.platform}\n-- Table: ${cfg.table}  Column: ${cfg.column}\n-- Run in your own database. Read-only SELECTs; no PHI leaves your server.\n`;
+  const header = `-- HIT HL7 Data-Quality Audit — ${cfg.platform}\n-- Table: ${cfg.table}  Column: ${cfg.column}\n-- Run in your own database. Read-only SELECTs; no health information leaves your server.\n`;
   if (cfg.platform === "sqlserver") {
     return `${header}
 -- 1. Messages missing a patient identifier (PID-3 blank)

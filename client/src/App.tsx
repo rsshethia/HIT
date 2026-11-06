@@ -5,13 +5,12 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import LandingPage from "@/pages/landing-page";
 
-// Route-level code splitting: heavy deps (tldraw, d3, jspdf)
+// Route-level code splitting: heavy deps (d3, jspdf)
 // only load when the user visits that tool, keeping the landing bundle lean.
 const NotFound = lazy(() => import("@/pages/not-found"));
 const AboutPage = lazy(() => import("@/pages/about"));
 const ResourcesPage = lazy(() => import("@/pages/resources"));
 const HL7SegmentMapper = lazy(() => import("@/pages/hl7-segment-mapper"));
-const IntegrationDiagramPage = lazy(() => import("@/pages/integration-diagram"));
 const IntegrationArchitect = lazy(() => import("@/pages/integration-architect"));
 const HL7SQLBuilder = lazy(() => import("@/pages/hl7-sql-builder"));
 const HL7DeidentifySQL = lazy(() => import("@/pages/hl7-deidentify-sql"));
@@ -19,8 +18,11 @@ const HL7CatchmentKit = lazy(() => import("@/pages/hl7-catchment-kit"));
 const HL7WardAnalytics = lazy(() => import("@/pages/hl7-ward-analytics"));
 const V2ToFhirConverter = lazy(() => import("@/pages/v2-to-fhir-converter"));
 const Hl7DataQualityAuditor = lazy(() => import("@/pages/hl7-data-quality-auditor"));
+const EreferralKit = lazy(() => import("@/pages/ereferral-kit"));
 const PriorAuthReadiness = lazy(() => import("@/pages/prior-auth-readiness"));
 const MessageTracePage = lazy(() => import("@/pages/message-trace"));
+const GuidesVictoria = lazy(() => import("@/pages/guides-victoria"));
+const GuidesTasmania = lazy(() => import("@/pages/guides-tasmania"));
 
 import NavBar from "@/components/nav-bar";
 import Footer from "@/components/footer";
@@ -43,14 +45,16 @@ function Router() {
       <Route path="/hl7-segment-mapper" component={HL7SegmentMapper} />
       <Route path="/v2-to-fhir-converter" component={V2ToFhirConverter} />
       <Route path="/hl7-data-quality-auditor" component={Hl7DataQualityAuditor} />
+      <Route path="/ereferral-kit" component={EreferralKit} />
       <Route path="/prior-auth-readiness" component={PriorAuthReadiness} />
-      <Route path="/integration-diagram" component={IntegrationDiagramPage} />
       <Route path="/integration-architect" component={IntegrationArchitect} />
       <Route path="/hl7-sql-builder" component={HL7SQLBuilder} />
       <Route path="/hl7-deidentify-sql" component={HL7DeidentifySQL} />
       <Route path="/hl7-catchment-kit" component={HL7CatchmentKit} />
       <Route path="/hl7-ward-analytics" component={HL7WardAnalytics} />
       <Route path="/message-trace" component={MessageTracePage} />
+      <Route path="/guides/victoria" component={GuidesVictoria} />
+      <Route path="/guides/tasmania" component={GuidesTasmania} />
       <Route component={NotFound} />
     </Switch>
   );
