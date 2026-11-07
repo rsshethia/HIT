@@ -17,7 +17,9 @@ import { useLocation } from "wouter";
 import {
   ArrowLeft, ArrowRightLeft, Copy, Download, ShieldCheck, TriangleAlert,
 } from "lucide-react";
+import { TourButton } from "@/components/tour-button";
 import { V2_FHIR_SAMPLES } from "@/data/v2-to-fhir-samples";
+import { V2_FHIR_TOUR } from "@/data/tours";
 import {
   comp, fhirEncounterClass, fhirGender, firstSegment, getField, getRepeats,
   messageType, parseDTM, parseMessage, segmentsOf, splitMessages,
@@ -266,16 +268,17 @@ export default function V2ToFhirConverter() {
             </div>
           </div>
           <div className="flex gap-2 shrink-0">
-            <Button size="lg" variant="outline" disabled={!bundleText} onClick={() => copy(bundleText, "FHIR Bundle copied.")}>
+            <Button size="lg" variant="outline" disabled={!bundleText} data-testid="tour-copy" onClick={() => copy(bundleText, "FHIR Bundle copied.")}>
               <Copy className="w-5 h-5 mr-2" /> Copy JSON
             </Button>
             <Button size="lg" disabled={!bundleText} onClick={() => { downloadBlob("fhir-bundle.json", bundleText); toast({ title: "Download started", description: "fhir-bundle.json" }); }}>
               <Download className="w-5 h-5 mr-2" /> Download
             </Button>
+            <TourButton steps={V2_FHIR_TOUR} size="lg" />
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4" data-testid="tour-samples">
           {V2_FHIR_SAMPLES.map((s) => (
             <Button key={s.id} variant="outline" size="sm" onClick={() => setInput(s.message)} title={s.description}>
               {s.label}
@@ -289,7 +292,7 @@ export default function V2ToFhirConverter() {
               <CardTitle className="text-sm font-semibold flex items-center justify-between">
                 <span>1 · Paste HL7v2 (synthetic only)</span>
                 <Select value={profile} onValueChange={(v) => setProfile(v as Profile)}>
-                  <SelectTrigger className="w-40 h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-40 h-8 text-xs" data-testid="tour-profile"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="au">AU Core 1.0 (default)</SelectItem>
                     <SelectItem value="base">FHIR R4 Base</SelectItem>
@@ -304,6 +307,7 @@ export default function V2ToFhirConverter() {
                 onChange={(e) => setInput(e.target.value)}
                 spellCheck={false}
                 rows={16}
+                data-testid="tour-input"
                 className="w-full rounded border bg-slate-950 p-3 font-mono text-[11px] leading-relaxed text-slate-100"
               />
               <p className="mt-2 text-xs text-gray-500 flex items-center gap-1">
@@ -314,8 +318,8 @@ export default function V2ToFhirConverter() {
 
           <Tabs defaultValue="bundle">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="bundle">2 · FHIR Bundle</TabsTrigger>
-              <TabsTrigger value="map">Field map {first ? `(${first.rows.length})` : ""}</TabsTrigger>
+              <TabsTrigger value="bundle" data-testid="tour-bundletab">2 · FHIR Bundle</TabsTrigger>
+              <TabsTrigger value="map" data-testid="tour-maptab">Field map {first ? `(${first.rows.length})` : ""}</TabsTrigger>
             </TabsList>
             <TabsContent value="bundle">
               <Card>

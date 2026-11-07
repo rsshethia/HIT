@@ -6,7 +6,16 @@ import { GraduationCap } from "lucide-react";
 // Reusable self-paced tour launcher. Lives top-right in each tool's header.
 // Tour content lives in client/src/data/tours.ts (one export per tool) so
 // adding a tour to a new tool = write steps + drop this button in.
-export function TourButton({ steps, label = "Tour" }: { steps: DriveStep[]; label?: string }) {
+// Pass the same size as the neighbouring header buttons so the row aligns.
+export function TourButton({
+  steps,
+  label = "Tour",
+  size = "sm",
+}: {
+  steps: DriveStep[];
+  label?: string;
+  size?: "sm" | "default" | "lg";
+}) {
   const start = () => {
     const tour = driver({
       showProgress: true,
@@ -18,8 +27,8 @@ export function TourButton({ steps, label = "Tour" }: { steps: DriveStep[]; labe
   };
 
   return (
-    <Button variant="outline" size="sm" onClick={start} title="Take a self-paced guided tour">
-      <GraduationCap className="h-4 w-4 mr-2" />
+    <Button variant="outline" size={size} onClick={start} title="Take a self-paced guided tour">
+      <GraduationCap className={size === "lg" ? "w-5 h-5 mr-2" : "h-4 w-4 mr-2"} />
       {label}
     </Button>
   );

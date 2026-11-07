@@ -6,6 +6,68 @@ import type { DriveStep } from "driver.js";
 // what happens next.
 
 // ---------------------------------------------------------------------------
+// V2 → FHIR Converter — 60-second tour: message in, Bundle out, map checked.
+// Follows the data flow left to right. The SIU stop is hands-on: the copy
+// invites one click on the SIU sample rather than auto-changing user input.
+// ---------------------------------------------------------------------------
+export const V2_FHIR_TOUR: DriveStep[] = [
+  {
+    popover: {
+      title: "HL7 in, FHIR out — 60 seconds",
+      description:
+        "Paste a synthetic message, pick a profile, get a FHIR Bundle with a field-by-field map. 7 stops, following the data left to right.",
+    },
+  },
+  {
+    element: '[data-testid="tour-samples"]',
+    popover: {
+      title: "1 · Start with a sample",
+      description:
+        "An emergency admit, lab results, a discharge — each shows a different FHIR shape. Try SIU-S12 later to watch a booking become an Appointment.",
+    },
+  },
+  {
+    element: '[data-testid="tour-input"]',
+    popover: {
+      title: "2 · Or paste your own",
+      description:
+        "Synthetic messages only — never real patient data. Everything converts in your browser; the first 10 messages are converted live.",
+    },
+  },
+  {
+    element: '[data-testid="tour-profile"]',
+    popover: {
+      title: "3 · Pick the profile",
+      description:
+        "AU Core 1.0 is the default — the profile My Health Record speaks. Switch to Base R4 or US Core to compare what changes.",
+    },
+  },
+  {
+    element: '[data-testid="tour-bundletab"]',
+    popover: {
+      title: "4 · The live Bundle",
+      description:
+        "Patient, Encounter, Observation, Condition, Appointment — assembled as you type. This is what your feed looks like to a FHIR server.",
+    },
+  },
+  {
+    element: '[data-testid="tour-maptab"]',
+    popover: {
+      title: "5 · The field map",
+      description:
+        "Click here next: every HL7 field accounted for — mapped, note, or honestly unmapped. Nothing disappears silently.",
+    },
+  },
+  {
+    element: '[data-testid="tour-copy"]',
+    popover: {
+      title: "6 · Take it with you",
+      description:
+        "Copy the JSON or download the Bundle. Then check the feed's health in the Data-Quality Auditor before migrating anything real.",
+    },
+  },
+];
+// ---------------------------------------------------------------------------
 // HL7 SQL Builder — 60-second tour: tick fields, get a stored procedure.
 // ---------------------------------------------------------------------------
 export const SQL_BUILDER_TOUR: DriveStep[] = [
