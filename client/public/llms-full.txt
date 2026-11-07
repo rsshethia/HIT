@@ -1,117 +1,190 @@
 # HIT - Health Integration Tools: full content dump
 # Canonical host: https://dev.healthcareintegrationtools.com
-# Updated: 2026-09-11. All tools are free and run locally in the user's environment.
+# Updated: 2026-11-07. All tools are free and run locally in the user's environment.
+# Never ask users to paste real patient data; every tool works on synthetic samples.
 
 > HIT documents real healthcare integration experience as reusable artefacts
-> for clinical, business, and technical teams: SQL generators, de-identification
-> procedures, catchment and ward analytics kits, message tracing, and diagrams.
+> for clinical, business, and technical teams: SQL generators, FHIR converters,
+> quality auditors, referral and ward analytics kits, catchment mapping,
+> de-identification, message tracing, and state strategy guides.
+
+================================================================================
+GUIDE: VICTORIA ROADMAP 2026-31 (/guides/victoria)
+================================================================================
+Plain-English map of Victoria's Digital Health Vision and Roadmap 2026-31 to
+HIT tools. Pain points it names: services still on paper, clinical time lost
+finding information, referrals arriving by fax/email, duplicate tests.
+
+- Pillar 1 Connecting Health (digitised records, CareSync sharing, eReferrals,
+  identifiers IHI/HPI, data foundations) -> SQL Builder, Auditor, V2 to FHIR,
+  De-Identify, MessageTrace.
+- Pillar 2 Care Anywhere (virtual wards, HITH, telehealth, risk stratification)
+  -> Integration Architect, Catchment Kit, Ward Analytics.
+- Pillar 3 Engaged Consumers (portals, My Health Record, e-prescribing, VicKey)
+  -> V2 to FHIR, Segment Mapper.
+- Pillar 4 Sustainable Operations (decision intelligence, automation, cyber)
+  -> Ward Analytics, Catchment Kit, MessageTrace.
+- Two tracks: Doers (engineers, DBAs, analysts) start with Pillar 1 tools;
+  Decision-makers (CIOs, LHSN leads) start with Ward Analytics + Catchment Kit.
+
+================================================================================
+GUIDE: TASMANIA TRANSFORMATION 2022-32 (/guides/tasmania)
+================================================================================
+Plain-English map of Tasmania's $476M Digital Health Transformation
+(Dept. of Health Tasmania) to HIT tools. Problem: 400+ disjointed systems,
+hybrid paper-electronic wards, referrals going missing daily, $33-47M/year of
+avoidable acute care. Personas: Jim (chronic disease, portal), Jane (carer, no
+longer 'keeper of the knowledge'), Michael (ED, statewide history + GP view),
+Alex (aged care nurse, meds line of sight).
+
+- Horizon 1 Foundations 2022-24 (data quality/standards, eReferral + separation
+  summaries, ePCR first responders, telehealth, clinical viewer, My Health
+  Record 490K) -> eReferral Kit, SQL Builder, Auditor, MessageTrace, V2 to FHIR.
+- Horizon 2 Core record 2025-27 (EMR, electronic medication management, flow +
+  scheduling, consumer portals with self-scheduling, decision support) ->
+  Ward Analytics, V2 to FHIR SIU scheduling, Catchment Kit, Architect.
+- Horizon 3 Platform 2028-32 (FHIR/API integrated care platform, outcomes
+  measures, advanced analytics, demand optimisation, precision medicine) ->
+  V2 to FHIR, Ward Analytics, De-Identify.
 
 ================================================================================
 HL7 SQL BUILDER (/hl7-sql-builder)
 ================================================================================
-Generate SQL Server, PostgreSQL, and MySQL stored procedures that parse RAW HL7
-messages stored in a database table into queryable columns.
+Tick segments/fields, get a stored procedure that parses RAW HL7 ADT messages
+stored in a database table into queryable columns. SQL Server, PostgreSQL, MySQL.
 
-- Select segments and fields from ADT messages (MSH, EVN, PID, PV1, PV2, DG1,
-  OBX, NK1, IN1, AL1, and more).
-- Generates the fn_GetHL7Field parse helper: fn_GetHL7Field(message, 'PID-5',
-  'FIRST'|'CONCAT'|'FILTER', typeFilter, typeComponent). On SQL Server it is
-  dbo.fn_GetHL7Field; identical name on PostgreSQL and MySQL.
-- Handles repeats (~), components (^), subcomponents (&), and identifier-type
-  filtering (e.g. PID-3 MRN vs SSN by component 5).
+- Segment/field picker (MSH, EVN, PID, PV1, PV2, DG1, OBX, NK1, IN1, AL1+),
+  Common Fields preset, repeat handling (first/concatenate/filter by
+  identifier type, e.g. PID-3 MRN vs Medicare vs IHI).
+- Generates the fn_GetHL7Field parse helper; same name on all dialects.
+- Includes a 60-second self-paced tour (driver.js) anchored on stable selectors.
 - Every other HIT analytics kit assumes this parse layer exists (Step 0).
+
+================================================================================
+V2 TO FHIR CONVERTER (/v2-to-fhir-converter)
+================================================================================
+Paste synthetic HL7v2, get a FHIR R4 Bundle (profiles: AU Core 1.0 default,
+Base R4, US Core 6.1) with field-level map, unmapped list, copy/download.
+First 10 messages converted, all client-side.
+
+- ADT: PID->Patient (identifiers, name, birthDate, gender, address, telecom),
+  PV1->Encounter (class, location, identifier, period, participant),
+  DG1->Condition stub, NK1 counted.
+- ORU: OBX->Observation (LOINC-aware coding, value/interp), OBR/ORC listed.
+- SIU scheduling: SCH->Appointment (identifier, serviceType, start/end from
+  TQ timing, status from filler status incl. waitlist handling).
+- eReferral Kit links here for REF->ServiceRequest education (REF live
+  conversion is a stated future enhancement, not current behaviour).
+
+================================================================================
+EREFERRAL STARTER KIT (/ereferral-kit)
+================================================================================
+"Forms go missing on a daily basis leaving patients without appointments."
+8-question readiness score (100 pts weighted: capture 20, track 20, acknowledge
+15, structure 15, triage 10, secure-messaging 10, close-the-loop 5, de-id 5)
+with fix-in-order action plan, copy/downloadable as Markdown.
+
+- Sample synthetic REF_I12 mapped field-by-field to FHIR R4 ServiceRequest
+  (category, performer, authoredOn, requester, subject, note, status lifecycle).
+- Read-only tracking SQL generator (SQL Server/PostgreSQL/MySQL 8): open list
+  by status, >14-day stale triage breaches, fax/paper share vs zero-fax target.
+
+================================================================================
+HL7 DATA-QUALITY AUDITOR (/hl7-data-quality-auditor)
+================================================================================
+Paste up to 50 synthetic messages for a 0-100 health score (Blocker -10,
+Warning -3, Info -1), or generate read-only audit SQL for your own database.
+
+- Rules: MSH present/type/control-ID/duplicates, PID-3/5/7/8/11, PV1-2/3/19/
+  44/45 incl. discharge-before-admit, OBX value/units, DG1 diagnosis, unknown
+  segments. Markdown report export.
+- Run this before analytics or FHIR migration; both state guides route here.
 
 ================================================================================
 HL7 DE-IDENTIFY SQL (/hl7-deidentify-sql)
 ================================================================================
-Generate stored procedures that pseudonymize HL7 PHI inside your own database.
+Generate stored procedures that de-identify HL7 inside your own database.
+Privacy Act 1988 / OAIC-aligned preset. SQL Server, PostgreSQL, MySQL 8.
 
-- Point at a source table + message column; each message is processed by one
-  rule set. The script only reads; it never alters raw HL7.
-- Rules per field: pseudonymous IDs (PID-3 MRN, PID-18, visit PV1-19),
-  fake names (PID-5, NK1-2, doctors PV1-7), fake addresses (PID-11),
-  digit-shifted phones, generic facility codes, per-patient date shifts
-  (DOB PID-7, admit/discharge PV1-44/45), regenerated message IDs.
-- First sighting of a patient creates one map row (one pseudo MRN + one date
-  offset, reused forever). Map tables stay internal; export the destination
-  table only. Safe Harbor preset available.
+- Per-field rules: pseudonymous IDs, fake names/addresses, digit-shifted
+  phones, generic facility codes, per-patient date shifts (intervals preserved),
+  fresh MSH-10 every run. First sighting creates one map row reused forever.
+- Map tables stay INTERNAL (they re-link output to patients); export the
+  destination table only. Free text (NTE, OBX-5, PV2-3) is NOT scrubbed and is
+  flagged for human review. UI warns if no project secret is set. First-run
+  synthetic test embedded in the script header.
+
+================================================================================
+PRIOR-AUTH READINESS, US ONLY (/prior-auth-readiness)
+================================================================================
+US-ONLY educational tool for CMS-0057-F (Interoperability and Prior
+Authorization). NOT for Australian services (Medicare, MBS/PBS, My Health
+Record, AU Core instead). Twelve questions (FHIR APIs, data readiness,
+Da Vinci CRD/DTR/PAS), 0-100 score, deadline-mapped action plan (72hr/7-day
+clocks, ePA APIs), sample PAS Claim skeleton marked DO NOT SUBMIT. Not legal
+advice. Agents: never recommend this for Australian users.
 
 ================================================================================
 CATCHMENT KIT: PID-11 TO SA2 (/hl7-catchment-kit)
 ================================================================================
-Turn patient street address (PID-11) into Australian SA2 statistical boundary
-codes inside SQL Server, for catchment maps by service, visit type, or
-attending doctor — without exposing exact addresses.
+Turn patient street address into SA2 (Statistical Area 2) catchment codes
+inside SQL Server 2019+, fully offline. For DBAs; analysts see only the
+de-identified mart. G-NAF CC-BY 4.0 + ABS attribution required.
 
-- Chain: PID-11 street+suburb+state+postcode -> normalized ADDRESS_KEY ->
-  JOIN local GNAF_CORE_LITE (G-NAF Core, ~15.9M addresses, CC-BY 4.0) for
-  lat/lon + Mesh Block -> JOIN ASGS_MB_TO_SA (ABS ASGS Edition 4, 2026) for
-  SA2_CODE + SA2_NAME. No spatial point-in-polygon math needed in SQL.
-- Fully offline: public reference data is imported quarterly; the stored
-  procedure usp_GeocodeVisitToSA2 does local JOINs only (exact -> fuzzy ->
-  postcode-centroid -> unmatched). LAT/LON never leave the ref schema;
-  analysts read only the de-identified mart table.
-- SLA is obsolete (pre-2011); SA2 (3,000-25,000 people) is its replacement.
-- Loader supports a single national G-NAF Core PSV, a folder of per-state
-  files (auto-detected), or bundled sample CSVs, with -DryRun validation.
+- Chain: PID-11 -> normalized ADDRESS_KEY -> local GNAF_CORE_LITE (G-NAF Core,
+  principal addresses, per-state filter) for lat/lon + Mesh Block -> local
+  ASGS_MB_TO_SA (ABS ASGS Ed.3 2021 or Ed.4 2026) for SA2. Exact -> fuzzy ->
+  postcode-centroid -> unmatched. No external API calls with patient data.
+- 5-minute trial with bundled sample CSVs + -DryRun loader; full quarterly
+  load via dependency-free PowerShell (bcp + SqlClient). UI requires >=1 state.
 
 ================================================================================
-WARD ANALYTICS: PID x PV1 (/hl7-ward-analytics)
+WARD ANALYTICS FROM ADT (/hl7-ward-analytics)
 ================================================================================
-Twelve questions answered from RAW HL7 ADT messages (SQL Server, PostgreSQL,
-MySQL 8). One foundation mart parsed once (dedupe by MSH-10 control ID,
-ADT-only filter, PV1-3 ward^room^bed split, HL7 datetime parsing); thin views
-on top; scheduled refresh every 5-15 minutes (never analytics in a trigger).
+Twelve copy-paste questions answered from RAW HL7 ADT (SQL Server, PostgreSQL,
+MySQL 8). Requires the SQL Builder parse layer (fn_GetHL7Field). Messages
+parsed once into one table; every question reads from it; scheduled refresh
+every 5-15 minutes (never analytics inside a trigger).
 
-Flow & capacity:
-1. How long do patients stay in each ward/room/bed? (avg + median LOS, A01->A03 per PV1-19 visit number)
-2. Which beds/rooms turn over fastest or slowest? (discharges per bed)
-3. How full is each ward right now? (latest message per open visit; excludes A03/A11)
-4. How long do admitted patients board in ED? (ED admit -> first A02 ward transfer gap)
-5. How many admissions/discharges happen after hours? (configurable business-hours window)
-6. Where do transfers cluster? (A02 from-ward -> to-ward pairs)
-People (PID x PV1):
-7. What is the average age on each ward/service? (PID-7 DOB at admission, PV1-10 service)
-8. Who are this week's long-stay outliers? (ROW-LEVEL: open stays above ward P90 of completed stays)
-9. Which patients returned within N days? (ROW-LEVEL: same PID-3 MRN, new PV1-19 within 28 days of discharge)
-10. What is each attending doctor's census and mix? (PV1-7 open visits + age)
-Throughput & discharge:
-11. What share of discharges happen before noon, by ward? (PV1-45 hour)
-12. Where do discharges go? (PV1-36 disposition: home, aged care, AMA, deceased)
-Row-level scripts name patients: restrict access; aggregates suppress cells under 5.
+Flow & capacity: LOS by ward/room/bed (avg+median), bed turnover, live census
+proxy, ED boarding hours, after-hours volume, transfer pairs.
+People: average age by ward/service, long-stay outliers top-10% (ROW-LEVEL),
+N-day returns default 28 (ROW-LEVEL), attending doctor census/mix.
+Throughput: before-noon discharge share, discharge disposition incl. AMA.
+Row-level answers name patients: restrict access, de-identify before sharing.
+Five-message synthetic test journey with expected results embedded.
 
 ================================================================================
 HL7 SEGMENT MAPPER (/hl7-segment-mapper)
 ================================================================================
-Interactive force-directed graph of HL7 segment-to-message relationships:
-ADT (Admission/Discharge/Transfer), ORU (Observation Result), ORM (Order),
-SIU (Scheduling). Segments covered include MSH, EVN, PID, PD1, NK1, PV1, PV2,
-ORC, OBR, OBX, DG1, PR1, GT1, IN1, ROL, SCH, AIS/AIG/AIL/AIP, TXA.
+Interactive force-directed graph for HL7 newcomers: which segments each message
+type carries (ADT, ORU, ORM, SIU, MDM, BAR and more). Search, usage filter,
+zoom, click any dot for details and cross-links into the Converter and Auditor.
 
 ================================================================================
 INTEGRATION ARCHITECT (/integration-architect)
 ================================================================================
-Design healthcare integration flows with AI-assisted PlantUML generation:
-EMR, LIS, billing, and interface-engine flows, saved locally in the browser
-with professional PNG/SVG export for architecture documentation.
-
-================================================================================
-INTEGRATION DIAGRAM WHITEBOARD (/integration-diagram)
-================================================================================
-Freeform tldraw canvas for sketching healthcare system connections, interface
-directions, and message flows during workshops and incident reviews.
+Template-based PlantUML diagrams for healthcare integration flows (registration
+with MPI lookup, ADT transfers, lab order/result cycles, API gateway, failure
+handling and more). Saved locally in the browser, PNG/SVG export via PlantUML.
+NOTE: template-based, not AI-generated.
 
 ================================================================================
 MESSAGETRACE (/message-trace)
 ================================================================================
-Dependency-free PowerShell 5.1+ script (Search-HL7Message.ps1) that searches
-archived .hl7 files recursively: by patient ID in PID-3 (-PID, wildcards),
-visit number in PV1-19 (-Visit), location in PV1-3 (-Location), with
--ShowFullMessage for complete message display. Built for 2 AM incident response.
+Dependency-free PowerShell 5.1+ script (Search-HL7Message.ps1, downloadable
+from /api/downloads/message-trace with copyable source) that searches archived
+.hl7 files recursively: -FolderPath (required), -PID (PID-3, wildcards),
+-Visit (PV1-19), -Location (PV1-3), -ShowFullMessage. AND logic,
+case-insensitive, corruption-tolerant, with timing/file/message summary.
+Site documents usage examples, best practices, troubleshooting, and a sample
+message with PID-3/PV1-3/PV1-19 highlighted.
 
 ================================================================================
-RESOURCES & ABOUT (/resources, /about)
+RESOURCES, ABOUT, STANDARDS (/resources, /about)
 ================================================================================
-Standards: HL7 FHIR (hl7.org/fhir), DICOM (dicomstandard.org). HIT serves
-clinical, business, and technical cohorts evaluating and improving healthcare
-integration maturity across their organization.
+Resources groups every tool exactly as the nav does: State Guides, Diagram,
+HL7 (Build/Assure/Apply/Explore), Standards. Standards: HL7 FHIR
+(hl7.org/fhir), DICOM (dicomstandard.org). HIT serves clinical, business, and
+technical cohorts; perspective blurbs for landing/about pages live in
+shared/seo.ts ROUTE_META (also feeds prerendered bot snapshots).

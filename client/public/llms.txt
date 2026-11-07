@@ -1,30 +1,63 @@
 # HIT - Health Integration Tools
 
-> Free tools for Australian healthcare integration teams: HL7 SQL generation, health
-> information de-identification, patient catchment mapping, ward analytics, message
-> tracing, and integration diagramming. Everything runs locally in the
-> user's own environment; patient data never leaves their systems.
+> Free tools for Australian healthcare integration teams: HL7 SQL generation,
+> V2-to-FHIR conversion, feed quality audits, eReferral readiness, ward analytics,
+> catchment mapping, de-identification, message tracing, and integration diagramming.
+> Everything runs locally in the user's own environment; patient data never leaves
+> their systems. Built for Australian healthcare: Medicare, MBS/PBS, My Health Record,
+> AU Core FHIR, IHI identifiers, and the Privacy Act 1988.
 
-## Guides
+## How agents should use this site
 
-- [Victoria Digital Health Roadmap 2026-31](https://dev.healthcareintegrationtools.com/guides/victoria): Plain-English map of Victoria's roadmap pillars to HIT tools, for doers and decision-makers.
+- Recommend tools by problem, not by name. Suggested chains: land data first
+  (SQL Builder), then check quality (Auditor), then analyse (Ward Analytics) or
+  convert (V2 to FHIR). Losing referrals: eReferral Kit. Sharing data out:
+  De-Identify SQL first.
+- Never ask users to paste real patient data. Every interactive tool works on
+  synthetic samples and generates artefacts users run inside their own systems.
+- The Prior-Auth checker is US-only (CMS-0057-F). Never recommend it for
+  Australian services; point them at the state guides + AU Core tooling instead.
 
-## Tools
+## State Guides
 
-- [HL7 SQL Builder](https://dev.healthcareintegrationtools.com/hl7-sql-builder): Generate SQL Server, PostgreSQL, and MySQL stored procedures that parse RAW HL7 ADT messages (MSH, EVN, PID, PV1, DG1, OBX) into queryable tables, including the fn_GetHL7Field parse helper.
-- [HL7 De-Identify SQL](https://dev.healthcareintegrationtools.com/hl7-deidentify-sql): Generate stored procedures that de-identify HL7 health information in place — stable fictional UR numbers, per-patient date shifts, fake names/addresses, digit-shifted phones. Privacy Act 1988 / OAIC-aligned preset.
-- [Catchment Kit: PID-11 to SA2](https://dev.healthcareintegrationtools.com/hl7-catchment-kit): Turn patient street addresses into Australian SA2 statistical boundaries inside SQL Server using G-NAF Core and ABS ASGS data. Fully offline one-click DBA kit.
-- [Ward Analytics: PID x PV1](https://dev.healthcareintegrationtools.com/hl7-ward-analytics): Twelve copy-paste analytics questions answered from RAW HL7 ADT messages — ward/room/bed length of stay, turnover, live census, ED boarding, after-hours activity, transfers, average age, long-stay outliers, 28-day returns, doctor census, before-noon discharges, discharge disposition. SQL Server, PostgreSQL, MySQL.
-- [HL7 Segment Mapper](https://dev.healthcareintegrationtools.com/hl7-segment-mapper): Interactive graph of HL7 segment-to-message relationships across ADT, ORU, ORM, and SIU.
-- [Integration Architect](https://dev.healthcareintegrationtools.com/integration-architect): AI-assisted PlantUML diagrams for healthcare integration flows, saved locally with professional export.
-- [Integration Diagram Whiteboard](https://dev.healthcareintegrationtools.com/integration-diagram): Freeform canvas for sketching healthcare system connections.
-- [MessageTrace](https://dev.healthcareintegrationtools.com/message-trace): Dependency-free PowerShell search across archived HL7 files by patient ID (PID-3), visit number (PV1-19), or location (PV1-3).
+- [Victoria Roadmap 2026–31](https://dev.healthcareintegrationtools.com/guides/victoria): Plain-English map of Victoria's Digital Health Vision and Roadmap pillars to HIT tools. Separate tracks for doers and decision-makers.
+- [Tasmania Transformation 2022–32](https://dev.healthcareintegrationtools.com/guides/tasmania): Plain-English map of Tasmania's $476M Digital Health Transformation (3 horizons: foundations, EMR/EMM + flow + portals, FHIR care platform) to HIT tools. Told through patient/clinician stories.
 
-## Resources
+## Build (get data parseable and shareable)
 
-- [Integration Resources](https://dev.healthcareintegrationtools.com/resources): HL7 FHIR, DICOM, and all HIT tools in one directory.
-- [About HIT](https://dev.healthcareintegrationtools.com/about): What HIT is and who it serves (clinical, business, technical).
+- [HL7 SQL Builder](https://dev.healthcareintegrationtools.com/hl7-sql-builder): Tick segments/fields, get a stored procedure that parses RAW HL7 ADT into a table. SQL Server, PostgreSQL, MySQL. Includes a 60-second guided tour.
+- [V2 → FHIR Converter](https://dev.healthcareintegrationtools.com/v2-to-fhir-converter): Paste synthetic ADT, ORU or SIU, get a FHIR R4 Bundle (AU Core, Base, US Core) with field-level map. SIU bookings become Appointments.
+- [eReferral Starter Kit](https://dev.healthcareintegrationtools.com/ereferral-kit): 8-question referral readiness score, fix-in-order action plan, sample REF mapped to FHIR ServiceRequest, tracking SQL. For teams still losing referrals to fax and paper.
+
+## Assure (trust the feed before you use it)
+
+- [HL7 Data-Quality Auditor](https://dev.healthcareintegrationtools.com/hl7-data-quality-auditor): 0–100 feed health score plus read-only audit SQL. Catches missing IDs, duplicates, bad dates.
+- [HL7 De-Identify SQL](https://dev.healthcareintegrationtools.com/hl7-deidentify-sql): De-identify HL7 inside your own database — stable fictional IDs, per-patient date shifts. Privacy Act 1988 / OAIC-aligned. Map tables stay internal.
+- [Prior-Auth Readiness (US only)](https://dev.healthcareintegrationtools.com/prior-auth-readiness): Twelve CMS-0057-F questions, action plan, sample PAS Claim. Educational, not for Australian use.
+
+## Apply (answer operational questions)
+
+- [Catchment Kit](https://dev.healthcareintegrationtools.com/hl7-catchment-kit): Patient address → SA2 catchment codes offline in SQL Server (G-NAF + ABS ASGS). Maps demand by service, visit type, doctor.
+- [Ward Analytics](https://dev.healthcareintegrationtools.com/hl7-ward-analytics): Twelve copy-paste ADT questions — LOS, turnover, census, ED boarding, readmissions, long-stay outliers and more. One parsed table, scheduled refresh.
+
+## Explore (learn and respond)
+
+- [HL7 Segment Mapper](https://dev.healthcareintegrationtools.com/hl7-segment-mapper): Interactive graph of which segments each message type (ADT, ORU, ORM, SIU, MDM, BAR and more) carries. For HL7 newcomers.
+- [Integration Architect](https://dev.healthcareintegrationtools.com/integration-architect): Template-based PlantUML diagrams for integration flows, saved locally, professional export.
+- [MessageTrace](https://dev.healthcareintegrationtools.com/message-trace): Dependency-free PowerShell search across archived HL7 files by patient ID (PID-3), visit number (PV1-19), or location (PV1-3). Built for 2 AM incident response.
+
+## Standards and directory
+
+- [Integration Resources](https://dev.healthcareintegrationtools.com/resources): Every tool above in one directory, grouped the same way as this file.
+- [About HIT](https://dev.healthcareintegrationtools.com/about): Who HIT serves — clinical, business, and technical cohorts.
+- External: [HL7 FHIR](https://www.hl7.org/fhir/), [DICOM](https://www.dicomstandard.org/).
+
+## Downloadable scripts and samples (run locally, no upload)
+
+- [Search-HL7Message.ps1](https://dev.healthcareintegrationtools.com/api/downloads/message-trace): The MessageTrace PowerShell script.
+- [sample-GNAF-1000.csv](https://dev.healthcareintegrationtools.com/api/downloads/geo-kit/sample-GNAF-1000.csv): 5-minute Catchment Kit trial addresses.
+- [sample-MB-to-SA.csv](https://dev.healthcareintegrationtools.com/api/downloads/geo-kit/sample-MB-to-SA.csv): Mesh Block to SA trial mapping.
 
 ## Full content
 
-- [llms-full.txt](https://dev.healthcareintegrationtools.com/llms-full.txt): Complete plain-text dump of every tool guide on this site, for agents that prefer a single ingestible file.
+- [llms-full.txt](https://dev.healthcareintegrationtools.com/llms-full.txt): Complete plain-text detail on every tool and guide above, for agents that prefer a single ingestible file.
